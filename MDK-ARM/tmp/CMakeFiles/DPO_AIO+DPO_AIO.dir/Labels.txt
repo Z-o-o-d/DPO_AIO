@@ -1,0 +1,16 @@
+# Target labels
+ DPO_AIO+DPO_AIO
+# Source files and their labels
+C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/CMakeFiles/DPO_AIO+DPO_AIO
+C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/CMakeFiles/DPO_AIO+DPO_AIO.rule
+C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/CMakeFiles/DPO_AIO+DPO_AIO-complete.rule
+C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/DPO_AIO+DPO_AIO/src/DPO_AIO+DPO_AIO-stamp/DPO_AIO+DPO_AIO-build.rule
+C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/DPO_AIO+DPO_AIO/src/DPO_AIO+DPO_AIO-stamp/DPO_AIO+DPO_AIO-configure.rule
+C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/DPO_AIO+DPO_AIO/src/DPO_AIO+DPO_AIO-stamp/DPO_AIO+DPO_AIO-database.rule
+C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/DPO_AIO+DPO_AIO/src/DPO_AIO+DPO_AIO-stamp/DPO_AIO+DPO_AIO-download.rule
+C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/DPO_AIO+DPO_AIO/src/DPO_AIO+DPO_AIO-stamp/DPO_AIO+DPO_AIO-executes.rule
+C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/DPO_AIO+DPO_AIO/src/DPO_AIO+DPO_AIO-stamp/DPO_AIO+DPO_AIO-install.rule
+C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/DPO_AIO+DPO_AIO/src/DPO_AIO+DPO_AIO-stamp/DPO_AIO+DPO_AIO-mkdir.rule
+C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/DPO_AIO+DPO_AIO/src/DPO_AIO+DPO_AIO-stamp/DPO_AIO+DPO_AIO-patch.rule
+C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/DPO_AIO+DPO_AIO/src/DPO_AIO+DPO_AIO-stamp/DPO_AIO+DPO_AIO-test.rule
+C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/DPO_AIO+DPO_AIO/src/DPO_AIO+DPO_AIO-stamp/DPO_AIO+DPO_AIO-update.rule

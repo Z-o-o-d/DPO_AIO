@@ -1,0 +1,123 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: ¦ÌVision V5.40.0.0
+Copyright (C) 2024 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: 1 1
+1
+User-based license: Keil MDK Community (non-commercial free of charge)
+Valid until: Jun 1 2033. Cached until: May 17 2025
+ 
+Tool Versions:
+Toolchain:       Keil MDK Community (non-commercial free of charge  Version: 5.40.0.3
+Toolchain Path:  C:\Users\87407\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin
+C Compiler:      ArmClang.exe V6.22
+Assembler:       Armasm.exe V6.22
+Linker/Locator:  ArmLink.exe V6.22
+Library Manager: ArmAr.exe V6.22
+Hex Converter:   FromElf.exe V6.22
+CPU DLL:         SARMCM3.DLL V5.40.0.3
+Dialog DLL:      DCM.DLL V1.17.5.0
+Target DLL:      CMSIS_AGDI.dll V1.33.18.0
+Dialog DLL:      TCM.DLL V1.56.4.0
+ 
+<h2>Project:</h2>
+C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\DPO_AIO.uvprojx
+Project File Date:  05/10/2025
+
+<h2>Output:</h2>
+*** Using Compiler 'V6.22', folder: 'C:\Users\87407\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin'
+Build target 'DPO_AIO'
+Note: source file '../Core/Src/system_stm32g4xx.c' - object file renamed from 'DPO_AIO\system_stm32g4xx.o' to 'DPO_AIO\system_stm32g4xx_1.o'.
+../Core/Src/main.c(360): warning: incompatible pointer types passing 'uint8_t (*)[100]' (aka 'unsigned char (*)[100]') to parameter of type 'char *' [-Wincompatible-pointer-types]
+  360 |     sprintf(&BUFFER_TEMP,"KEY:0x%x",KEY_PRESSED);
+      |             ^~~~~~~~~~~~
+C:\Users\87407\AppData\Local\Keil_v5\ARM\ARMCLANG\bin\..\include\stdio.h(417): note: passing argument to parameter here
+  417 | extern _ARMABI int sprintf(char * __restrict /*s*/, const char * __restrict /*format*/, ...) __attribute__((__nonnull__(1,2)));
+      |                                                   ^
+../Core/Src/main.c(365): warning: incompatible pointer types passing 'uint8_t (*)[100]' (aka 'unsigned char (*)[100]') to parameter of type 'const char *' [-Wincompatible-pointer-types]
+  365 |     ST7789_WriteString(200, 20, &BUFFER_TEMP, Font_7x10, WHITE, BLACK);
+      |                                 ^~~~~~~~~~~~
+../Core/Inc\st7789.h(282): note: passing argument to parameter 'str' here
+  282 | void ST7789_WriteString(uint16_t x, uint16_t y, const char *str, FontDef font, uint16_t color, uint16_t bgcolor);
+      |                                                             ^
+2 warnings generated.
+compiling main.c...
+linking...
+Program Size: Code=49036 RO-data=54404 RW-data=532 ZI-data=14684  
+FromELF: creating hex file...
+"DPO_AIO\DPO_AIO.axf" - 0 Error(s), 2 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: ARM
+                https://www.keil.com/pack/ARM.CMSIS.6.1.0.pack
+                ARM::CMSIS@6.1.0
+                CMSIS (Common Microcontroller Software Interface Standard)
+   * Component: CORE Version: 6.1.0
+
+Package Vendor: ARM
+                https://www.keil.com/pack/ARM.CMSIS-DSP.1.16.2.pack
+                ARM::CMSIS-DSP@1.16.2
+                CMSIS Embedded Compute Library
+   * Component: DSP Variant: Source Version: 1.16.2
+
+Package Vendor: Keil
+                https://www.keil.com/pack/Keil.STM32G4xx_DFP.1.6.0.pack
+                Keil::STM32G4xx_DFP@1.6.0
+                STMicroelectronics STM32G4 Series Device Support, Drivers and Examples
+
+<h2>Collection of Component include folders:</h2>
+  ./RTE/_DPO_AIO
+  C:/Users/87407/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.16.2/Include
+  C:/Users/87407/AppData/Local/Arm/Packs/ARM/CMSIS-DSP/1.16.2/PrivateInclude
+  C:/Users/87407/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include
+  C:/Users/87407/AppData/Local/Arm/Packs/Keil/STM32G4xx_DFP/1.6.0/Drivers/CMSIS/Device/ST/STM32G4xx/Include
+
+<h2>Collection of Component Files used:</h2>
+
+   * Component: ARM::CMSIS:CORE@6.1.0
+      Include file:  CMSIS/Core/Include/tz_context.h
+
+   * Component: ARM::CMSIS:DSP&Source@1.16.2
+      Include file:  Include/arm_math.h
+      Include file:  Include/arm_math_f16.h
+      Include file:  Include/arm_common_tables.h
+      Source file:   Source/SupportFunctions/SupportFunctionsF16.c
+      Source file:   Source/CommonTables/CommonTables.c
+      Source file:   Source/ComplexMathFunctions/ComplexMathFunctions.c
+      Source file:   Source/DistanceFunctions/DistanceFunctions.c
+      Source file:   Source/WindowFunctions/WindowFunctions.c
+      Source file:   Source/FilteringFunctions/FilteringFunctionsF16.c
+      Source file:   Source/StatisticsFunctions/StatisticsFunctions.c
+      Include file:  Include/arm_const_structs_f16.h
+      Source file:   Source/FastMathFunctions/FastMathFunctionsF16.c
+      Source file:   Source/StatisticsFunctions/StatisticsFunctionsF16.c
+      Source file:   Source/FilteringFunctions/FilteringFunctions.c
+      Source file:   Source/MatrixFunctions/MatrixFunctions.c
+      Source file:   Source/InterpolationFunctions/InterpolationFunctionsF16.c
+      Source file:   Source/DistanceFunctions/DistanceFunctionsF16.c
+      Source file:   Source/SVMFunctions/SVMFunctions.c
+      Source file:   Source/QuaternionMathFunctions/QuaternionMathFunctions.c
+      Source file:   Source/BasicMathFunctions/BasicMathFunctionsF16.c
+      Source file:   Source/BasicMathFunctions/BasicMathFunctions.c
+      Include file:  Include/arm_common_tables_f16.h
+      Source file:   Source/SupportFunctions/SupportFunctions.c
+      Source file:   Source/CommonTables/CommonTablesF16.c
+      Source file:   Source/InterpolationFunctions/InterpolationFunctions.c
+      Source file:   Source/BayesFunctions/BayesFunctions.c
+      Source file:   Source/ControllerFunctions/ControllerFunctions.c
+      Source file:   Source/TransformFunctions/TransformFunctions.c
+      Include file:  Include/arm_const_structs.h
+      Source file:   Source/TransformFunctions/TransformFunctionsF16.c
+      Source file:   Source/MatrixFunctions/MatrixFunctionsF16.c
+      Source file:   Source/FastMathFunctions/FastMathFunctions.c
+      Source file:   Source/ComplexMathFunctions/ComplexMathFunctionsF16.c
+      Source file:   Source/BayesFunctions/BayesFunctionsF16.c
+      Source file:   Source/SVMFunctions/SVMFunctionsF16.c
+Build Time Elapsed:  00:00:02
+</pre>
+</body>
+</html>

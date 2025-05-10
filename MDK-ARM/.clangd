@@ -1,0 +1,6 @@
+CompileFlags:
+  Add:
+  - '-IC:\Users\87407\.eide\tools\armclang_v6_cracked/include'
+  - '-IC:\Users\87407\.eide\tools\armclang_v6_cracked/include/libcxx'
+  CompilationDatabase: c:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\out\DPO_AIO\DPO_AIO
+  Compiler: C:\Users\87407\.eide\tools\armclang_v6_cracked\bin\armclang.exe

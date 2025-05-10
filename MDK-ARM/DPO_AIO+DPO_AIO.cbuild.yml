@@ -1,0 +1,410 @@
+build:
+  generated-by: csolution version 2.8.0
+  solution: DPO_AIO.csolution.yml
+  project: DPO_AIO.cproject.yml
+  context: DPO_AIO+DPO_AIO
+  compiler: AC6
+  device: STMicroelectronics::STM32G474RETx
+  device-pack: Keil::STM32G4xx_DFP@1.6.0
+  device-books:
+    - name: ${CMSIS_PACK_ROOT}/Keil/STM32G4xx_DFP/1.6.0/Documentation/DS12288.pdf
+      title: STM32G474xx Data Sheet
+    - name: ${CMSIS_PACK_ROOT}/Keil/STM32G4xx_DFP/1.6.0/Documentation/dui0553a_cortex_m4_dgug.pdf
+      title: Cortex-M4 Generic User Guide
+    - name: ${CMSIS_PACK_ROOT}/Keil/STM32G4xx_DFP/1.6.0/Documentation/RM0440.pdf
+      title: STM32G4xx Reference Manual
+  dbgconf:
+    - file: RTE/Device/STM32G474RETx/STM32G4xx.dbgconf
+      version: 0.0.0
+  processor:
+    endian: little
+    fpu: sp
+    core: Cortex-M4
+  packs:
+    - pack: ARM::CMSIS-DSP@1.16.2
+      path: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2
+    - pack: ARM::CMSIS@6.1.0
+      path: ${CMSIS_PACK_ROOT}/ARM/CMSIS/6.1.0
+    - pack: Keil::STM32G4xx_DFP@1.6.0
+      path: ${CMSIS_PACK_ROOT}/Keil/STM32G4xx_DFP/1.6.0
+  optimize: debug
+  debug: on
+  misc:
+    ASM:
+      - -masm=auto
+    C:
+      - -std=c99
+      - -fno-rtti
+      - -funsigned-char
+      - -fshort-enums
+      - -fshort-wchar
+      - -ffunction-sections
+      - -Wno-packed
+      - -Wno-missing-variable-declarations
+      - -Wno-missing-prototypes
+      - -Wno-missing-noreturn
+      - -Wno-sign-conversion
+      - -Wno-nonportable-include-path
+      - -Wno-reserved-id-macro
+      - -Wno-unused-macros
+      - -Wno-documentation-unknown-command
+      - -Wno-documentation
+      - -Wno-license-management
+      - -Wno-parentheses-equality
+    CPP:
+      - -xc++
+      - -std=c++11
+      - -fno-exceptions
+      - -fno-rtti
+      - -funsigned-char
+      - -fshort-enums
+      - -fshort-wchar
+      - -ffunction-sections
+      - -Wno-packed
+      - -Wno-missing-variable-declarations
+      - -Wno-missing-prototypes
+      - -Wno-missing-noreturn
+      - -Wno-sign-conversion
+      - -Wno-nonportable-include-path
+      - -Wno-reserved-id-macro
+      - -Wno-unused-macros
+      - -Wno-documentation-unknown-command
+      - -Wno-documentation
+      - -Wno-license-management
+      - -Wno-parentheses-equality
+    Link:
+      - --library_type=microlib
+      - --map
+      - --load_addr_map_info
+      - --xref
+      - --callgraph
+      - --symbols
+      - --info sizes
+      - --info totals
+      - --info unused
+      - --info veneers
+      - --strict
+      - --summary_stderr
+      - --info summarysizes
+  define:
+    - USE_HAL_DRIVER
+    - STM32G474xx
+    - __MICROLIB
+    - STM32G474xx
+    - _RTE_
+  define-asm:
+    - __MICROLIB
+    - STM32G474xx
+    - _RTE_
+  add-path:
+    - ../USB_Device/App
+    - ../USB_Device/Target
+    - ../Core/Inc
+    - ../Drivers/STM32G4xx_HAL_Driver/Inc
+    - ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy
+    - ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc
+    - ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc
+    - ../Drivers/CMSIS/Device/ST/STM32G4xx/Include
+    - ../Drivers/CMSIS/Include
+    - RTE/_DPO_AIO
+    - ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Include
+    - ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/PrivateInclude
+    - ${CMSIS_PACK_ROOT}/ARM/CMSIS/6.1.0/CMSIS/Core/Include
+    - ${CMSIS_PACK_ROOT}/Keil/STM32G4xx_DFP/1.6.0/Drivers/CMSIS/Device/ST/STM32G4xx/Include
+  add-path-asm:
+    - RTE/_DPO_AIO
+    - ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Include
+    - ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/PrivateInclude
+    - ${CMSIS_PACK_ROOT}/ARM/CMSIS/6.1.0/CMSIS/Core/Include
+    - ${CMSIS_PACK_ROOT}/Keil/STM32G4xx_DFP/1.6.0/Drivers/CMSIS/Device/ST/STM32G4xx/Include
+  output-dirs:
+    intdir: tmp
+    outdir: out/DPO_AIO/DPO_AIO
+    rtedir: RTE
+  output:
+    - type: elf
+      file: DPO_AIO.axf
+  components:
+    - component: ARM::CMSIS:CORE@6.1.0
+      condition: ARMv6_7_8-M Device
+      from-pack: ARM::CMSIS@6.1.0
+      selected-by: ARM::CMSIS:CORE
+      files:
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/6.1.0/CMSIS/Core/Include
+          category: include
+          version: 6.1.0
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/6.1.0/CMSIS/Core/Include/tz_context.h
+          category: header
+          version: 6.1.0
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/6.1.0/CMSIS/Core/Template/ARMv8-M/main_s.c
+          category: sourceC
+          attr: template
+          version: 1.1.1
+          select: Secure mode 'main' module for ARMv8-M
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/6.1.0/CMSIS/Core/Template/ARMv8-M/tz_context.c
+          category: sourceC
+          attr: template
+          version: 1.1.1
+          select: RTOS Context Management (TrustZone for ARMv8-M)
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS/6.1.0/CMSIS/Documentation/html/Core/index.html
+          category: doc
+          version: 6.1.0
+    - component: ARM::CMSIS:DSP&Source@1.16.2
+      condition: CMSISCORE
+      from-pack: ARM::CMSIS-DSP@1.16.2
+      selected-by: ARM::CMSIS:DSP&Source
+      files:
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Documentation/html/index.html
+          category: doc
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Include
+          category: include
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Include/arm_common_tables.h
+          category: header
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Include/arm_common_tables_f16.h
+          category: header
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Include/arm_const_structs.h
+          category: header
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Include/arm_const_structs_f16.h
+          category: header
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Include/arm_math.h
+          category: header
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Include/arm_math_f16.h
+          category: header
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/PrivateInclude
+          category: include
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/BasicMathFunctions/BasicMathFunctions.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/BasicMathFunctions/BasicMathFunctionsF16.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/BayesFunctions/BayesFunctions.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/BayesFunctions/BayesFunctionsF16.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/CommonTables/CommonTables.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/CommonTables/CommonTablesF16.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/ComplexMathFunctions/ComplexMathFunctions.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/ComplexMathFunctions/ComplexMathFunctionsF16.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/ControllerFunctions/ControllerFunctions.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/DistanceFunctions/DistanceFunctions.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/DistanceFunctions/DistanceFunctionsF16.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/FastMathFunctions/FastMathFunctions.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/FastMathFunctions/FastMathFunctionsF16.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/FilteringFunctions/FilteringFunctions.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/FilteringFunctions/FilteringFunctionsF16.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/InterpolationFunctions/InterpolationFunctions.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/InterpolationFunctions/InterpolationFunctionsF16.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/MatrixFunctions/MatrixFunctions.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/MatrixFunctions/MatrixFunctionsF16.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/QuaternionMathFunctions/QuaternionMathFunctions.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/SVMFunctions/SVMFunctions.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/SVMFunctions/SVMFunctionsF16.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/StatisticsFunctions/StatisticsFunctions.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/StatisticsFunctions/StatisticsFunctionsF16.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/SupportFunctions/SupportFunctions.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/SupportFunctions/SupportFunctionsF16.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/TransformFunctions/TransformFunctions.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/TransformFunctions/TransformFunctionsF16.c
+          category: source
+          version: 1.16.2
+        - file: ${CMSIS_PACK_ROOT}/ARM/CMSIS-DSP/1.16.2/Source/WindowFunctions/WindowFunctions.c
+          category: source
+          version: 1.16.2
+  linker:
+    script: DPO_AIO_DPO_AIO.sct
+  groups:
+    - group: Application/MDK-ARM
+      files:
+        - file: startup_stm32g474xx.s
+          category: sourceAsm
+          misc:
+            ASM:
+              - -masm=auto
+    - group: Application/User/Core
+      files:
+        - file: ../Core/Src/aht20.c
+          category: sourceC
+        - file: ../Core/Src/fonts.c
+          category: sourceC
+        - file: ../Core/Src/ft6336.c
+          category: sourceC
+        - file: ../Core/Src/mpu6050.c
+          category: sourceC
+        - file: ../Core/Src/MyLib.c
+          category: sourceC
+        - file: ../Core/Src/st7789.c
+          category: sourceC
+        - file: ../Core/Src/TLC5952.c
+          category: sourceC
+        - file: ../Core/Src/Views.c
+          category: sourceC
+        - file: ../Core/Src/ws2812.c
+          category: sourceC
+        - file: ../Core/Src/main.c
+          category: sourceC
+        - file: ../Core/Src/stm32g4xx_it.c
+          category: sourceC
+        - file: ../Core/Src/stm32g4xx_hal_msp.c
+          category: sourceC
+    - group: Application/User/USB_Device/Target
+      files:
+        - file: ../USB_Device/Target/usbd_conf.c
+          category: sourceC
+    - group: Application/User/USB_Device/App
+      files:
+        - file: ../USB_Device/App/usb_device.c
+          category: sourceC
+        - file: ../USB_Device/App/usbd_desc.c
+          category: sourceC
+        - file: ../USB_Device/App/usbd_cdc_if.c
+          category: sourceC
+    - group: Drivers/STM32G4xx_HAL_Driver
+      files:
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_pcd.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_pcd_ex.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_usb.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_rcc.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_rcc_ex.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash_ex.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash_ramfunc.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_gpio.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_exti.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_dma.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_dma_ex.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_pwr.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_pwr_ex.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_cortex.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_comp.c
+          category: sourceC
+          misc:
+            CPP:
+              - -xc++
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_dac.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_dac_ex.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_i2c.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_i2c_ex.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_opamp.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_opamp_ex.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_spi.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_spi_ex.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_tim_ex.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_uart.c
+          category: sourceC
+        - file: ../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_uart_ex.c
+          category: sourceC
+    - group: Drivers/CMSIS
+      files:
+        - file: ../Core/Src/system_stm32g4xx.c
+          category: sourceC
+    - group: Middlewares/USB_Device_Library
+      files:
+        - file: ../Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c
+          category: sourceC
+        - file: ../Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c
+          category: sourceC
+        - file: ../Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c
+          category: sourceC
+        - file: ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc.c
+          category: sourceC
+  constructed-files:
+    - file: RTE/_DPO_AIO/RTE_Components.h
+      category: header
+  licenses:
+    - license: <unknown>
+      license-agreement: ${CMSIS_PACK_ROOT}/Keil/STM32G4xx_DFP/1.6.0/LICENSE
+      packs:
+        - pack: Keil::STM32G4xx_DFP@1.6.0
+    - license: Apache-2.0
+      packs:
+        - pack: ARM::CMSIS-DSP@1.16.2
+        - pack: ARM::CMSIS@6.1.0
+      components:
+        - component: ARM::CMSIS:CORE@6.1.0
+        - component: ARM::CMSIS:DSP&Source@1.16.2

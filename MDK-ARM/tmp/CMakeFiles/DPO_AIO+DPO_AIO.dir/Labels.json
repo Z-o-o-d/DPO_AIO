@@ -1,0 +1,52 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/CMakeFiles/DPO_AIO+DPO_AIO"
+		},
+		{
+			"file" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/CMakeFiles/DPO_AIO+DPO_AIO.rule"
+		},
+		{
+			"file" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/CMakeFiles/DPO_AIO+DPO_AIO-complete.rule"
+		},
+		{
+			"file" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/DPO_AIO+DPO_AIO/src/DPO_AIO+DPO_AIO-stamp/DPO_AIO+DPO_AIO-build.rule"
+		},
+		{
+			"file" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/DPO_AIO+DPO_AIO/src/DPO_AIO+DPO_AIO-stamp/DPO_AIO+DPO_AIO-configure.rule"
+		},
+		{
+			"file" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/DPO_AIO+DPO_AIO/src/DPO_AIO+DPO_AIO-stamp/DPO_AIO+DPO_AIO-database.rule"
+		},
+		{
+			"file" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/DPO_AIO+DPO_AIO/src/DPO_AIO+DPO_AIO-stamp/DPO_AIO+DPO_AIO-download.rule"
+		},
+		{
+			"file" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/DPO_AIO+DPO_AIO/src/DPO_AIO+DPO_AIO-stamp/DPO_AIO+DPO_AIO-executes.rule"
+		},
+		{
+			"file" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/DPO_AIO+DPO_AIO/src/DPO_AIO+DPO_AIO-stamp/DPO_AIO+DPO_AIO-install.rule"
+		},
+		{
+			"file" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/DPO_AIO+DPO_AIO/src/DPO_AIO+DPO_AIO-stamp/DPO_AIO+DPO_AIO-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/DPO_AIO+DPO_AIO/src/DPO_AIO+DPO_AIO-stamp/DPO_AIO+DPO_AIO-patch.rule"
+		},
+		{
+			"file" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/DPO_AIO+DPO_AIO/src/DPO_AIO+DPO_AIO-stamp/DPO_AIO+DPO_AIO-test.rule"
+		},
+		{
+			"file" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/tmp/DPO_AIO+DPO_AIO/src/DPO_AIO+DPO_AIO-stamp/DPO_AIO+DPO_AIO-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"DPO_AIO+DPO_AIO"
+		],
+		"name" : "DPO_AIO+DPO_AIO"
+	}
+}
