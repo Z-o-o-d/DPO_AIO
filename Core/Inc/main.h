@@ -134,8 +134,8 @@ typedef struct {
 
 
 typedef struct {
-  uint16_t CH1_EN;
-	uint16_t CH2_EN;
+  uint16_t AFG_EN1;
+	uint16_t AFG_EN2;
 	uint16_t CH1_DC;
 	uint16_t CH2_DC;
   uint16_t CH1_REF;

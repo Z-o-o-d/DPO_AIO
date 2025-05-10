@@ -155,7 +155,7 @@ int fputc(int ch, FILE *f)
 volatile char BUFFER_TEMP[100] = "Hello World\r\n";
 volatile uint16_t LCD_BRIGHTNESS = 10000;
 volatile uint8_t KEY_PRESSED = 0x01;
- uint8_t CURRENT_VIEW = VIEW_CONFIG;
+uint8_t CURRENT_VIEW = VIEW_INTRO;
 
 
 volatile uint16_t LED_BLINK=0;
@@ -180,8 +180,8 @@ DPO_AnalogStates DPO_FE = {
 };
 
 AFG_AnalogStates AFG_FE = {
-  .CH1_EN    = 0,
-  .CH2_EN    = 0,
+  .AFG_EN1   = 0,
+  .AFG_EN2   = 0,
   .CH1_DC    = 9000,
   .CH2_DC    = 9000,
   .CH1_REF   = 9000,
@@ -225,6 +225,22 @@ THEMEs THEME_CONFIG = {
 };
 
 
+void DPO_FE_Update(void) {
+	//SET OFFSET
+	HAL_DAC_SetValue(&hdac2, DAC_CHANNEL_1, DAC_ALIGN_12B_R, DPO_FE.CH1_OFFSET);
+	HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, DPO_FE.CH2_OFFSET);
+  HAL_DAC_SetValue(&hdac4, DAC_CHANNEL_1, DAC_ALIGN_12B_R, DPO_FE.CH1_BIAS);
+	HAL_DAC_SetValue(&hdac4, DAC_CHANNEL_2, DAC_ALIGN_12B_R, DPO_FE.CH2_BIAS);
+	HAL_DAC_Start(&hdac2, DAC_CHANNEL_1);
+	HAL_DAC_Start(&hdac1, DAC_CHANNEL_1);
+  HAL_DAC_Start(&hdac4, DAC_CHANNEL_1);
+	HAL_DAC_Start(&hdac4, DAC_CHANNEL_2);
+  HAL_GPIO_WritePin(DPO_AC1_GPIO_Port,DPO_AC1_Pin, DPO_FE.CH1_AC_DC);
+  HAL_GPIO_WritePin(DPO_AC2_GPIO_Port,DPO_AC2_Pin, DPO_FE.CH2_AC_DC);
+  HAL_GPIO_WritePin(DPO_EN1_GPIO_Port,DPO_EN1_Pin, DPO_FE.DPO_EN1);
+  HAL_GPIO_WritePin(DPO_EN2_GPIO_Port,DPO_EN2_Pin, DPO_FE.DPO_EN2);
+}
+
 
 void WS2812_VIEW_Update(void) {
   if (DPO_FE.DPO_EN1) {
@@ -243,7 +259,7 @@ void WS2812_VIEW_Update(void) {
   }
 
 
-    if (AFG_FE.CH1_EN)
+    if (AFG_FE.AFG_EN1)
   {
     WS2812_Write_Data(THEME_AFG_1.MAIN, LED_AFG_1U);
     WS2812_Write_Data(THEME_AFG_1.MAIN, LED_AFG_1D);  
@@ -253,7 +269,7 @@ void WS2812_VIEW_Update(void) {
   }
 
 
-  if (AFG_FE.CH2_EN)
+  if (AFG_FE.AFG_EN2)
   {
     WS2812_Write_Data(THEME_AFG_2.MAIN, LED_AFG_2U);
     WS2812_Write_Data(THEME_AFG_2.MAIN, LED_AFG_2D);  
@@ -319,21 +335,7 @@ void WS2812_VIEW_Update(void) {
   }
 }
 
-void DPO_FE_Update(void) {
-	//SET OFFSET
-	HAL_DAC_SetValue(&hdac2, DAC_CHANNEL_1, DAC_ALIGN_12B_R, DPO_FE.CH1_OFFSET);
-	HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, DPO_FE.CH2_OFFSET);
-  HAL_DAC_SetValue(&hdac4, DAC_CHANNEL_1, DAC_ALIGN_12B_R, DPO_FE.CH1_BIAS);
-	HAL_DAC_SetValue(&hdac4, DAC_CHANNEL_2, DAC_ALIGN_12B_R, DPO_FE.CH2_BIAS);
-	HAL_DAC_Start(&hdac2, DAC_CHANNEL_1);
-	HAL_DAC_Start(&hdac1, DAC_CHANNEL_1);
-  HAL_DAC_Start(&hdac4, DAC_CHANNEL_1);
-	HAL_DAC_Start(&hdac4, DAC_CHANNEL_2);
-  HAL_GPIO_WritePin(DPO_AC1_GPIO_Port,DPO_AC1_Pin, DPO_FE.CH1_AC_DC);
-  HAL_GPIO_WritePin(DPO_AC2_GPIO_Port,DPO_AC2_Pin, DPO_FE.CH2_AC_DC);
-  HAL_GPIO_WritePin(DPO_EN1_GPIO_Port,DPO_EN1_Pin, DPO_FE.DPO_EN1);
-  HAL_GPIO_WritePin(DPO_EN2_GPIO_Port,DPO_EN2_Pin, DPO_FE.DPO_EN2);
-}
+
 
 
 #define KEY_BUF_LEN 3  // 修改这个值可以控制历史长度（例如 5、6）
@@ -365,6 +367,732 @@ void Key_Update(uint16_t KEY_PRESSED)
     }
 }
 
+
+void KEY_PROC_INTRO(){
+  Key_Update(KEY_PRESSED);
+  switch(KEY_PROCESS) {
+    case KET_AFG_1: 
+        printf("处理AFG通道1按键\n");
+        CURRENT_VIEW   = VIEW_AFG1;
+        AFG_FE.AFG_EN1 = 1;
+
+        break;
+        
+    case KET_AFG_2: 
+        printf("处理AFG通道2按键\n");
+        CURRENT_VIEW   = VIEW_AFG2;
+        AFG_FE.AFG_EN2 = 1;
+        break;
+        
+    case KET_DPO_1: 
+        printf("处理DPO通道1按键\n");
+        CURRENT_VIEW   = VIEW_DPO1;
+        DPO_FE.DPO_EN1 = 1;
+        break;
+        
+    case KET_DPO_2: 
+        printf("处理DPO通道2按键\n");
+        CURRENT_VIEW   = VIEW_DPO2;
+        DPO_FE.DPO_EN2 = 1;
+        break;
+        
+    case KET_DPO_1_AC: 
+        printf("处理DPO通道1交流耦合按键\n");
+        DPO_FE.CH1_AC_DC = !DPO_FE.CH1_AC_DC;
+        break;
+        
+    case KET_DPO_2_AC: 
+        printf("处理DPO通道2交流耦合按键\n");
+        DPO_FE.CH2_AC_DC = !DPO_FE.CH2_AC_DC;
+        break;
+        
+    case KEY_RUN_STOP: 
+        printf("切换运行/停止状态\n");
+
+        break;
+        
+    case KEY_SINGLE: 
+        printf("触发单次采集\n");
+
+        break;
+        
+    case KEY_UP: 
+        printf("向上导航\n");
+
+        break;
+        
+    case KEY_DOWN: 
+        printf("向下导航\n");
+
+        break;
+        
+    case KEY_LEFT: 
+        printf("向左导航\n");
+
+        break;
+        
+    case KEY_RIGHT: 
+        printf("向右导航\n");
+
+        break;
+        
+    case KEY_0: 
+        printf("数字键 {0} 被按下\n");
+
+        break;
+        
+    case KEY_1: 
+        printf("数字键 {1} 被按下\n");
+
+        break;
+        
+    case KEY_2: 
+        printf("数字键 {2} 被按下\n");
+
+        break;
+        
+    case KEY_3: 
+        printf("数字键 {3} 被按下\n");
+
+        break;
+        
+    case KEY_4: 
+        printf("数字键 {4} 被按下\n");
+
+        break;
+        
+    case KEY_5: 
+        printf("数字键 {5} 被按下\n");
+
+        break;
+        
+    case KEY_6: 
+        printf("数字键 {6} 被按下\n");
+        break;
+        
+    case KEY_7: 
+        printf("数字键 {7} 被按下\n");
+        break;
+        
+    case KEY_8: 
+        printf("数字键 {8} 被按下\n");
+        break;
+        
+    case KEY_9: 
+        printf("数字键 {9} 被按下\n");
+        break;
+        
+    case KEY_INVERSE: 
+        printf("切换显示反转\n");
+        break;
+        
+    case KEY_POINT: 
+        printf("输入小数点\n");
+        break;
+        
+    case KEY_ENTER: 
+        printf("确认输入\n");
+        break;
+        
+    case KEY_ENC3: 
+        printf("编码器3被按下\n");
+        break;
+        
+    case KEY_ENC1: 
+        printf("编码器1被按下\n");
+        break;
+        
+    case KEY_ENC4: 
+        printf("编码器4被按下\n");
+        break;
+        
+    default: 
+        break;
+  }
+
+}
+
+
+void KEY_PROC_DPO1(){
+  Key_Update(KEY_PRESSED);
+  switch(KEY_PROCESS) {
+    case KET_AFG_1: 
+        printf("处理AFG通道1按键\n");
+        CURRENT_VIEW   = VIEW_AFG1;
+        AFG_FE.AFG_EN1 = 1;
+
+        break;
+        
+    case KET_AFG_2: 
+        printf("处理AFG通道2按键\n");
+        CURRENT_VIEW   = VIEW_AFG2;
+        AFG_FE.AFG_EN2 = 1;
+        break;
+        
+    case KET_DPO_1: 
+        printf("处理DPO通道1按键\n");
+        CURRENT_VIEW   = VIEW_DPO1;
+        DPO_FE.DPO_EN1 = !DPO_FE.DPO_EN1;
+        break;
+        
+    case KET_DPO_2: 
+        printf("处理DPO通道2按键\n");
+        CURRENT_VIEW   = VIEW_DPO2;
+        DPO_FE.DPO_EN2 = 1;
+        break;
+        
+    case KET_DPO_1_AC: 
+        printf("处理DPO通道1交流耦合按键\n");
+        DPO_FE.CH1_AC_DC = !DPO_FE.CH1_AC_DC;
+        break;
+        
+    case KET_DPO_2_AC: 
+        printf("处理DPO通道2交流耦合按键\n");
+        DPO_FE.CH2_AC_DC = !DPO_FE.CH2_AC_DC;
+        break;
+        
+    case KEY_RUN_STOP: 
+        printf("切换运行/停止状态\n");
+
+        break;
+        
+    case KEY_SINGLE: 
+        printf("触发单次采集\n");
+
+        break;
+        
+    case KEY_UP: 
+        printf("向上导航\n");
+
+        break;
+        
+    case KEY_DOWN: 
+        printf("向下导航\n");
+
+        break;
+        
+    case KEY_LEFT: 
+        printf("向左导航\n");
+
+        break;
+        
+    case KEY_RIGHT: 
+        printf("向右导航\n");
+
+        break;
+        
+    case KEY_0: 
+        printf("数字键 {0} 被按下\n");
+
+        break;
+        
+    case KEY_1: 
+        printf("数字键 {1} 被按下\n");
+
+        break;
+        
+    case KEY_2: 
+        printf("数字键 {2} 被按下\n");
+
+        break;
+        
+    case KEY_3: 
+        printf("数字键 {3} 被按下\n");
+
+        break;
+        
+    case KEY_4: 
+        printf("数字键 {4} 被按下\n");
+
+        break;
+        
+    case KEY_5: 
+        printf("数字键 {5} 被按下\n");
+
+        break;
+        
+    case KEY_6: 
+        printf("数字键 {6} 被按下\n");
+        break;
+        
+    case KEY_7: 
+        printf("数字键 {7} 被按下\n");
+        break;
+        
+    case KEY_8: 
+        printf("数字键 {8} 被按下\n");
+        break;
+        
+    case KEY_9: 
+        printf("数字键 {9} 被按下\n");
+        break;
+        
+    case KEY_INVERSE: 
+        printf("切换显示反转\n");
+        break;
+        
+    case KEY_POINT: 
+        printf("输入小数点\n");
+        break;
+        
+    case KEY_ENTER: 
+        printf("确认输入\n");
+        break;
+        
+    case KEY_ENC3: 
+        printf("编码器3被按下\n");
+        break;
+        
+    case KEY_ENC1: 
+        printf("编码器1被按下\n");
+        break;
+        
+    case KEY_ENC4: 
+        printf("编码器4被按下\n");
+        break;
+        
+    default: 
+        break;
+  }
+
+}
+
+
+void KEY_PROC_DPO2(){
+  Key_Update(KEY_PRESSED);
+  switch(KEY_PROCESS) {
+    case KET_AFG_1: 
+        printf("处理AFG通道1按键\n");
+        CURRENT_VIEW   = VIEW_AFG1;
+        AFG_FE.AFG_EN1 = 1;
+        break;
+        
+    case KET_AFG_2: 
+        printf("处理AFG通道2按键\n");
+        CURRENT_VIEW   = VIEW_AFG2;
+        DPO_FE.DPO_EN2 = 1;
+        break;
+        
+    case KET_DPO_1: 
+        printf("处理DPO通道1按键\n");
+        CURRENT_VIEW   = VIEW_DPO1;
+        DPO_FE.DPO_EN1 = 1;
+        break;
+        
+    case KET_DPO_2: 
+        printf("处理DPO通道2按键\n");
+        CURRENT_VIEW   = VIEW_DPO2;
+        DPO_FE.DPO_EN2 = !DPO_FE.DPO_EN2;
+        break;
+        
+    case KET_DPO_1_AC: 
+        printf("处理DPO通道1交流耦合按键\n");
+        DPO_FE.CH1_AC_DC = !DPO_FE.CH1_AC_DC;
+        break;
+        
+    case KET_DPO_2_AC: 
+        printf("处理DPO通道2交流耦合按键\n");
+        DPO_FE.CH2_AC_DC = !DPO_FE.CH2_AC_DC;
+        break;
+        
+    case KEY_RUN_STOP: 
+        printf("切换运行/停止状态\n");
+
+        break;
+        
+    case KEY_SINGLE: 
+        printf("触发单次采集\n");
+
+        break;
+        
+    case KEY_UP: 
+        printf("向上导航\n");
+
+        break;
+        
+    case KEY_DOWN: 
+        printf("向下导航\n");
+
+        break;
+        
+    case KEY_LEFT: 
+        printf("向左导航\n");
+
+        break;
+        
+    case KEY_RIGHT: 
+        printf("向右导航\n");
+
+        break;
+        
+    case KEY_0: 
+        printf("数字键 {0} 被按下\n");
+
+        break;
+        
+    case KEY_1: 
+        printf("数字键 {1} 被按下\n");
+
+        break;
+        
+    case KEY_2: 
+        printf("数字键 {2} 被按下\n");
+
+        break;
+        
+    case KEY_3: 
+        printf("数字键 {3} 被按下\n");
+
+        break;
+        
+    case KEY_4: 
+        printf("数字键 {4} 被按下\n");
+
+        break;
+        
+    case KEY_5: 
+        printf("数字键 {5} 被按下\n");
+
+        break;
+        
+    case KEY_6: 
+        printf("数字键 {6} 被按下\n");
+        break;
+        
+    case KEY_7: 
+        printf("数字键 {7} 被按下\n");
+        break;
+        
+    case KEY_8: 
+        printf("数字键 {8} 被按下\n");
+        break;
+        
+    case KEY_9: 
+        printf("数字键 {9} 被按下\n");
+        break;
+        
+    case KEY_INVERSE: 
+        printf("切换显示反转\n");
+        break;
+        
+    case KEY_POINT: 
+        printf("输入小数点\n");
+        break;
+        
+    case KEY_ENTER: 
+        printf("确认输入\n");
+        break;
+        
+    case KEY_ENC3: 
+        printf("编码器3被按下\n");
+        break;
+        
+    case KEY_ENC1: 
+        printf("编码器1被按下\n");
+        break;
+        
+    case KEY_ENC4: 
+        printf("编码器4被按下\n");
+        break;
+        
+    default: 
+        break;
+  }
+
+}
+
+
+void KEY_PROC_AFG1(){
+  Key_Update(KEY_PRESSED);
+  switch(KEY_PROCESS) {
+    case KET_AFG_1: 
+        printf("处理AFG通道1按键\n");
+        CURRENT_VIEW   = VIEW_AFG1;
+        AFG_FE.AFG_EN1 = !AFG_FE.AFG_EN1 ;
+
+        break;
+        
+    case KET_AFG_2: 
+        printf("处理AFG通道2按键\n");
+        CURRENT_VIEW   = VIEW_AFG2;
+        DPO_FE.DPO_EN2 = 1;
+        break;
+        
+    case KET_DPO_1: 
+        printf("处理DPO通道1按键\n");
+        CURRENT_VIEW   = VIEW_DPO1;
+        DPO_FE.DPO_EN1 = 1;
+        break;
+        
+    case KET_DPO_2: 
+        printf("处理DPO通道2按键\n");
+        CURRENT_VIEW   = VIEW_DPO2;
+        DPO_FE.DPO_EN2 = 1;
+        break;
+        
+    case KET_DPO_1_AC: 
+        printf("处理DPO通道1交流耦合按键\n");
+        DPO_FE.CH1_AC_DC = !DPO_FE.CH1_AC_DC;
+        break;
+        
+    case KET_DPO_2_AC: 
+        printf("处理DPO通道2交流耦合按键\n");
+        DPO_FE.CH2_AC_DC = !DPO_FE.CH2_AC_DC;
+        break;
+        
+    case KEY_RUN_STOP: 
+        printf("切换运行/停止状态\n");
+
+        break;
+        
+    case KEY_SINGLE: 
+        printf("触发单次采集\n");
+
+        break;
+        
+    case KEY_UP: 
+        printf("向上导航\n");
+
+        break;
+        
+    case KEY_DOWN: 
+        printf("向下导航\n");
+
+        break;
+        
+    case KEY_LEFT: 
+        printf("向左导航\n");
+
+        break;
+        
+    case KEY_RIGHT: 
+        printf("向右导航\n");
+
+        break;
+        
+    case KEY_0: 
+        printf("数字键 {0} 被按下\n");
+
+        break;
+        
+    case KEY_1: 
+        printf("数字键 {1} 被按下\n");
+
+        break;
+        
+    case KEY_2: 
+        printf("数字键 {2} 被按下\n");
+
+        break;
+        
+    case KEY_3: 
+        printf("数字键 {3} 被按下\n");
+
+        break;
+        
+    case KEY_4: 
+        printf("数字键 {4} 被按下\n");
+
+        break;
+        
+    case KEY_5: 
+        printf("数字键 {5} 被按下\n");
+
+        break;
+        
+    case KEY_6: 
+        printf("数字键 {6} 被按下\n");
+        break;
+        
+    case KEY_7: 
+        printf("数字键 {7} 被按下\n");
+        break;
+        
+    case KEY_8: 
+        printf("数字键 {8} 被按下\n");
+        break;
+        
+    case KEY_9: 
+        printf("数字键 {9} 被按下\n");
+        break;
+        
+    case KEY_INVERSE: 
+        printf("切换显示反转\n");
+        break;
+        
+    case KEY_POINT: 
+        printf("输入小数点\n");
+        break;
+        
+    case KEY_ENTER: 
+        printf("确认输入\n");
+        break;
+        
+    case KEY_ENC3: 
+        printf("编码器3被按下\n");
+        break;
+        
+    case KEY_ENC1: 
+        printf("编码器1被按下\n");
+        break;
+        
+    case KEY_ENC4: 
+        printf("编码器4被按下\n");
+        break;
+        
+    default: 
+        break;
+  }
+
+}
+
+
+void KEY_PROC_AFG2(){
+  Key_Update(KEY_PRESSED);
+  switch(KEY_PROCESS) {
+    case KET_AFG_1: 
+        printf("处理AFG通道1按键\n");
+        CURRENT_VIEW   = VIEW_AFG1;
+        AFG_FE.AFG_EN1 = 1;
+
+        break;
+        
+    case KET_AFG_2: 
+        printf("处理AFG通道2按键\n");
+        CURRENT_VIEW   = VIEW_AFG2;
+        AFG_FE.AFG_EN2 = !AFG_FE.AFG_EN2;
+        break;
+        
+    case KET_DPO_1: 
+        printf("处理DPO通道1按键\n");
+        CURRENT_VIEW   = VIEW_DPO1;
+        DPO_FE.DPO_EN1 = 1;
+        break;
+        
+    case KET_DPO_2: 
+        printf("处理DPO通道2按键\n");
+        CURRENT_VIEW   = VIEW_DPO2;
+        DPO_FE.DPO_EN2 = 1;
+        break;
+        
+    case KET_DPO_1_AC: 
+        printf("处理DPO通道1交流耦合按键\n");
+        DPO_FE.CH1_AC_DC = !DPO_FE.CH1_AC_DC;
+        break;
+        
+    case KET_DPO_2_AC: 
+        printf("处理DPO通道2交流耦合按键\n");
+        DPO_FE.CH2_AC_DC = !DPO_FE.CH2_AC_DC;
+        break;
+        
+    case KEY_RUN_STOP: 
+        printf("切换运行/停止状态\n");
+
+        break;
+        
+    case KEY_SINGLE: 
+        printf("触发单次采集\n");
+
+        break;
+        
+    case KEY_UP: 
+        printf("向上导航\n");
+
+        break;
+        
+    case KEY_DOWN: 
+        printf("向下导航\n");
+
+        break;
+        
+    case KEY_LEFT: 
+        printf("向左导航\n");
+
+        break;
+        
+    case KEY_RIGHT: 
+        printf("向右导航\n");
+
+        break;
+        
+    case KEY_0: 
+        printf("数字键 {0} 被按下\n");
+
+        break;
+        
+    case KEY_1: 
+        printf("数字键 {1} 被按下\n");
+
+        break;
+        
+    case KEY_2: 
+        printf("数字键 {2} 被按下\n");
+
+        break;
+        
+    case KEY_3: 
+        printf("数字键 {3} 被按下\n");
+
+        break;
+        
+    case KEY_4: 
+        printf("数字键 {4} 被按下\n");
+
+        break;
+        
+    case KEY_5: 
+        printf("数字键 {5} 被按下\n");
+
+        break;
+        
+    case KEY_6: 
+        printf("数字键 {6} 被按下\n");
+        break;
+        
+    case KEY_7: 
+        printf("数字键 {7} 被按下\n");
+        break;
+        
+    case KEY_8: 
+        printf("数字键 {8} 被按下\n");
+        break;
+        
+    case KEY_9: 
+        printf("数字键 {9} 被按下\n");
+        break;
+        
+    case KEY_INVERSE: 
+        printf("切换显示反转\n");
+        break;
+        
+    case KEY_POINT: 
+        printf("输入小数点\n");
+        break;
+        
+    case KEY_ENTER: 
+        printf("确认输入\n");
+        break;
+        
+    case KEY_ENC3: 
+        printf("编码器3被按下\n");
+        break;
+        
+    case KEY_ENC1: 
+        printf("编码器1被按下\n");
+        break;
+        
+    case KEY_ENC4: 
+        printf("编码器4被按下\n");
+        break;
+        
+    default: 
+        break;
+  }
+
+}
+
+
+
 void HID_PROCESS(void) {
 	//SET OFFSET
   HAL_Delay(25);
@@ -388,147 +1116,33 @@ void HID_PROCESS(void) {
   ST7789_WriteString(200, 70, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
 
 
-
-
-
-  Key_Update(KEY_PRESSED);
-
-  switch(KEY_PROCESS) {
-    case KET_AFG_1:
-        printf("处理AFG通道1按键\n");
-        AFG_FE.CH1_EN = !AFG_FE.CH1_EN;
-
-        break;
-        
-    case KET_AFG_2:
-        printf("处理AFG通道2按键\n");
-        AFG_FE.CH2_EN = !AFG_FE.CH2_EN;
-        break;
-        
-    case KET_DPO_1:
-        printf("处理DPO通道1按键\n");
-        DPO_FE.DPO_EN1 = !DPO_FE.DPO_EN1;
-        break;
-        
-    case KET_DPO_2:
-        printf("处理DPO通道2按键\n");
-        DPO_FE.DPO_EN2 = !DPO_FE.DPO_EN2;
-        break;
-        
-    case KET_DPO_1_AC:
-        printf("处理DPO通道1交流耦合按键\n");
-        DPO_FE.CH1_AC_DC = !DPO_FE.CH1_AC_DC;
-        break;
-        
-    case KET_DPO_2_AC:
-        printf("处理DPO通道2交流耦合按键\n");
-        DPO_FE.CH2_AC_DC = !DPO_FE.CH2_AC_DC;
-        break;
-        
-    case KEY_RUN_STOP:
-        printf("切换运行/停止状态\n");
-
-        break;
-        
-    case KEY_SINGLE:
-        printf("触发单次采集\n");
-
-        break;
-        
-    case KEY_UP:
-        printf("向上导航\n");
-
-        break;
-        
-    case KEY_DOWN:
-        printf("向下导航\n");
-
-        break;
-        
-    case KEY_LEFT:
-        printf("向左导航\n");
-
-        break;
-        
-    case KEY_RIGHT:
-        printf("向右导航\n");
-
-        break;
-        
-    case KEY_0:
-        printf("数字键 {0} 被按下\n");
-
-        break;
-        
-    case KEY_1:
-        printf("数字键 {1} 被按下\n");
-
-        break;
-        
-    case KEY_2:
-        printf("数字键 {2} 被按下\n");
-
-        break;
-        
-    case KEY_3:
-        printf("数字键 {3} 被按下\n");
-
-        break;
-        
-    case KEY_4:
-        printf("数字键 {4} 被按下\n");
-
-        break;
-        
-    case KEY_5:
-        printf("数字键 {5} 被按下\n");
-
-        break;
-        
-    case KEY_6:
-        printf("数字键 {6} 被按下\n");
-        break;
-        
-    case KEY_7:
-        printf("数字键 {7} 被按下\n");
-        break;
-        
-    case KEY_8:
-        printf("数字键 {8} 被按下\n");
-        break;
-        
-    case KEY_9:
-        printf("数字键 {9} 被按下\n");
-        break;
-    case KEY_INVERSE:
-        printf("切换显示反转\n");
-        break;
-        
-    case KEY_POINT:
-        printf("输入小数点\n");
-        break;
-        
-    case KEY_ENTER:
-        printf("确认输入\n");
-        break;
-        
-    case KEY_ENC3:
-        printf("编码器3被按下\n");
-        break;
-        
-    case KEY_ENC1:
-        printf("编码器1被按下\n");
-        break;
-        
-    case KEY_ENC4:
-        printf("编码器4被按下\n");
-        break;
-        
-    default:
-        break;
+  switch (CURRENT_VIEW)
+  {
+  case VIEW_INTRO:
+    KEY_PROC_INTRO();
+    break;
+  case VIEW_DPO1: 
+    KEY_PROC_DPO1();
+    break;
+  case VIEW_DPO2: 
+    KEY_PROC_DPO2();
+    break;
+  case VIEW_AFG1:
+    KEY_PROC_AFG1();
+    break;
+  case VIEW_AFG2:
+    KEY_PROC_AFG2();
+    break;
+  default:
+    break;
   }
 
+  WS2812_VIEW_Update();
+  DPO_FE_Update();
+
 }
+
+
 
 void LCD_BRIGHT(uint16_t bright){
   TIM8->CCR4 = bright;
