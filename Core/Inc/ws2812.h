@@ -32,8 +32,7 @@ void WS2812_Set_All(uint32_t Color);
 void WS2812_Update(void);
 uint32_t WS2812_rgb2color(uint8_t red, uint8_t green, uint8_t blue);
 //灯控效果in while(1)
-void WS2812_Rainbow(uint8_t speed);
-void WS2812_RunningHorse(uint8_t speed,uint8_t color_offset);
+
 
 
 

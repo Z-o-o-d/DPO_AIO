@@ -152,9 +152,10 @@ int fputc(int ch, FILE *f)
     return (ch);
 }
 
-volatile uint8_t BUFFER_TEMP[100] = "Hello World\r\n";
+volatile char BUFFER_TEMP[100] = "Hello World\r\n";
 volatile uint16_t LCD_BRIGHTNESS = 10000;
 volatile uint8_t KEY_PRESSED = 0x01;
+ uint8_t CURRENT_VIEW = VIEW_CONFIG;
 
 
 volatile uint16_t LED_BLINK=0;
@@ -167,38 +168,156 @@ uint32_t cnt = 0;
 
 
 DPO_AnalogStates DPO_FE = {
-  .CH1_OFFSET=1024,
-  .CH2_OFFSET=1024,
-  .CH1_BIAS=1024,
-  .CH2_BIAS=1024,
-  .CH1_AC_DC=0,
-  .CH2_AC_DC=0,
+  .CH1_OFFSET = 1024,
+  .CH2_OFFSET = 1024,
+  .CH1_BIAS   = 1024,
+  .CH2_BIAS   = 1024,
+  .CH1_AC_DC  = 0,
+  .CH2_AC_DC  = 0,
+  .DPO_EN1    = 0,
+  .DPO_EN2    = 0,
+  .TRIG_MODE  = 0,
 };
 
+AFG_AnalogStates AFG_FE = {
+  .CH1_EN    = 0,
+  .CH2_EN    = 0,
+  .CH1_DC    = 9000,
+  .CH2_DC    = 9000,
+  .CH1_REF   = 9000,
+  .CH2_REF   = 9000,
+  .CH1_FREQ  = 10000,
+  .CH2_FREQ  = 10000,
+  .CH1_TYPE  = 0,
+  .CH2_TYPE  = 0,
+  .TRIG_MODE = 0,
+};
+
+//gbr
 THEMEs THEME_DPO_1 = {
-  .MAIN=0x00FF00,
-  .WAKE=0x000F00,
-  .SHUT=0x000000,
+  .MAIN = 0x00FFFF,
+  .WAKE = 0x4FFFFF,
+  .SHUT = 0x000F0F,
 };
 
 THEMEs THEME_DPO_2 = {
-  .MAIN=0xFF0000,
-  .WAKE=0x0F0000,
-  .SHUT=0x000000,
+  .MAIN = 0xFF0000,
+  .WAKE = 0xFF004F,
+  .SHUT = 0x0F0000,
 };
 
 THEMEs THEME_AFG_1 = {
-  .MAIN=0x00FF00,
-  .WAKE=0x000F00,
-  .SHUT=0x000000,
+  .MAIN = 0xFFFF00,
+  .WAKE = 0x0F0F00,
+  .SHUT = 0x000000,
 };
 
 THEMEs THEME_AFG_2 = {
-  .MAIN=0xFF0000,
-  .WAKE=0x0F0000,
-  .SHUT=0x000000,
+  .MAIN = 0x0000FF,
+  .WAKE = 0x00000F,
+  .SHUT = 0x000000,
 };
 
+THEMEs THEME_CONFIG = {
+  .MAIN = 0xFFFFFF,
+  .WAKE = 0x000000,
+  .SHUT = 0x000000,
+};
+
+
+
+void WS2812_VIEW_Update(void) {
+  if (DPO_FE.DPO_EN1) {
+    WS2812_Write_Data(THEME_DPO_1.MAIN, LED_DPO_1);
+  } else {
+    WS2812_Write_Data(THEME_DPO_1.SHUT, LED_DPO_1);
+  }
+
+
+  if (DPO_FE.DPO_EN2) {
+  {
+    WS2812_Write_Data(THEME_DPO_2.MAIN, LED_DPO_2);
+  }
+  } else {
+    WS2812_Write_Data(THEME_DPO_2.SHUT, LED_DPO_2);
+  }
+
+
+    if (AFG_FE.CH1_EN)
+  {
+    WS2812_Write_Data(THEME_AFG_1.MAIN, LED_AFG_1U);
+    WS2812_Write_Data(THEME_AFG_1.MAIN, LED_AFG_1D);  
+  } else {
+    WS2812_Write_Data(THEME_AFG_1.WAKE, LED_AFG_1U);
+    WS2812_Write_Data(THEME_AFG_1.WAKE, LED_AFG_1D);
+  }
+
+
+  if (AFG_FE.CH2_EN)
+  {
+    WS2812_Write_Data(THEME_AFG_2.MAIN, LED_AFG_2U);
+    WS2812_Write_Data(THEME_AFG_2.MAIN, LED_AFG_2D);  
+  } else {
+    WS2812_Write_Data(THEME_AFG_2.WAKE, LED_AFG_2U);
+    WS2812_Write_Data(THEME_AFG_2.WAKE, LED_AFG_2D);
+  }
+
+  switch (CURRENT_VIEW)
+  {
+  case VIEW_INTRO:
+
+    break;
+    
+  case VIEW_DPO1:
+    WS2812_Write_Data(THEME_DPO_1.MAIN, LED_ENC_3U);
+    WS2812_Write_Data(THEME_DPO_1.MAIN, LED_ENC_3D);
+    WS2812_Write_Data(THEME_DPO_1.MAIN, LED_ENC_1U);
+    WS2812_Write_Data(THEME_DPO_1.MAIN, LED_ENC_1D);
+    WS2812_Write_Data(THEME_DPO_1.MAIN, LED_ENC_4U);
+    WS2812_Write_Data(THEME_DPO_1.MAIN, LED_ENC_4D);
+  break;
+
+  case VIEW_DPO2:
+    WS2812_Write_Data(THEME_DPO_2.MAIN, LED_ENC_3U);
+    WS2812_Write_Data(THEME_DPO_2.MAIN, LED_ENC_3D);
+    WS2812_Write_Data(THEME_DPO_2.MAIN, LED_ENC_1U);
+    WS2812_Write_Data(THEME_DPO_2.MAIN, LED_ENC_1D);
+    WS2812_Write_Data(THEME_DPO_2.MAIN, LED_ENC_4U);
+    WS2812_Write_Data(THEME_DPO_2.MAIN, LED_ENC_4D);
+    break;
+
+  case VIEW_AFG1:
+    WS2812_Write_Data(THEME_AFG_1.MAIN, LED_ENC_3U);
+    WS2812_Write_Data(THEME_AFG_1.MAIN, LED_ENC_3D);
+    WS2812_Write_Data(THEME_AFG_1.MAIN, LED_ENC_1U);
+    WS2812_Write_Data(THEME_AFG_1.MAIN, LED_ENC_1D);
+    WS2812_Write_Data(THEME_AFG_1.MAIN, LED_ENC_4U);
+    WS2812_Write_Data(THEME_AFG_1.MAIN, LED_ENC_4D);
+    break;
+
+  case VIEW_AFG2:
+    WS2812_Write_Data(THEME_AFG_2.MAIN, LED_ENC_3U);
+    WS2812_Write_Data(THEME_AFG_2.MAIN, LED_ENC_3D);
+    WS2812_Write_Data(THEME_AFG_2.MAIN, LED_ENC_1U);
+    WS2812_Write_Data(THEME_AFG_2.MAIN, LED_ENC_1D);
+    WS2812_Write_Data(THEME_AFG_2.MAIN, LED_ENC_4U);
+    WS2812_Write_Data(THEME_AFG_2.MAIN, LED_ENC_4D);
+    break;
+
+  case VIEW_CONFIG:
+    WS2812_Write_Data(THEME_CONFIG.MAIN, LED_ENC_3U);
+    WS2812_Write_Data(THEME_CONFIG.MAIN, LED_ENC_3D);
+    WS2812_Write_Data(THEME_CONFIG.MAIN, LED_ENC_1U);
+    WS2812_Write_Data(THEME_CONFIG.MAIN, LED_ENC_1D);
+    WS2812_Write_Data(THEME_CONFIG.MAIN, LED_ENC_4U);
+    WS2812_Write_Data(THEME_CONFIG.MAIN, LED_ENC_4D);
+    break;
+
+
+  default:
+    break;
+  }
+}
 
 void DPO_FE_Update(void) {
 	//SET OFFSET
@@ -215,30 +334,6 @@ void DPO_FE_Update(void) {
   HAL_GPIO_WritePin(DPO_EN1_GPIO_Port,DPO_EN1_Pin, DPO_FE.DPO_EN1);
   HAL_GPIO_WritePin(DPO_EN2_GPIO_Port,DPO_EN2_Pin, DPO_FE.DPO_EN2);
 }
-
-void WS2812_VIEW_Update(void) {
-
-
-
-  if (DPO_FE.DPO_EN1) {
-  WS2812_Write_Data(THEME_DPO_1.MAIN, LED_DPO_1);
-  } else {
-  WS2812_Write_Data(THEME_DPO_1.SHUT, LED_DPO_1);
-  }
-
-  if (DPO_FE.DPO_EN2) {
-  {
-  WS2812_Write_Data(THEME_DPO_2.MAIN, LED_DPO_2);
-  }
-  } else {
-  WS2812_Write_Data(THEME_DPO_2.SHUT, LED_DPO_2);
-  }
-  
-
-
-}
-
-
 
 
 #define KEY_BUF_LEN 3  // 修改这个值可以控制历史长度（例如 5、6）
@@ -301,14 +396,13 @@ void HID_PROCESS(void) {
   switch(KEY_PROCESS) {
     case KET_AFG_1:
         printf("处理AFG通道1按键\n");
-        WS2812_Write_Data(0xff0000, LED_AFG_1D);
-        WS2812_Write_Data(0xff0000, LED_AFG_1D);
+        AFG_FE.CH1_EN = !AFG_FE.CH1_EN;
 
         break;
         
     case KET_AFG_2:
         printf("处理AFG通道2按键\n");
-
+        AFG_FE.CH2_EN = !AFG_FE.CH2_EN;
         break;
         
     case KET_DPO_1:

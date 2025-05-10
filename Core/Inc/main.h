@@ -38,17 +38,14 @@ extern "C" {
 /* USER CODE BEGIN ET */
 
 
-
-
-
 enum LEDS
 {
   LED_RUN_STOP = 0,
   LED_SINGLE   = 1,
-  LED_AFG_1D   = 2,
-  LED_AFG_1U   = 3,
-  LED_AFG_2D   = 4,
-  LED_AFG_2U   = 5,
+  LED_AFG_2D   = 2,
+  LED_AFG_2U   = 3,
+  LED_AFG_1D   = 4,
+  LED_AFG_1U   = 5,
   LED_ENC_3U   = 6,
   LED_ENC_3D   = 7,
   LED_ENC_1U   = 8,
@@ -98,18 +95,29 @@ enum KEYS
 
 enum TRIGMODE
 {
-  TRIGMODE_AUTO = 0,
+  TRIGMODE_AUTO   = 0,
   TRIGMODE_SINGLE = 1,
   TRIGMODE_NORMAL = 2,
 };
 
+enum WAVEFORM
+{
+  WAVEFORM_SINE      = 0,
+  WAVEFORM_SQUARE    = 1,
+  WAVEFORM_RAMP      = 2,
+  WAVEFORM_RAMP_UP   = 3,
+  WAVEFORM_RAMP_DOWN = 4,
+  WAVEFORM_NOISE     = 5,
+};
+
 enum VIEWS
 {
-  VIEW_DPO1 = 0,
-  VIEW_DPO2 = 1,
-  VIEW_AFG1 = 2,
-  VIEW_AFG2 = 3,
-  VIEW_CNFIG = 4,
+  VIEW_INTRO  = 0,
+  VIEW_DPO1   = 1,
+  VIEW_DPO2   = 2,
+  VIEW_AFG1   = 3,
+  VIEW_AFG2   = 4,
+  VIEW_CONFIG = 5,
 };
 
 typedef struct {
@@ -123,6 +131,21 @@ typedef struct {
 	uint16_t CH2_AC_DC;
   uint16_t TRIG_MODE;
 } DPO_AnalogStates;
+
+
+typedef struct {
+  uint16_t CH1_EN;
+	uint16_t CH2_EN;
+	uint16_t CH1_DC;
+	uint16_t CH2_DC;
+  uint16_t CH1_REF;
+	uint16_t CH2_REF;
+  uint64_t CH1_FREQ;
+  uint64_t CH2_FREQ;
+  uint16_t CH1_TYPE;
+  uint16_t CH2_TYPE;
+  uint16_t TRIG_MODE;
+} AFG_AnalogStates;
 
 typedef struct {
 	uint32_t MAIN;
