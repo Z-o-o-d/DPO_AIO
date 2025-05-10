@@ -16,7 +16,7 @@
 
 
 //WS2812 DMA缓存数组
-uint16_t WS2812_Buf[WS2812_BUF_SIZE] = { 0 }; 
+uint16_t WS2812_Buf[WS2812_NUM + 1][WS2812_DATA_LEN] = { 0 }; 
 
 
 
@@ -29,7 +29,7 @@ uint16_t WS2812_Buf[WS2812_BUF_SIZE] = { 0 };
 void WS2812_Write_Data(uint32_t Color, uint8_t index)
 {
     for (uint8_t i = 0; i < 24; i++)
-		WS2812_Buf[24 * index + i] = (((Color << i) & 0X800000) ? High_Code : Low_Code);
+		WS2812_Buf[index][i] = (((Color << i) & 0X800000) ? High_Code : Low_Code);
 }
 
 /**
@@ -51,7 +51,7 @@ void WS2812_Set_All(uint32_t Color)
  */
 void WS2812_Update(void)
 {
-	HAL_TIM_PWM_Start_DMA(&WS2812_TIM,WS2812_CHANNEL,(uint32_t *)WS2812_Buf,WS2812_BUF_SIZE);
+	HAL_TIM_PWM_Start_DMA(&WS2812_TIM,WS2812_CHANNEL,(uint32_t *)WS2812_Buf,sizeof(WS2812_Buf)/sizeof(uint16_t));
 }
 
 /**

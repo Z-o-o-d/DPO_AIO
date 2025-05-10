@@ -165,75 +165,38 @@ uint32_t cnt = 0;
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-enum LEDS
-{
-  LED_RUN_STOP = 0,
-  LED_SINGLE   = 1,
-  LED_AFG_1D   = 2,
-  LED_AFG_1U   = 3,
-  LED_AFG_2D   = 4,
-  LED_AFG_2U   = 5,
-  LED_ENC_3U   = 6,
-  LED_ENC_3D   = 7,
-  LED_ENC_1U   = 8,
-  LED_ENC_1D   = 9,
-  LED_ENC_4U   = 10,
-  LED_ENC_4D   = 11,
-  LED_USB_U    = 12,
-  LED_USB_D    = 13,
-  LED_DOWN_R   = 14,
-  LED_DOWN_M   = 15,
-  LED_DOWN_L   = 16,
-  LED_DPO_2    = 17,
-  LED_DPO_1    = 18,
-};
-
-enum KEYS
-{
-  KET_AFG_1    = 0x6F,
-  KET_AFG_2    = 0x6E,
-  KET_DPO_1    = 0x6D,
-  KET_DPO_2    = 0x6C,
-  KET_DPO_1_AC = 0x65,
-  KET_DPO_2_AC = 0x64,
-  KEY_RUN_STOP = 0x67,
-  KEY_SINGLE   = 0x5F,
-  KEY_UP       = 0x5E,
-  KEY_DOWN     = 0x5C,
-  KEY_LEFT     = 0x66,
-  KEY_RIGHT    = 0x5D,
-  KEY_1        = 0x55,
-  KEY_2        = 0x4D,
-  KEY_3        = 0x45,
-  KEY_4        = 0x56,
-  KEY_5        = 0x4E,
-  KEY_6        = 0x46,
-  KEY_7        = 0x57,
-  KEY_8        = 0x4F,
-  KEY_9        = 0x47,
-  KEY_0        = 0x4C,
-  KEY_INVERSE  = 0x54,
-  KEY_POINT    = 0x44,
-  KEY_ENTER    = 0x74,
-  KEY_ENC3     = 0x77,
-  KEY_ENC1     = 0x76,
-  KEY_ENC4     = 0x75,
-};
-
-
-typedef struct {
-	uint32_t CH1_OFFSET;
-	uint32_t CH2_OFFSET;
-  uint32_t CH1_BIAS;
-	uint32_t CH2_BIAS;
-} DPO_AnalogStates;
-
 
 DPO_AnalogStates DPO_FE = {
   .CH1_OFFSET=1024,
   .CH2_OFFSET=1024,
   .CH1_BIAS=1024,
   .CH2_BIAS=1024,
+  .CH1_AC_DC=0,
+  .CH2_AC_DC=0,
+};
+
+THEMEs THEME_DPO_1 = {
+  .MAIN=0x00FF00,
+  .WAKE=0x000F00,
+  .SHUT=0x000000,
+};
+
+THEMEs THEME_DPO_2 = {
+  .MAIN=0xFF0000,
+  .WAKE=0x0F0000,
+  .SHUT=0x000000,
+};
+
+THEMEs THEME_AFG_1 = {
+  .MAIN=0x00FF00,
+  .WAKE=0x000F00,
+  .SHUT=0x000000,
+};
+
+THEMEs THEME_AFG_2 = {
+  .MAIN=0xFF0000,
+  .WAKE=0x0F0000,
+  .SHUT=0x000000,
 };
 
 
@@ -247,7 +210,35 @@ void DPO_FE_Update(void) {
 	HAL_DAC_Start(&hdac1, DAC_CHANNEL_1);
   HAL_DAC_Start(&hdac4, DAC_CHANNEL_1);
 	HAL_DAC_Start(&hdac4, DAC_CHANNEL_2);
+  HAL_GPIO_WritePin(DPO_AC1_GPIO_Port,DPO_AC1_Pin, DPO_FE.CH1_AC_DC);
+  HAL_GPIO_WritePin(DPO_AC2_GPIO_Port,DPO_AC2_Pin, DPO_FE.CH2_AC_DC);
+  HAL_GPIO_WritePin(DPO_EN1_GPIO_Port,DPO_EN1_Pin, DPO_FE.DPO_EN1);
+  HAL_GPIO_WritePin(DPO_EN2_GPIO_Port,DPO_EN2_Pin, DPO_FE.DPO_EN2);
 }
+
+void WS2812_VIEW_Update(void) {
+
+
+
+  if (DPO_FE.DPO_EN1) {
+  WS2812_Write_Data(THEME_DPO_1.MAIN, LED_DPO_1);
+  } else {
+  WS2812_Write_Data(THEME_DPO_1.SHUT, LED_DPO_1);
+  }
+
+  if (DPO_FE.DPO_EN2) {
+  {
+  WS2812_Write_Data(THEME_DPO_2.MAIN, LED_DPO_2);
+  }
+  } else {
+  WS2812_Write_Data(THEME_DPO_2.SHUT, LED_DPO_2);
+  }
+  
+
+
+}
+
+
 
 
 #define KEY_BUF_LEN 3  // 修改这个值可以控制历史长度（例如 5、6）
@@ -288,10 +279,21 @@ void HID_PROCESS(void) {
   #ifdef DEBUGING
     printf("1_x,1_y,2_x,2_y:%d,%d,%d,%d,0x%x\r\n", TouchPoints.point1_x,TouchPoints.point1_y,TouchPoints.point2_x,TouchPoints.point2_y,KEY_PRESSED);
   #endif
+
   WS2812_Write_Data(cnt, LED_BLINK);
   WS2812_Update();
+
   sprintf(&BUFFER_TEMP,"KEY:0x%x",KEY_PRESSED);
-  ST7789_WriteString(200, 20, &BUFFER_TEMP, Font_7x10, WHITE, BLACK);
+  ST7789_WriteString(200, 10, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
+  sprintf(&BUFFER_TEMP,"ENC3:%5d",TIM3->CNT);
+  ST7789_WriteString(200, 30, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
+  sprintf(&BUFFER_TEMP,"ENC1:%5d",TIM1->CNT);
+  ST7789_WriteString(200, 50, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
+  sprintf(&BUFFER_TEMP,"ENC4:%5d",TIM4->CNT);
+  ST7789_WriteString(200, 70, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
+
+
+
 
 
   Key_Update(KEY_PRESSED);
@@ -299,74 +301,94 @@ void HID_PROCESS(void) {
   switch(KEY_PROCESS) {
     case KET_AFG_1:
         printf("处理AFG通道1按键\n");
+        WS2812_Write_Data(0xff0000, LED_AFG_1D);
+        WS2812_Write_Data(0xff0000, LED_AFG_1D);
+
         break;
         
     case KET_AFG_2:
         printf("处理AFG通道2按键\n");
+
         break;
         
     case KET_DPO_1:
         printf("处理DPO通道1按键\n");
+        DPO_FE.DPO_EN1 = !DPO_FE.DPO_EN1;
         break;
         
     case KET_DPO_2:
         printf("处理DPO通道2按键\n");
+        DPO_FE.DPO_EN2 = !DPO_FE.DPO_EN2;
         break;
         
     case KET_DPO_1_AC:
         printf("处理DPO通道1交流耦合按键\n");
+        DPO_FE.CH1_AC_DC = !DPO_FE.CH1_AC_DC;
         break;
         
     case KET_DPO_2_AC:
         printf("处理DPO通道2交流耦合按键\n");
+        DPO_FE.CH2_AC_DC = !DPO_FE.CH2_AC_DC;
         break;
         
     case KEY_RUN_STOP:
         printf("切换运行/停止状态\n");
+
         break;
         
     case KEY_SINGLE:
         printf("触发单次采集\n");
+
         break;
         
     case KEY_UP:
         printf("向上导航\n");
+
         break;
         
     case KEY_DOWN:
         printf("向下导航\n");
+
         break;
         
     case KEY_LEFT:
         printf("向左导航\n");
+
         break;
         
     case KEY_RIGHT:
         printf("向右导航\n");
+
         break;
         
     case KEY_0:
         printf("数字键 {0} 被按下\n");
+
         break;
         
     case KEY_1:
         printf("数字键 {1} 被按下\n");
+
         break;
         
     case KEY_2:
         printf("数字键 {2} 被按下\n");
+
         break;
         
     case KEY_3:
         printf("数字键 {3} 被按下\n");
+
         break;
         
     case KEY_4:
         printf("数字键 {4} 被按下\n");
+
         break;
         
     case KEY_5:
         printf("数字键 {5} 被按下\n");
+
         break;
         
     case KEY_6:
@@ -397,15 +419,15 @@ void HID_PROCESS(void) {
         break;
         
     case KEY_ENC3:
-        printf("编码器3旋转\n");
+        printf("编码器3被按下\n");
         break;
         
     case KEY_ENC1:
-        printf("编码器1旋转\n");
+        printf("编码器1被按下\n");
         break;
         
     case KEY_ENC4:
-        printf("编码器4旋转\n");
+        printf("编码器4被按下\n");
         break;
         
     default:
@@ -415,11 +437,7 @@ void HID_PROCESS(void) {
 }
 
 void LCD_BRIGHT(uint16_t bright){
-  if (bright > 100){
-    HAL_GPIO_WritePin(ST_BRI_GPIO_Port, ST_BRI_Pin, GPIO_PIN_SET);
-  }else{
-    HAL_GPIO_WritePin(ST_BRI_GPIO_Port, ST_BRI_Pin, GPIO_PIN_RESET);
-  }
+  TIM8->CCR4 = bright;
 }
 
 
@@ -523,10 +541,8 @@ int main(void)
 
 
   HAL_I2C_Master_Transmit(&hi2c3, 0x48, &KEY_PRESSED,1, 1000);
-
   WS2812_Set_All(0x000010);
-  // WS2812_Update();
-  // WS2812_RunningHorse(100,100);
+  HAL_TIMEx_PWMN_Start(&htim8,TIM_CHANNEL_4);
 
   /* USER CODE END 2 */
 
@@ -534,28 +550,10 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    // HAL_Delay(1);
     cnt+=1;
     DPO_FE_Update();
-    
-    // HAL_UART_Transmit_DMA(&huart1, (uint8_t *)&BUFFER_UART, sizeof(BUFFER_UART));
-
     HID_PROCESS();
-    
-    // FT6336_GetTouchPoint(&TouchPoints);    
-    // HAL_I2C_Master_Receive(&hi2c3, 0x49, &KEY_PRESSED,1, 1000);
-    // #ifdef DEBUGING
-    // printf("1_x,1_y,2_x,2_y:%d,%d,%d,%d,0x%x\r\n", TouchPoints.point1_x,TouchPoints.point1_y,TouchPoints.point2_x,TouchPoints.point2_y,KEY_PRESSED);
-    // #endif
-    // HAL_Delay(1);
-    // WS2812_Write_Data(cnt, LED_BLINK);
-    // WS2812_Update();
-    // sprintf(&BUFFER_TEMP,"KEY:0x%x",KEY_PRESSED);
-    // ST7789_WriteString(200, 20, &BUFFER_TEMP, Font_7x10, WHITE, BLACK);
-  
-    // HAL_Delay(1);
-
-  
+  WS2812_VIEW_Update();
 
 
 
@@ -1584,11 +1582,11 @@ static void MX_TIM1_Init(void)
   sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
   sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
-  sConfig.IC1Filter = 0;
+  sConfig.IC1Filter = 15;
   sConfig.IC2Polarity = TIM_ICPOLARITY_RISING;
   sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC2Prescaler = TIM_ICPSC_DIV1;
-  sConfig.IC2Filter = 0;
+  sConfig.IC2Filter = 15;
   if (HAL_TIM_Encoder_Init(&htim1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -1627,14 +1625,10 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 4294967295;
+  htim2.Init.Period = 18000;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_PWM_Init(&htim2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_TIM_OC_Init(&htim2) != HAL_OK)
   {
     Error_Handler();
   }
@@ -1645,15 +1639,14 @@ static void MX_TIM2_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 0;
+  sConfigOC.Pulse = 9000;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
   {
     Error_Handler();
   }
-  sConfigOC.OCMode = TIM_OCMODE_TIMING;
-  if (HAL_TIM_OC_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
   {
     Error_Handler();
   }
@@ -1692,11 +1685,11 @@ static void MX_TIM3_Init(void)
   sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
   sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
-  sConfig.IC1Filter = 0;
+  sConfig.IC1Filter = 15;
   sConfig.IC2Polarity = TIM_ICPOLARITY_RISING;
   sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC2Prescaler = TIM_ICPSC_DIV1;
-  sConfig.IC2Filter = 0;
+  sConfig.IC2Filter = 15;
   if (HAL_TIM_Encoder_Init(&htim3, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -1741,11 +1734,11 @@ static void MX_TIM4_Init(void)
   sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
   sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
-  sConfig.IC1Filter = 0;
+  sConfig.IC1Filter = 15;
   sConfig.IC2Polarity = TIM_ICPOLARITY_RISING;
   sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC2Prescaler = TIM_ICPSC_DIV1;
-  sConfig.IC2Filter = 0;
+  sConfig.IC2Filter = 15;
   if (HAL_TIM_Encoder_Init(&htim4, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -1852,6 +1845,8 @@ static void MX_TIM8_Init(void)
 
   TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_OC_InitTypeDef sConfigOC = {0};
+  TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = {0};
 
   /* USER CODE BEGIN TIM8_Init 1 */
 
@@ -1859,7 +1854,7 @@ static void MX_TIM8_Init(void)
   htim8.Instance = TIM8;
   htim8.Init.Prescaler = 0;
   htim8.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim8.Init.Period = 65535;
+  htim8.Init.Period = 1800;
   htim8.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim8.Init.RepetitionCounter = 0;
   htim8.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -1872,6 +1867,10 @@ static void MX_TIM8_Init(void)
   {
     Error_Handler();
   }
+  if (HAL_TIM_PWM_Init(&htim8) != HAL_OK)
+  {
+    Error_Handler();
+  }
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
   sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
@@ -1879,9 +1878,38 @@ static void MX_TIM8_Init(void)
   {
     Error_Handler();
   }
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 900;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
+  sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+  if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
+  sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
+  sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
+  sBreakDeadTimeConfig.DeadTime = 0;
+  sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
+  sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
+  sBreakDeadTimeConfig.BreakFilter = 0;
+  sBreakDeadTimeConfig.BreakAFMode = TIM_BREAK_AFMODE_INPUT;
+  sBreakDeadTimeConfig.Break2State = TIM_BREAK2_DISABLE;
+  sBreakDeadTimeConfig.Break2Polarity = TIM_BREAK2POLARITY_HIGH;
+  sBreakDeadTimeConfig.Break2Filter = 0;
+  sBreakDeadTimeConfig.Break2AFMode = TIM_BREAK_AFMODE_INPUT;
+  sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
+  if (HAL_TIMEx_ConfigBreakDeadTime(&htim8, &sBreakDeadTimeConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
   /* USER CODE BEGIN TIM8_Init 2 */
 
   /* USER CODE END TIM8_Init 2 */
+  HAL_TIM_MspPostInit(&htim8);
 
 }
 
@@ -1907,7 +1935,7 @@ static void MX_TIM15_Init(void)
   htim15.Instance = TIM15;
   htim15.Init.Prescaler = 0;
   htim15.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim15.Init.Period = 65535;
+  htim15.Init.Period = 18000;
   htim15.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim15.Init.RepetitionCounter = 0;
   htim15.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -1926,7 +1954,7 @@ static void MX_TIM15_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_FORCED_ACTIVE;
-  sConfigOC.Pulse = 0;
+  sConfigOC.Pulse = 9000;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
@@ -2205,26 +2233,23 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, ST_BRI_Pin|FT6336_RST_Pin|ST_DC_Pin|DPO_EN_Pin
-                          |DPO_AC_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, FT6336_RST_Pin|ST_DC_Pin|DPO_EN1_Pin|DPO_AC1_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, DPO_EN__Pin|DPO_AC__Pin|FT_INT_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, DPO_EN2_Pin|DPO_AC2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(ST_CS_GPIO_Port, ST_CS_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : ST_BRI_Pin FT6336_RST_Pin ST_DC_Pin DPO_EN_Pin
-                           DPO_AC_Pin */
-  GPIO_InitStruct.Pin = ST_BRI_Pin|FT6336_RST_Pin|ST_DC_Pin|DPO_EN_Pin
-                          |DPO_AC_Pin;
+  /*Configure GPIO pins : FT6336_RST_Pin ST_DC_Pin DPO_EN1_Pin DPO_AC1_Pin */
+  GPIO_InitStruct.Pin = FT6336_RST_Pin|ST_DC_Pin|DPO_EN1_Pin|DPO_AC1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : DPO_EN__Pin DPO_AC__Pin FT_INT_Pin */
-  GPIO_InitStruct.Pin = DPO_EN__Pin|DPO_AC__Pin|FT_INT_Pin;
+  /*Configure GPIO pins : DPO_EN2_Pin DPO_AC2_Pin */
+  GPIO_InitStruct.Pin = DPO_EN2_Pin|DPO_AC2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -2237,8 +2262,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(ST_CS_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PB8 */
-  GPIO_InitStruct.Pin = GPIO_PIN_8;
+  /*Configure GPIO pins : FT_INT_EXTI4_Pin PB8 */
+  GPIO_InitStruct.Pin = FT_INT_EXTI4_Pin|GPIO_PIN_8;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);

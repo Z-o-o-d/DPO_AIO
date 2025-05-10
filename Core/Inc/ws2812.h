@@ -23,7 +23,7 @@
 #define WS2812_CHANNEL  TIM_CHANNEL_1 
 
 extern TIM_HandleTypeDef WS2812_TIM;
-extern uint16_t WS2812_Buf[];
+extern uint16_t WS2812_Buf[WS2812_NUM + 1][WS2812_DATA_LEN];
 // extern uint32_t rainbow_buf[];
 
 //基础控制函数

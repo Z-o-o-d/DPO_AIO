@@ -4,6 +4,12 @@
             "path": "."
         }
     ],
-    "settings": {},
+    "settings": {
+        "files.associations": {
+            "main.h": "c",
+            "views.h": "c",
+            "st7789.h": "c"
+        }
+    },
     "extensions": {}
 }
