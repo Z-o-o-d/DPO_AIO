@@ -333,6 +333,8 @@ void WS2812_VIEW_Update(void) {
   default:
     break;
   }
+
+    WS2812_Update();
 }
 
 
@@ -670,7 +672,7 @@ void KEY_PROC_DPO2(){
     case KET_AFG_2: 
         printf("处理AFG通道2按键\n");
         CURRENT_VIEW   = VIEW_AFG2;
-        DPO_FE.DPO_EN2 = 1;
+        AFG_FE.AFG_EN2 = 1;
         break;
         
     case KET_DPO_1: 
@@ -815,7 +817,7 @@ void KEY_PROC_AFG1(){
     case KET_AFG_2: 
         printf("处理AFG通道2按键\n");
         CURRENT_VIEW   = VIEW_AFG2;
-        DPO_FE.DPO_EN2 = 1;
+        AFG_FE.AFG_EN2 = 1;
         break;
         
     case KET_DPO_1: 
@@ -1093,6 +1095,8 @@ void KEY_PROC_AFG2(){
 
 
 
+
+
 void HID_PROCESS(void) {
 	//SET OFFSET
   HAL_Delay(25);
@@ -1103,8 +1107,6 @@ void HID_PROCESS(void) {
     printf("1_x,1_y,2_x,2_y:%d,%d,%d,%d,0x%x\r\n", TouchPoints.point1_x,TouchPoints.point1_y,TouchPoints.point2_x,TouchPoints.point2_y,KEY_PRESSED);
   #endif
 
-  WS2812_Write_Data(cnt, LED_BLINK);
-  WS2812_Update();
 
   sprintf(&BUFFER_TEMP,"KEY:0x%x",KEY_PRESSED);
   ST7789_WriteString(200, 10, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
@@ -1136,6 +1138,9 @@ void HID_PROCESS(void) {
   default:
     break;
   }
+
+
+
 
   WS2812_VIEW_Update();
   DPO_FE_Update();
