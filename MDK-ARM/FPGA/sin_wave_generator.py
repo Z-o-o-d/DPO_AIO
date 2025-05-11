@@ -1,8 +1,8 @@
 import numpy as np
 
 
-def generate_sin_wave(num_points=16384, bit_depth=16):
-    # 生成 4096 个点的正弦波
+def generate_sin_wave(num_points=1024, bit_depth=14):
+    # 生成 num_points 个点的正弦波
     x = np.linspace(0, 2 * np.pi, num_points)
     sin_wave = np.sin(x)
 

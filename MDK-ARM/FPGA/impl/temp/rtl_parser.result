@@ -1,54 +1,44 @@
 [
  {
-  "InstFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/led_flash.v",
+  "InstFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/TOP.v",
   "InstLine" : 1,
-  "InstName" : "led_flash",
-  "ModuleFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/led_flash.v",
+  "InstName" : "TOP",
+  "ModuleFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/TOP.v",
   "ModuleLine" : 1,
-  "ModuleName" : "led_flash",
+  "ModuleName" : "TOP",
   "SubInsts" : [
    {
-    "InstFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/led_flash.v",
-    "InstLine" : 46,
+    "InstFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/TOP.v",
+    "InstLine" : 27,
     "InstName" : "u_Gowin_PLL",
-    "ModuleFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/gowin_pll/gowin_pll.v",
+    "ModuleFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/gowin_pll/gowin_pll.v",
     "ModuleLine" : 10,
     "ModuleName" : "Gowin_PLL"
    },
    {
-    "InstFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/led_flash.v",
-    "InstLine" : 60,
-    "InstName" : "u_uart_tx_string",
-    "ModuleFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/uart_tx_string.v",
-    "ModuleLine" : 10,
-    "ModuleName" : "uart_tx_string",
-    "SubInsts" : [
-     {
-      "InstFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/uart_tx_string.v",
-      "InstLine" : 139,
-      "InstName" : "u_uart_tx_core",
-      "ModuleFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/uart_tx_core.v",
-      "ModuleLine" : 12,
-      "ModuleName" : "uart_tx_core"
-     }
-    ]
-   },
-   {
-    "InstFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/led_flash.v",
-    "InstLine" : 164,
+    "InstFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/TOP.v",
+    "InstLine" : 59,
     "InstName" : "u_dds_1",
-    "ModuleFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/dds.v",
-    "ModuleLine" : 21,
+    "ModuleFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/dds.v",
+    "ModuleLine" : 3,
     "ModuleName" : "dds"
    },
    {
-    "InstFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/led_flash.v",
-    "InstLine" : 180,
+    "InstFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/TOP.v",
+    "InstLine" : 74,
     "InstName" : "u_dds_2",
-    "ModuleFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/dds.v",
-    "ModuleLine" : 21,
+    "ModuleFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/dds.v",
+    "ModuleLine" : 3,
     "ModuleName" : "dds"
    }
   ]
+ },
+ {
+  "InstFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/spi_slave.v",
+  "InstLine" : 1,
+  "InstName" : "spi_slave",
+  "ModuleFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/spi_slave.v",
+  "ModuleLine" : 1,
+  "ModuleName" : "spi_slave"
  }
 ]

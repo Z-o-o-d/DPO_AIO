@@ -1,8 +1,8 @@
--d Z:\FPGA\GOWIN25K\temp\ch2_led_flash\impl\gwsynthesis\led_flash.vg
+-d C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\impl\gwsynthesis\DDS.vg
 -p GW5A-25A-UBGA324-1
 -pn GW5A-LV25UG324ES
--cst Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.cst
--cfg Z:\FPGA\GOWIN25K\temp\ch2_led_flash\impl\pnr\device.cfg
+-cst C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\led_flash.cst
+-cfg C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\impl\pnr\device.cfg
 -bit
 -tr
 -ph

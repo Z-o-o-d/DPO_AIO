@@ -1,51 +1,11 @@
 GowinSynthesis start
 Running parser ...
-Analyzing Verilog file 'Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\dds.v'
-Analyzing Verilog file 'Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\gowin_pll\gowin_pll.v'
-Analyzing Verilog file 'Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.v'
-WARN  (EX3628) : Redeclaration of ANSI port 'clkout0' is not allowed("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.v":29)
-Undeclared symbol 'lock', assumed default net type 'wire'("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.v":47)
-Analyzing Verilog file 'Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\uart_tx_core.v'
-Analyzing Verilog file 'Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\uart_tx_string.v'
-Compiling module 'led_flash'("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.v":1)
-WARN  (EX3780) : Using initial value of 'duty_cycle_ref_1' since it is never assigned("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.v":34)
-WARN  (EX3780) : Using initial value of 'duty_cycle_dc_1' since it is never assigned("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.v":35)
-WARN  (EX3780) : Using initial value of 'duty_cycle_ref_2' since it is never assigned("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.v":41)
-WARN  (EX3780) : Using initial value of 'duty_cycle_dc_2' since it is never assigned("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.v":42)
-WARN  (EX3780) : Using initial value of 'freq_word' since it is never assigned("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.v":44)
-Compiling module 'Gowin_PLL'("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\gowin_pll\gowin_pll.v":10)
-Compiling module 'uart_tx_string(CLK_FREQ=50000000,STR_DAT="J18\n",STR_LEN=4)'("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\uart_tx_string.v":10)
-Compiling module 'uart_tx_core(CLK_FREQ=50000000)'("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\uart_tx_core.v":12)
-WARN  (EX3791) : Expression size 17 truncated to fit in target size 16("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.v":75)
-WARN  (EX3791) : Expression size 17 truncated to fit in target size 16("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.v":89)
-WARN  (EX3791) : Expression size 17 truncated to fit in target size 16("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.v":104)
-WARN  (EX3791) : Expression size 17 truncated to fit in target size 16("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.v":118)
-WARN  (EX3670) : Actual bit length 32 differs from formal bit length 1 for port 'TX'("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.v":147)
-WARN  (EX3670) : Actual bit length 32 differs from formal bit length 1 for port 'TX'("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.v":156)
-Compiling module 'dds(FW_W=30)'("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\dds.v":21)
-Extracting RAM for identifier 'sine_wave_mem'("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\dds.v":39)
-WARN  (EX3670) : Actual bit length 32 differs from formal bit length 1 for port 'int_dff_en'("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.v":169)
-WARN  (EX3670) : Actual bit length 32 differs from formal bit length 1 for port 'int_dff_en'("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.v":185)
-NOTE  (EX0101) : Current top module is "led_flash"
-[5%] Running netlist conversion ...
-Running device independent optimization ...
-WARN  (DI0019) : Merging user defined instance "counter_dc_1[15:0]" to instance "counter_ref_1[15:0]", because they are equivalent. If you want to keep the instance, please apply property constraint syn_preserve = 1 on it("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.v":95)
-WARN  (DI0019) : Merging user defined instance "counter_dc_2[15:0]" to instance "counter_ref_2[15:0]", because they are equivalent. If you want to keep the instance, please apply property constraint syn_preserve = 1 on it("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.v":124)
-[10%] Optimizing Phase 0 completed
-[15%] Optimizing Phase 1 completed
-[25%] Optimizing Phase 2 completed
-Running inference ...
-[30%] Inferring Phase 0 completed
-[40%] Inferring Phase 1 completed
-[50%] Inferring Phase 2 completed
-[55%] Inferring Phase 3 completed
-Running technical mapping ...
-[60%] Tech-Mapping Phase 0 completed
-[65%] Tech-Mapping Phase 1 completed
-[75%] Tech-Mapping Phase 2 completed
-[80%] Tech-Mapping Phase 3 completed
-[90%] Tech-Mapping Phase 4 completed
-WARN  (NL0002) : The module "dds" instantiated to "u_dds_2" is swept in optimizing("Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.v":190)
-[95%] Generate netlist file "Z:\FPGA\GOWIN25K\temp\ch2_led_flash\impl\gwsynthesis\led_flash.vg" completed
-[100%] Generate report file "Z:\FPGA\GOWIN25K\temp\ch2_led_flash\impl\gwsynthesis\led_flash_syn.rpt.html" completed
+Analyzing Verilog file 'C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\dds.v'
+Analyzing Verilog file 'C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\gowin_pll\gowin_pll.v'
+Analyzing Verilog file 'C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\uart_tx_core.v'
+Analyzing Verilog file 'C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\uart_tx_string.v'
+Analyzing Verilog file 'C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\TOP.v'
+WARN  (EX3628) : Redeclaration of ANSI port 'clkout0' is not allowed("C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\TOP.v":29)
+Undeclared symbol 'lock', assumed default net type 'wire'("C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\TOP.v":47)
+ERROR (EX0302) : No valid top module found
 GowinSynthesis finish

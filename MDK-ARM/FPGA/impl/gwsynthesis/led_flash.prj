@@ -4,18 +4,18 @@
     <Version>beta</Version>
     <Device id="GW5A-25A" package="UBGA324" speed="1" partNumber="GW5A-LV25UG324ES"/>
     <FileList>
-        <File path="Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\dds.v" type="verilog"/>
-        <File path="Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\gowin_pll\gowin_pll.v" type="verilog"/>
-        <File path="Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.v" type="verilog"/>
-        <File path="Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\uart_tx_core.v" type="verilog"/>
-        <File path="Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\uart_tx_string.v" type="verilog"/>
+        <File path="C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\dds.v" type="verilog"/>
+        <File path="C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\gowin_pll\gowin_pll.v" type="verilog"/>
+        <File path="C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\uart_tx_core.v" type="verilog"/>
+        <File path="C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\uart_tx_string.v" type="verilog"/>
+        <File path="C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\TOP.v" type="verilog"/>
     </FileList>
     <OptionList>
         <Option type="disable_insert_pad" value="0"/>
         <Option type="enable_dsrm" value="0"/>
         <Option type="global_freq" value="100.000"/>
         <Option type="looplimit" value="2000"/>
-        <Option type="output_file" value="Z:\FPGA\GOWIN25K\temp\ch2_led_flash\impl\gwsynthesis\led_flash.vg"/>
+        <Option type="output_file" value="C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\impl\gwsynthesis\led_flash.vg"/>
         <Option type="print_all_synthesis_warning" value="0"/>
         <Option type="ram_rw_check" value="1"/>
         <Option type="top_module" value="led_flash"/>

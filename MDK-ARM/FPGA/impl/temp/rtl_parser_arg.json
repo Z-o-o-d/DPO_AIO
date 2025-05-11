@@ -2,23 +2,19 @@
  "Device" : "GW5A-25A",
  "Files" : [
   {
-   "Path" : "C:/Users/87407/Documents/GOWINprj/DDS/src/dds.v",
+   "Path" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/dds.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "C:/Users/87407/Documents/GOWINprj/DDS/src/gowin_pll/gowin_pll.v",
+   "Path" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/gowin_pll/gowin_pll.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "C:/Users/87407/Documents/GOWINprj/DDS/src/led_flash.v",
+   "Path" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/TOP.v",
    "Type" : "verilog"
   },
   {
-   "Path" : "C:/Users/87407/Documents/GOWINprj/DDS/src/uart_tx_core.v",
-   "Type" : "verilog"
-  },
-  {
-   "Path" : "C:/Users/87407/Documents/GOWINprj/DDS/src/uart_tx_string.v",
+   "Path" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/spi_slave.v",
    "Type" : "verilog"
   }
  ],
@@ -26,8 +22,8 @@
 
  ],
  "LoopLimit" : 2000,
- "ResultFile" : "C:/Users/87407/Documents/GOWINprj/DDS/impl/temp/rtl_parser.result",
- "Top" : "led_flash",
+ "ResultFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/impl/temp/rtl_parser.result",
+ "Top" : "TOP",
  "VerilogStd" : "verilog_2001",
  "VhdlStd" : "vhdl_93"
 }

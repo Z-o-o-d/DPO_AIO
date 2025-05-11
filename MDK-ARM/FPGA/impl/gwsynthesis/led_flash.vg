@@ -1,14 +1,14 @@
 //
 //Written by GowinSynthesis
 //Tool Version "V1.9.11.01 (64-bit)"
-//Thu May  8 09:08:09 2025
+//Mon May 12 01:51:02 2025
 
 //Source file index table:
-//file0 "\Z:/FPGA/GOWIN25K/temp/ch2_led_flash/src/dds.v"
-//file1 "\Z:/FPGA/GOWIN25K/temp/ch2_led_flash/src/gowin_pll/gowin_pll.v"
-//file2 "\Z:/FPGA/GOWIN25K/temp/ch2_led_flash/src/led_flash.v"
-//file3 "\Z:/FPGA/GOWIN25K/temp/ch2_led_flash/src/uart_tx_core.v"
-//file4 "\Z:/FPGA/GOWIN25K/temp/ch2_led_flash/src/uart_tx_string.v"
+//file0 "\C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/dds.v"
+//file1 "\C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/gowin_pll/gowin_pll.v"
+//file2 "\C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/led_flash.v"
+//file3 "\C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/uart_tx_core.v"
+//file4 "\C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/uart_tx_string.v"
 `timescale 100 ps/100 ps
 module Gowin_PLL (
   clk_d,

@@ -5,34 +5,34 @@
 1. PnR Messages
 
   <Report Title>: PnR Report
-  <Design File>: Z:\FPGA\GOWIN25K\temp\ch2_led_flash\impl\gwsynthesis\led_flash.vg
-  <Physical Constraints File>: Z:\FPGA\GOWIN25K\temp\ch2_led_flash\src\led_flash.cst
+  <Design File>: C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\impl\gwsynthesis\led_flash.vg
+  <Physical Constraints File>: C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\led_flash.cst
   <Timing Constraints File>: ---
   <Tool Version>: V1.9.11.01 (64-bit)
   <Part Number>: GW5A-LV25UG324ES
   <Device>: GW5A-25
   <Device Version>: A
-  <Created Time>:Thu May  8 09:08:21 2025
+  <Created Time>:Mon May 12 01:51:06 2025
 
 
 2. PnR Details
 
   Running placement:
-    Placement Phase 0: CPU time = 0h 0m 0.019s, Elapsed time = 0h 0m 0.019s
-    Placement Phase 1: CPU time = 0h 0m 0.232s, Elapsed time = 0h 0m 0.232s
-    Placement Phase 2: CPU time = 0h 0m 0.011s, Elapsed time = 0h 0m 0.01s
-    Placement Phase 3: CPU time = 0h 0m 0.319s, Elapsed time = 0h 0m 0.319s
-    Total Placement: CPU time = 0h 0m 0.581s, Elapsed time = 0h 0m 0.58s
+    Placement Phase 0: CPU time = 0h 0m 0.042s, Elapsed time = 0h 0m 0.042s
+    Placement Phase 1: CPU time = 0h 0m 0.331s, Elapsed time = 0h 0m 0.331s
+    Placement Phase 2: CPU time = 0h 0m 0.012s, Elapsed time = 0h 0m 0.012s
+    Placement Phase 3: CPU time = 0h 0m 0.36s, Elapsed time = 0h 0m 0.359s
+    Total Placement: CPU time = 0h 0m 0.745s, Elapsed time = 0h 0m 0.744s
  Running routing:
-    Routing Phase 0: CPU time = 0h 0m 0s, Elapsed time = 0h 0m 0s
-    Routing Phase 1: CPU time = 0h 0m 0.831s, Elapsed time = 0h 0m 0.831s
-    Routing Phase 2: CPU time = 0h 0m 0.028s, Elapsed time = 0h 0m 0.028s
+    Routing Phase 0: CPU time = 0h 0m 0.001s, Elapsed time = 0h 0m 0.001s
+    Routing Phase 1: CPU time = 0h 0m 0.935s, Elapsed time = 0h 0m 0.935s
+    Routing Phase 2: CPU time = 0h 0m 0.039s, Elapsed time = 0h 0m 0.039s
     Routing Phase 3: CPU time = 0h 0m 0s, Elapsed time = 0h 0m 0s
-    Total Routing: CPU time = 0h 0m 0.859s, Elapsed time = 0h 0m 0.859s
+    Total Routing: CPU time = 0h 0m 0.975s, Elapsed time = 0h 0m 0.975s
  Generate output files:
-    CPU time = 0h 0m 5s, Elapsed time = 0h 0m 5s
+    CPU time = 0h 0m 2s, Elapsed time = 0h 0m 2s
 
- Total Time and Memory Usage: CPU time = 0h 0m 6s, Elapsed time = 0h 0m 6s, Peak memory usage = 623MB
+ Total Time and Memory Usage: CPU time = 0h 0m 3s, Elapsed time = 0h 0m 3s, Peak memory usage = 526MB
 
 
 3. Resource Usage Summary

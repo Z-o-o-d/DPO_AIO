@@ -45,4 +45,4 @@ dpo_aio/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc\usbd_def.h \
   ..\USB_Device\Target\usbd_conf.h ..\Core\Inc\st7789.h \
   ..\Core\Inc\fonts.h ..\Core\Inc\ft6336.h ..\Core\Inc\Views.h \
-  ..\Core\Inc\ws2812.h
+  ..\Core\Inc\ws2812.h ..\Core\Inc\mylib.h
