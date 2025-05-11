@@ -1,0 +1,54 @@
+[
+ {
+  "InstFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/led_flash.v",
+  "InstLine" : 1,
+  "InstName" : "led_flash",
+  "ModuleFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/led_flash.v",
+  "ModuleLine" : 1,
+  "ModuleName" : "led_flash",
+  "SubInsts" : [
+   {
+    "InstFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/led_flash.v",
+    "InstLine" : 46,
+    "InstName" : "u_Gowin_PLL",
+    "ModuleFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/gowin_pll/gowin_pll.v",
+    "ModuleLine" : 10,
+    "ModuleName" : "Gowin_PLL"
+   },
+   {
+    "InstFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/led_flash.v",
+    "InstLine" : 60,
+    "InstName" : "u_uart_tx_string",
+    "ModuleFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/uart_tx_string.v",
+    "ModuleLine" : 10,
+    "ModuleName" : "uart_tx_string",
+    "SubInsts" : [
+     {
+      "InstFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/uart_tx_string.v",
+      "InstLine" : 139,
+      "InstName" : "u_uart_tx_core",
+      "ModuleFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/uart_tx_core.v",
+      "ModuleLine" : 12,
+      "ModuleName" : "uart_tx_core"
+     }
+    ]
+   },
+   {
+    "InstFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/led_flash.v",
+    "InstLine" : 164,
+    "InstName" : "u_dds_1",
+    "ModuleFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/dds.v",
+    "ModuleLine" : 21,
+    "ModuleName" : "dds"
+   },
+   {
+    "InstFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/led_flash.v",
+    "InstLine" : 180,
+    "InstName" : "u_dds_2",
+    "ModuleFile" : "C:/Users/87407/Documents/GOWINprj/DDS/src/dds.v",
+    "ModuleLine" : 21,
+    "ModuleName" : "dds"
+   }
+  ]
+ }
+]

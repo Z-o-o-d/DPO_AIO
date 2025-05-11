@@ -35,6 +35,8 @@
 #include "ft6336.h"
 #include "Views.h"
 #include "ws2812.h"
+#include "mylib.h"
+
 
 /* USER CODE END Includes */
 
@@ -152,6 +154,9 @@ int fputc(int ch, FILE *f)
     return (ch);
 }
 
+
+
+
 volatile char BUFFER_TEMP[100] = "Hello World\r\n";
 volatile uint16_t LCD_BRIGHTNESS = 10000;
 volatile uint8_t KEY_PRESSED = 0x01;
@@ -160,6 +165,11 @@ uint8_t CURRENT_VIEW = VIEW_INTRO;
 
 volatile uint16_t LED_BLINK=0;
 uint32_t cnt = 0;
+
+#define KEY_BUF_LEN 3  // 修改这个值可以控制历史长度（例如 5、6）
+
+uint16_t key_buf[KEY_BUF_LEN] = {0};
+uint16_t KEY_PROCESS = 0;
 
 /* USER CODE END PFP */
 
@@ -338,13 +348,6 @@ void WS2812_VIEW_Update(void) {
 }
 
 
-
-
-#define KEY_BUF_LEN 3  // 修改这个值可以控制历史长度（例如 5、6）
-
-uint16_t key_buf[KEY_BUF_LEN] = {0};
-uint16_t KEY_PROCESS = 0;
-
 void Key_Update(uint16_t KEY_PRESSED)
 {
     // 移位
@@ -369,6 +372,23 @@ void Key_Update(uint16_t KEY_PRESSED)
     }
 }
 
+// 编码器处理函数
+void ENC_PROC_INTRO(void) {
+	int32_t diff;
+	uint32_t current_cnt;
+
+	current_cnt = TIM3->CNT;
+	TIM3->CNT=32767;
+	diff = (int32_t)(current_cnt - 32767);
+
+	current_cnt = TIM1->CNT;
+	TIM1->CNT=32767;
+	diff = (int32_t)(current_cnt - 32767);
+
+  current_cnt = TIM4->CNT;
+	TIM4->CNT=32767;
+	diff = (int32_t)(current_cnt - 32767);
+}
 
 void KEY_PROC_INTRO(){
   Key_Update(KEY_PRESSED);
@@ -514,6 +534,23 @@ void KEY_PROC_INTRO(){
 
 }
 
+// 编码器处理函数
+void ENC_PROC_DPO1(void) {
+	int32_t diff;
+	uint32_t current_cnt;
+
+	current_cnt = TIM3->CNT;
+	TIM3->CNT=32767;
+	diff = (int32_t)(current_cnt - 32767);
+
+	current_cnt = TIM1->CNT;
+	TIM1->CNT=32767;
+	diff = (int32_t)(current_cnt - 32767);
+
+  current_cnt = TIM4->CNT;
+	TIM4->CNT=32767;
+	diff = (int32_t)(current_cnt - 32767);
+}
 
 void KEY_PROC_DPO1(){
   Key_Update(KEY_PRESSED);
@@ -660,6 +697,24 @@ void KEY_PROC_DPO1(){
 }
 
 
+// 编码器处理函数
+void ENC_PROC_DPO2(void) {
+	int32_t diff;
+	uint32_t current_cnt;
+
+	current_cnt = TIM3->CNT;
+	TIM3->CNT=32767;
+	diff = (int32_t)(current_cnt - 32767);
+
+	current_cnt = TIM1->CNT;
+	TIM1->CNT=32767;
+	diff = (int32_t)(current_cnt - 32767);
+
+  current_cnt = TIM4->CNT;
+	TIM4->CNT=32767;
+	diff = (int32_t)(current_cnt - 32767);
+}
+
 void KEY_PROC_DPO2(){
   Key_Update(KEY_PRESSED);
   switch(KEY_PROCESS) {
@@ -803,6 +858,24 @@ void KEY_PROC_DPO2(){
 
 }
 
+
+// 编码器处理函数
+void ENC_PROC_AFG1(void) {
+	int32_t diff;
+	uint32_t current_cnt;
+
+	current_cnt = TIM3->CNT;
+	TIM3->CNT=32767;
+	diff = (int32_t)(current_cnt - 32767);
+
+	current_cnt = TIM1->CNT;
+	TIM1->CNT=32767;
+	diff = (int32_t)(current_cnt - 32767);
+
+  current_cnt = TIM4->CNT;
+	TIM4->CNT=32767;
+	diff = (int32_t)(current_cnt - 32767);
+}
 
 void KEY_PROC_AFG1(){
   Key_Update(KEY_PRESSED);
@@ -948,6 +1021,24 @@ void KEY_PROC_AFG1(){
 
 }
 
+
+// 编码器处理函数
+void ENC_PROC_AFG2(void) {
+	int32_t diff;
+	uint32_t current_cnt;
+
+	current_cnt = TIM3->CNT;
+	TIM3->CNT=32767;
+	diff = (int32_t)(current_cnt - 32767);
+
+	current_cnt = TIM1->CNT;
+	TIM1->CNT=32767;
+	diff = (int32_t)(current_cnt - 32767);
+
+  current_cnt = TIM4->CNT;
+	TIM4->CNT=32767;
+	diff = (int32_t)(current_cnt - 32767);
+}
 
 void KEY_PROC_AFG2(){
   Key_Update(KEY_PRESSED);
@@ -1122,18 +1213,23 @@ void HID_PROCESS(void) {
   {
   case VIEW_INTRO:
     KEY_PROC_INTRO();
+    ENC_PROC_INTRO();
     break;
   case VIEW_DPO1: 
     KEY_PROC_DPO1();
+    ENC_PROC_DPO1();
     break;
   case VIEW_DPO2: 
     KEY_PROC_DPO2();
+    ENC_PROC_DPO2();
     break;
   case VIEW_AFG1:
     KEY_PROC_AFG1();
+    ENC_PROC_AFG1();
     break;
   case VIEW_AFG2:
     KEY_PROC_AFG2();
+    ENC_PROC_AFG2();
     break;
   default:
     break;

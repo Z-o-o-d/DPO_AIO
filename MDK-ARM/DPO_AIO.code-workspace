@@ -8,7 +8,9 @@
         "files.associations": {
             "main.h": "c",
             "views.h": "c",
-            "st7789.h": "c"
+            "st7789.h": "c",
+            "ws2812.h": "c",
+            "mylib.h": "c"
         }
     },
     "extensions": {}

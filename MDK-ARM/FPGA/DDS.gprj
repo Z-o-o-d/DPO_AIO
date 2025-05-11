@@ -1,0 +1,16 @@
+<?xml version="1" encoding="UTF-8"?>
+<!DOCTYPE gowin-fpga-project>
+<Project>
+    <Template>FPGA</Template>
+    <Version>5</Version>
+    <Device name="GW5A-25A" pn="GW5A-LV25UG324ES">gw5a25a-006</Device>
+    <FileList>
+        <File path="src/dds.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_pll/gowin_pll.v" type="file.verilog" enable="1"/>
+        <File path="src/led_flash.v" type="file.verilog" enable="1"/>
+        <File path="src/uart_tx_core.v" type="file.verilog" enable="1"/>
+        <File path="src/uart_tx_string.v" type="file.verilog" enable="1"/>
+        <File path="src/led_flash.cst" type="file.cst" enable="1"/>
+        <File path="src/sin_wave.dat" type="file.other" enable="1"/>
+    </FileList>
+</Project>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module name="led_flash" Register="34" Alu="30" Lut="16" T_Register="148(34)" T_Alu="59(30)" T_Lut="117(16)">
+ <SubModule name="u_Gowin_PLL"/>
+ <SubModule name="u_uart_tx_string" Register="34" Lut="74" T_Register="55(34)" T_Lut="101(74)">
+  <SubModule name="u_uart_tx_core" Register="21" Lut="27" T_Register="21(21)" T_Lut="27(27)"/>
+ </SubModule>
+ <SubModule name="u_dds_1" Register="59" Alu="29" T_Register="59(59)" T_Alu="29(29)"/>
+</Module>
