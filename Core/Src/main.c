@@ -409,10 +409,11 @@ void View_ONCE_PROC(void) {
   ST7789_DrawFilledRectangle(0, 120, 20, 60, convert_24bit_to_16bit(DPO_FE.DPO_EN1 ? THEME_DPO_1.MAIN : THEME_DPO_1.WAKE));
   ST7789_DrawFilledRectangle(0, 180, 20, 60, convert_24bit_to_16bit(DPO_FE.DPO_EN2 ? THEME_DPO_2.MAIN : THEME_DPO_2.WAKE));    
 
-  
-  ST7789_DrawRectangle(21, 0, 319, 239, convert_24bit_to_16bit(THEME_CONFIG.MAIN));
-  ST7789_DrawRectangle(22, 1, 318, 238, convert_24bit_to_16bit(THEME_CONFIG.MAIN));
-  ST7789_DrawRectangle(23, 2, 317, 237, convert_24bit_to_16bit(THEME_CONFIG.MAIN));
+  // ST7789_DrawFilledRectangle(20, 0, 320, 3, convert_24bit_to_16bit(THEME_CONFIG.MAIN));    
+  // ST7789_DrawFilledRectangle(20, 237, 320, 3, convert_24bit_to_16bit(THEME_CONFIG.MAIN));    
+
+  ST7789_DrawRectangle(20, 0, 319, 239, convert_24bit_to_16bit(THEME_CONFIG.MAIN),4);
+
 
 }
 

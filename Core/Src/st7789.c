@@ -344,15 +344,66 @@ void ST7789_DrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1,
  * @param color -> color of the Rectangle line
  * @return none
  */
-void ST7789_DrawRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color)
+void ST7789_DrawRectangle(uint16_t x1, uint16_t y1,
+                          uint16_t x2, uint16_t y2,
+                          uint16_t color, uint16_t thickness)
 {
-	ST7789_Select();
-	ST7789_DrawLine(x1, y1, x2, y1, color);
-	ST7789_DrawLine(x1, y1, x1, y2, color);
-	ST7789_DrawLine(x1, y2, x2, y2, color);
-	ST7789_DrawLine(x2, y1, x2, y2, color);
-	ST7789_UnSelect();
+    if (x1 >= ST7789_WIDTH || x2 >= ST7789_WIDTH ||
+        y1 >= ST7789_HEIGHT || y2 >= ST7789_HEIGHT)
+        return;
+
+    // Ensure x1 < x2 and y1 < y2
+    if (x2 < x1) { uint16_t t = x1; x1 = x2; x2 = t; }
+    if (y2 < y1) { uint16_t t = y1; y1 = y2; y2 = t; }
+
+    ST7789_Select();
+
+    uint16_t width = x2 - x1 + 1;
+    uint16_t height = y2 - y1 + 1;
+
+    // Clamp thickness to avoid overflow
+    if (thickness * 2 > width)  thickness = width / 2;
+    if (thickness * 2 > height) thickness = height / 2;
+
+    // ----------- Create color buffer ------------
+    uint16_t max_span = (width > height ? width : height);
+    if (max_span > 320) max_span = 320;  // 防止越界
+
+    static uint8_t color_buf[320 * 2];  // max 320 pixels
+
+    uint8_t high = color >> 8;
+    uint8_t low = color & 0xFF;
+    for (uint16_t i = 0; i < max_span; i++) {
+        color_buf[i * 2] = high;
+        color_buf[i * 2 + 1] = low;
+    }
+
+    // ---------- Top border ----------
+    for (uint16_t i = 0; i < thickness; i++) {
+        ST7789_SetAddressWindow(x1, y1 + i, x2, y1 + i);
+        ST7789_WriteData(color_buf, width * 2);
+    }
+
+    // ---------- Bottom border ----------
+    for (uint16_t i = 0; i < thickness; i++) {
+        ST7789_SetAddressWindow(x1, y2 - i, x2, y2 - i);
+        ST7789_WriteData(color_buf, width * 2);
+    }
+
+    // ---------- Left & Right borders ----------
+    for (uint16_t y = y1 + thickness; y <= y2 - thickness; y++) {
+        // Left border
+        ST7789_SetAddressWindow(x1, y, x1 + thickness - 1, y);
+        ST7789_WriteData(color_buf, thickness * 2);
+
+        // Right border
+        ST7789_SetAddressWindow(x2 - thickness + 1, y, x2, y);
+        ST7789_WriteData(color_buf, thickness * 2);
+    }
+
+    ST7789_UnSelect();
 }
+
 
 /** 
  * @brief Draw a circle with single color
@@ -505,30 +556,33 @@ void ST7789_WriteString(uint16_t x, uint16_t y, const char *str, FontDef font, u
  */
 void ST7789_DrawFilledRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color)
 {
-	ST7789_Select();
-	uint8_t i;
+    if (x >= ST7789_WIDTH || y >= ST7789_HEIGHT)
+        return;
 
-	/* Check input parameters */
-	if (x >= ST7789_WIDTH ||
-		y >= ST7789_HEIGHT) {
-		/* Return error */
-		return;
-	}
+    if ((x + w - 1) >= ST7789_WIDTH)
+        w = ST7789_WIDTH - x;
 
-	/* Check width and height */
-	if ((x + w) >= ST7789_WIDTH) {
-		w = ST7789_WIDTH - x;
-	}
-	if ((y + h) >= ST7789_HEIGHT) {
-		h = ST7789_HEIGHT - y;
-	}
+    if ((y + h - 1) >= ST7789_HEIGHT)
+        h = ST7789_HEIGHT - y;
 
-	/* Draw lines */
-	for (i = 0; i <= h; i++) {
-		/* Draw lines */
-		ST7789_DrawLine(x, y + i, x + w, y + i, color);
-	}
-	ST7789_UnSelect();
+    ST7789_Select();
+    ST7789_SetAddressWindow(x, y, x + w - 1, y + h - 1);
+
+    static uint8_t color_buf[240 * 2]; // 240 pixels max
+    uint8_t high = color >> 8;
+    uint8_t low = color & 0xFF;
+
+    for (uint16_t i = 0; i < w; i++) {
+        color_buf[2 * i]     = high;
+        color_buf[2 * i + 1] = low;
+    }
+
+    while (h--) {
+        ST7789_WriteData(color_buf, w * 2);
+    }
+
+    ST7789_UnSelect();
+
 }
 
 /** 
@@ -714,7 +768,7 @@ void ST7789_Test(void)
 
 	ST7789_Fill_Color(RED);
 	ST7789_WriteString(10, 10, "Rect./Line.", Font_11x18, YELLOW, BLACK);
-	ST7789_DrawRectangle(30, 30, 100, 100, WHITE);
+	// ST7789_DrawRectangle(30, 30, 100, 100, WHITE);
 	HAL_Delay(1000);
 
 	ST7789_Fill_Color(RED);
