@@ -15,13 +15,13 @@ module TOP(
 // Parameters             
 parameter CLK_FREQ = 50_000_000; //时钟频率 (Hz)
 
-parameter FW_W      = 64;  // 频率控制字
+parameter FW_W      = 32;  // 频率控制字
 parameter DAC_W = 14; // The width of the DAC904.
 
 wire clkout0;
 
-reg   [ FW_W-1:0]  freq_word1               = 268_435_45 ;
-reg   [ FW_W-1:0]  freq_word2               = 268_435_4 ;
+reg   [ FW_W-1:0]  freq_word1               = 2147483 ;
+reg   [ FW_W-1:0]  freq_word2               = 2147483 ;
 
 
 Gowin_PLL u_Gowin_PLL(
@@ -64,7 +64,7 @@ dds #(
     .int_dff_en              (  1                 ),
     .freq_word               ( freq_word1  [ FW_W-1:0] ),
 
-    .dout                    ( dds_dout_1               )
+    .sine_wave_dout                    ( dds_dout_1               )
 );
 
 
@@ -78,8 +78,8 @@ dds #(
 
     .int_dff_en              (  1                      ),
     .freq_word               ( freq_word2  [ FW_W-1:0] ),
-
-    .dout                    ( dds_dout_2              )
+    .triangle_sym            (  154748364  ),
+    .ramp_wave_dout          ( dds_dout_2              )
 );
 
 endmodule

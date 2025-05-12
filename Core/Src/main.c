@@ -176,6 +176,21 @@ uint16_t KEY_PROCESS = 0;
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+// 将24位颜色值(0xRRGGBB)转换为16位颜色值(5-6-5格式)
+uint16_t convert_24bit_to_16bit(uint32_t color_24bit) {
+    uint8_t g = (color_24bit >> 16) & 0xFF;
+    uint8_t r = (color_24bit >> 8) & 0xFF;
+    uint8_t b = color_24bit & 0xFF;
+    
+    // RGB 8-8-8 到 5-6-5 的转换
+    uint16_t r_5bit = (r >> 3) & 0x1F;  // 8位转5位
+    uint16_t g_6bit = (g >> 2) & 0x3F;  // 8位转6位
+    uint16_t b_5bit = (b >> 3) & 0x1F;  // 8位转5位
+    
+    // 组合成16位颜色值
+    return (r_5bit << 11) | (g_6bit << 5) | b_5bit;
+}
+
 
 DPO_AnalogStates DPO_FE = {
   .CH1_OFFSET = 1024,
@@ -192,10 +207,10 @@ DPO_AnalogStates DPO_FE = {
 AFG_AnalogStates AFG_FE = {
   .AFG_EN1   = 0,
   .AFG_EN2   = 0,
-  .CH1_DC    = 9000,
-  .CH2_DC    = 9000,
-  .CH1_REF   = 9000,
-  .CH2_REF   = 9000,
+  .CH1_DC    = 10000,
+  .CH2_DC    = 10000,
+  .CH1_REF   = 1000,
+  .CH2_REF   = 1000,
   .CH1_FREQ  = 10000,
   .CH2_FREQ  = 10000,
   .CH1_TYPE  = 0,
@@ -206,13 +221,13 @@ AFG_AnalogStates AFG_FE = {
 //gbr
 THEMEs THEME_DPO_1 = {
   .MAIN = 0x00FFFF,
-  .WAKE = 0x4FFFFF,
+  .WAKE = 0x000F0F,
   .SHUT = 0x000F0F,
 };
 
 THEMEs THEME_DPO_2 = {
   .MAIN = 0xFF0000,
-  .WAKE = 0xFF004F,
+  .WAKE = 0x0F0000,
   .SHUT = 0x0F0000,
 };
 
@@ -381,7 +396,27 @@ void Key_Update(uint16_t KEY_PRESSED)
     }
 }
 
-// 编码器处理函数
+
+void View_ONCE_INTRO(void) {
+  ST7789_Fill_Color(0x0000);
+  ST7789_DrawImage(10, 10, 160, 160, (uint16_t *)doubao);
+  ST7789_WriteString(20, 180, " !\"#$\%&\'\()", Han_Array32, WHITE, BLACK);
+}
+
+void View_ONCE_PROC(void) {
+  ST7789_DrawFilledRectangle(0, 0, 20, 60, convert_24bit_to_16bit(AFG_FE.AFG_EN1 ? THEME_AFG_1.MAIN : THEME_AFG_1.WAKE));
+  ST7789_DrawFilledRectangle(0, 60, 20, 60, convert_24bit_to_16bit(AFG_FE.AFG_EN2 ? THEME_AFG_2.MAIN : THEME_AFG_2.WAKE));
+  ST7789_DrawFilledRectangle(0, 120, 20, 60, convert_24bit_to_16bit(DPO_FE.DPO_EN1 ? THEME_DPO_1.MAIN : THEME_DPO_1.WAKE));
+  ST7789_DrawFilledRectangle(0, 180, 20, 60, convert_24bit_to_16bit(DPO_FE.DPO_EN2 ? THEME_DPO_2.MAIN : THEME_DPO_2.WAKE));    
+
+  
+  ST7789_DrawRectangle(21, 0, 319, 239, convert_24bit_to_16bit(THEME_CONFIG.MAIN));
+  ST7789_DrawRectangle(22, 1, 318, 238, convert_24bit_to_16bit(THEME_CONFIG.MAIN));
+  ST7789_DrawRectangle(23, 2, 317, 237, convert_24bit_to_16bit(THEME_CONFIG.MAIN));
+
+}
+
+// INTRO PROCESS
 void ENC_PROC_INTRO(void) {
 	int32_t diff;
 	uint32_t current_cnt;
@@ -406,25 +441,31 @@ void KEY_PROC_INTRO(){
         printf("处理AFG通道1按键\n");
         CURRENT_VIEW   = VIEW_AFG1;
         AFG_FE.AFG_EN1 = 1;
-
+        ST7789_Fill_Color(0x0000);
         break;
         
     case KET_AFG_2: 
         printf("处理AFG通道2按键\n");
         CURRENT_VIEW   = VIEW_AFG2;
         AFG_FE.AFG_EN2 = 1;
+        ST7789_Fill_Color(0x0000);
+
         break;
         
     case KET_DPO_1: 
         printf("处理DPO通道1按键\n");
         CURRENT_VIEW   = VIEW_DPO1;
         DPO_FE.DPO_EN1 = 1;
+        ST7789_Fill_Color(0x0000);
+
         break;
         
     case KET_DPO_2: 
         printf("处理DPO通道2按键\n");
         CURRENT_VIEW   = VIEW_DPO2;
         DPO_FE.DPO_EN2 = 1;
+        ST7789_Fill_Color(0x0000);
+
         break;
         
     case KET_DPO_1_AC: 
@@ -539,11 +580,12 @@ void KEY_PROC_INTRO(){
         
     default: 
         break;
-  }
+      }
+      
+    }
+    
 
-}
-
-// 编码器处理函数
+// DPO1 PROCESS
 void ENC_PROC_DPO1(void) {
 	int32_t diff;
 	uint32_t current_cnt;
@@ -560,7 +602,6 @@ void ENC_PROC_DPO1(void) {
 	TIM4->CNT=32767;
 	diff = (int32_t)(current_cnt - 32767);
 }
-
 void KEY_PROC_DPO1(){
   Key_Update(KEY_PRESSED);
   switch(KEY_PROCESS) {
@@ -568,25 +609,31 @@ void KEY_PROC_DPO1(){
         printf("处理AFG通道1按键\n");
         CURRENT_VIEW   = VIEW_AFG1;
         AFG_FE.AFG_EN1 = 1;
-
+        THEME_CONFIG = THEME_AFG_1;
+        View_ONCE_PROC();
         break;
         
     case KET_AFG_2: 
         printf("处理AFG通道2按键\n");
         CURRENT_VIEW   = VIEW_AFG2;
         AFG_FE.AFG_EN2 = 1;
+        THEME_CONFIG = THEME_AFG_2;
+        View_ONCE_PROC();
         break;
         
     case KET_DPO_1: 
         printf("处理DPO通道1按键\n");
         CURRENT_VIEW   = VIEW_DPO1;
         DPO_FE.DPO_EN1 = !DPO_FE.DPO_EN1;
+        View_ONCE_PROC();
         break;
         
     case KET_DPO_2: 
         printf("处理DPO通道2按键\n");
         CURRENT_VIEW   = VIEW_DPO2;
         DPO_FE.DPO_EN2 = 1;
+        THEME_CONFIG = THEME_DPO_2;
+        View_ONCE_PROC();
         break;
         
     case KET_DPO_1_AC: 
@@ -705,8 +752,7 @@ void KEY_PROC_DPO1(){
 
 }
 
-
-// 编码器处理函数
+// DPO2 PROCESS
 void ENC_PROC_DPO2(void) {
 	int32_t diff;
 	uint32_t current_cnt;
@@ -723,7 +769,6 @@ void ENC_PROC_DPO2(void) {
 	TIM4->CNT=32767;
 	diff = (int32_t)(current_cnt - 32767);
 }
-
 void KEY_PROC_DPO2(){
   Key_Update(KEY_PRESSED);
   switch(KEY_PROCESS) {
@@ -731,24 +776,31 @@ void KEY_PROC_DPO2(){
         printf("处理AFG通道1按键\n");
         CURRENT_VIEW   = VIEW_AFG1;
         AFG_FE.AFG_EN1 = 1;
+        THEME_CONFIG = THEME_AFG_1;
+        View_ONCE_PROC();
         break;
         
     case KET_AFG_2: 
         printf("处理AFG通道2按键\n");
         CURRENT_VIEW   = VIEW_AFG2;
         AFG_FE.AFG_EN2 = 1;
+        THEME_CONFIG = THEME_AFG_2;
+        View_ONCE_PROC();
         break;
         
     case KET_DPO_1: 
         printf("处理DPO通道1按键\n");
         CURRENT_VIEW   = VIEW_DPO1;
         DPO_FE.DPO_EN1 = 1;
+        THEME_CONFIG = THEME_DPO_1;
+        View_ONCE_PROC();
         break;
         
     case KET_DPO_2: 
         printf("处理DPO通道2按键\n");
         CURRENT_VIEW   = VIEW_DPO2;
         DPO_FE.DPO_EN2 = !DPO_FE.DPO_EN2;
+        View_ONCE_PROC();
         break;
         
     case KET_DPO_1_AC: 
@@ -867,8 +919,7 @@ void KEY_PROC_DPO2(){
 
 }
 
-
-// 编码器处理函数
+// AFG1 PROCESS
 void ENC_PROC_AFG1(void) {
 	int32_t diff;
 	uint32_t current_cnt;
@@ -885,7 +936,6 @@ void ENC_PROC_AFG1(void) {
 	TIM4->CNT=32767;
 	diff = (int32_t)(current_cnt - 32767);
 }
-
 void KEY_PROC_AFG1(){
   Key_Update(KEY_PRESSED);
   switch(KEY_PROCESS) {
@@ -893,25 +943,31 @@ void KEY_PROC_AFG1(){
         printf("处理AFG通道1按键\n");
         CURRENT_VIEW   = VIEW_AFG1;
         AFG_FE.AFG_EN1 = !AFG_FE.AFG_EN1 ;
-
+        View_ONCE_PROC();
         break;
         
     case KET_AFG_2: 
         printf("处理AFG通道2按键\n");
         CURRENT_VIEW   = VIEW_AFG2;
         AFG_FE.AFG_EN2 = 1;
+        THEME_CONFIG = THEME_AFG_2;
+        View_ONCE_PROC();
         break;
         
     case KET_DPO_1: 
         printf("处理DPO通道1按键\n");
         CURRENT_VIEW   = VIEW_DPO1;
         DPO_FE.DPO_EN1 = 1;
+        THEME_CONFIG = THEME_DPO_1; 
+        View_ONCE_PROC();        
         break;
         
     case KET_DPO_2: 
         printf("处理DPO通道2按键\n");
         CURRENT_VIEW   = VIEW_DPO2;
         DPO_FE.DPO_EN2 = 1;
+        THEME_CONFIG = THEME_DPO_2;
+        View_ONCE_PROC();
         break;
         
     case KET_DPO_1_AC: 
@@ -1030,8 +1086,7 @@ void KEY_PROC_AFG1(){
 
 }
 
-
-// 编码器处理函数
+// AFG2 PROCESS
 void ENC_PROC_AFG2(void) {
 	int32_t diff;
 	uint32_t current_cnt;
@@ -1048,7 +1103,6 @@ void ENC_PROC_AFG2(void) {
 	TIM4->CNT=32767;
 	diff = (int32_t)(current_cnt - 32767);
 }
-
 void KEY_PROC_AFG2(){
   Key_Update(KEY_PRESSED);
   switch(KEY_PROCESS) {
@@ -1056,25 +1110,31 @@ void KEY_PROC_AFG2(){
         printf("处理AFG通道1按键\n");
         CURRENT_VIEW   = VIEW_AFG1;
         AFG_FE.AFG_EN1 = 1;
-
+        THEME_CONFIG = THEME_AFG_1;
+        View_ONCE_PROC();
         break;
         
     case KET_AFG_2: 
         printf("处理AFG通道2按键\n");
         CURRENT_VIEW   = VIEW_AFG2;
         AFG_FE.AFG_EN2 = !AFG_FE.AFG_EN2;
+        View_ONCE_PROC();
         break;
         
     case KET_DPO_1: 
         printf("处理DPO通道1按键\n");
         CURRENT_VIEW   = VIEW_DPO1;
         DPO_FE.DPO_EN1 = 1;
+        THEME_CONFIG = THEME_DPO_1;
+        View_ONCE_PROC();
         break;
         
     case KET_DPO_2: 
         printf("处理DPO通道2按键\n");
         CURRENT_VIEW   = VIEW_DPO2;
         DPO_FE.DPO_EN2 = 1;
+        THEME_CONFIG = THEME_DPO_2;
+        View_ONCE_PROC();
         break;
         
     case KET_DPO_1_AC: 
@@ -1199,7 +1259,7 @@ void KEY_PROC_AFG2(){
 
 void HID_PROCESS(void) {
 	//SET OFFSET
-  HAL_Delay(25);
+  // HAL_Delay(25);
 
   FT6336_GetTouchPoint(&TouchPoints);    
   HAL_I2C_Master_Receive(&hi2c3, 0x49, &KEY_PRESSED,1, 1000);
@@ -1216,7 +1276,6 @@ void HID_PROCESS(void) {
   ST7789_WriteString(200, 50, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
   sprintf(&BUFFER_TEMP,"ENC4:%5d",TIM4->CNT);
   ST7789_WriteString(200, 70, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
-
 
   switch (CURRENT_VIEW)
   {
@@ -1243,10 +1302,6 @@ void HID_PROCESS(void) {
   default:
     break;
   }
-
-
-
-
   WS2812_VIEW_Update();
   DPO_FE_Update();
 
@@ -1361,12 +1416,12 @@ int main(void)
 
 
   // HAL_GPIO_WritePin(ST_CS_GPIO_Port, ST_CS_Pin, GPIO_PIN_RESET);
-  View_DoubaoWelcome();
 
 
-  HAL_I2C_Master_Transmit(&hi2c3, 0x48, &KEY_PRESSED,1, 1000);
   WS2812_Set_All(0x000010);
   HAL_TIMEx_PWMN_Start(&htim8,TIM_CHANNEL_4);
+  View_ONCE_PROC();
+
 
   /* USER CODE END 2 */
 
@@ -1380,8 +1435,7 @@ int main(void)
     HID_PROCESS();
     WS2812_VIEW_Update();
 
-
-
+    View_ONCE_PROC();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -1411,7 +1465,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
-  RCC_OscInitStruct.PLL.PLLN = 90;
+  RCC_OscInitStruct.PLL.PLLN = 85;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV6;
   RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
   RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
@@ -2450,7 +2504,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 18000;
+  htim2.Init.Period = 20000;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_PWM_Init(&htim2) != HAL_OK)
@@ -2464,7 +2518,7 @@ static void MX_TIM2_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 9000;
+  sConfigOC.Pulse = 1000;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
@@ -2760,7 +2814,7 @@ static void MX_TIM15_Init(void)
   htim15.Instance = TIM15;
   htim15.Init.Prescaler = 0;
   htim15.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim15.Init.Period = 18000;
+  htim15.Init.Period = 20000;
   htim15.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim15.Init.RepetitionCounter = 0;
   htim15.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -2775,7 +2829,7 @@ static void MX_TIM15_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 9000;
+  sConfigOC.Pulse = 1000;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;

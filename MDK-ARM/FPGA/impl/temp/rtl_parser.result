@@ -20,7 +20,7 @@
     "InstLine" : 59,
     "InstName" : "u_dds_1",
     "ModuleFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/dds.v",
-    "ModuleLine" : 3,
+    "ModuleLine" : 1,
     "ModuleName" : "dds"
    },
    {
@@ -28,7 +28,7 @@
     "InstLine" : 74,
     "InstName" : "u_dds_2",
     "ModuleFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/dds.v",
-    "ModuleLine" : 3,
+    "ModuleLine" : 1,
     "ModuleName" : "dds"
    }
   ]

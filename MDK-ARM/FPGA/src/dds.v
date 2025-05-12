@@ -1,72 +1,70 @@
-
-
 module dds #(
-    parameter DAT_W = 14, // The width of the sine wave data table in ROM. 
-    parameter ROM_W = 10, // The width of addr of the ROM table,the number of sampling points per sinewave's period = 2^ROM_W 10.1024
-    parameter FW_W  = 64  // The width of frequency word 64
-
+    parameter DAT_W = 14, // 输出数据宽度
+    parameter ROM_W = 10, // ROM 地址宽度（即相位位数）
+    parameter FW_W  = 32  // 相位累加器宽度
 ) (
-    //clk & reset inputs
     input  wire             clk,
     input  wire             rst_n,
     input  wire             int_dff_en,
-    
 
-
-    //registers
     input  wire [ FW_W-1:0] freq_word,
-    //data output
+    input  wire [ FW_W-1:0] triangle_sym,
 
     output reg  [ FW_W-1:0] phase_acc,
     output reg  [ FW_W-1:0] phase_acc_dly,
-    output reg  [DAT_W-1:0] dout
+
+    output reg  [DAT_W-1:0] sine_wave_dout,
+    output reg  [DAT_W-1:0] ramp_wave_dout
 );
 
-  //sine_wave_mem
-  // Read a sine wave data table from external file.
-  reg [DAT_W-1:0] sine_wave_mem [(2**ROM_W)-1:0];
-
-
-  initial begin
-    $readmemh("./sin_wave.dat",sine_wave_mem);
-  end
-   
-
-
-
-  always @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
-      phase_acc <= 0;
-    end else if (int_dff_en) begin
-      phase_acc <= phase_acc + freq_word;  //Auto Reload
+    // ROM 读取正弦波表
+    reg [DAT_W-1:0] sine_wave_mem [(2**ROM_W)-1:0];
+    initial begin
+        $readmemh("./sin_wave.dat", sine_wave_mem);
     end
-  end
 
-  always @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
-      phase_acc_dly <= 0;
-    end else if (int_dff_en) begin
-      phase_acc_dly <= phase_acc;
-    end 
-  end
-///////////////////////////////
+    // 相位累加器逻辑
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            phase_acc <= 0;
+        else if (int_dff_en)
+            phase_acc <= phase_acc + freq_word;
+    end
 
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            phase_acc_dly <= 0;
+        else if (int_dff_en)
+            phase_acc_dly <= phase_acc;
+    end
 
+    // Sine 波输出
+    wire [ROM_W-1:0] addr = phase_acc_dly[FW_W-1 -: ROM_W];
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            sine_wave_dout <= 0;
+        else if (int_dff_en)
+            sine_wave_dout <= sine_wave_mem[addr];
+    end
 
-  //dout
-///////////////////////////////
-  wire [ROM_W-1:0] addr = phase_acc_dly[FW_W-1 -: ROM_W];
+    // 三角波输出
+    wire [FW_W-1:0] phase_now = phase_acc_dly;
+    wire [FW_W-1:0] full_scale = 32'hFFFFFFFF;  // 最大相位值
+    wire [FW_W-1:0] half_scale = 32'h7FFFFFFF;  // 半周期
+    wire [FW_W-1:0] abs_diff = (phase_now < triangle_sym) ?
+                                (triangle_sym - phase_now) :
+                                (phase_now - triangle_sym);
 
-  always @(posedge clk or negedge rst_n) begin
-      if (!rst_n) begin
-          dout <= 0;
-      end else if (int_dff_en) begin
-          dout <= sine_wave_mem[addr];
-      end
-  end
+    // 线性映射：根据相对于对称点的距离决定输出幅值，最大 DAT_W 位
+    // 最简单的方式：abs_diff 高位取 ROM_W 位，再左移 DAT_W - ROM_W 做线性斜率
+    wire [ROM_W-1:0] triangle_addr = abs_diff[FW_W-1 -: ROM_W];
+    wire [DAT_W-1:0] triangle_val  = triangle_addr << (DAT_W - ROM_W);
 
-  //dout_vld
-
-///////////////////////////////
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            ramp_wave_dout <= 0;
+        else if (int_dff_en)
+            ramp_wave_dout <= triangle_val;
+    end
 
 endmodule
