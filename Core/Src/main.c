@@ -62,6 +62,7 @@ ADC_HandleTypeDef hadc3;
 ADC_HandleTypeDef hadc4;
 ADC_HandleTypeDef hadc5;
 DMA_HandleTypeDef hdma_adc1;
+DMA_HandleTypeDef hdma_adc3;
 
 COMP_HandleTypeDef hcomp2;
 COMP_HandleTypeDef hcomp5;
@@ -162,6 +163,9 @@ volatile uint16_t LCD_BRIGHTNESS = 10000;
 volatile uint8_t KEY_PRESSED = 0x79;
 uint8_t CURRENT_VIEW = VIEW_INTRO;
 
+uint32_t BUFFER_DPO1[DPO_DEEP] = {0};
+uint32_t BUFFER_DPO2[DPO_DEEP] = {0};
+
 
 volatile uint16_t LED_BLINK=0;
 uint32_t cnt = 0;
@@ -176,20 +180,6 @@ uint16_t KEY_PROCESS = 0;
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-// 将24位颜色值(0xRRGGBB)转换为16位颜色值(5-6-5格式)
-uint16_t convert_24bit_to_16bit(uint32_t color_24bit) {
-    uint8_t g = (color_24bit >> 16) & 0xFF;
-    uint8_t r = (color_24bit >> 8) & 0xFF;
-    uint8_t b = color_24bit & 0xFF;
-    
-    // RGB 8-8-8 到 5-6-5 的转换
-    uint16_t r_5bit = (r >> 3) & 0x1F;  // 8位转5位
-    uint16_t g_6bit = (g >> 2) & 0x3F;  // 8位转6位
-    uint16_t b_5bit = (b >> 3) & 0x1F;  // 8位转5位
-    
-    // 组合成16位颜色值
-    return (r_5bit << 11) | (g_6bit << 5) | b_5bit;
-}
 
 
 DPO_AnalogStates DPO_FE = {
@@ -202,6 +192,10 @@ DPO_AnalogStates DPO_FE = {
   .DPO_EN1    = 0,
   .DPO_EN2    = 0,
   .TRIG_MODE  = 0,
+  .TRIG_LEVEL = 0,
+  .TRIG_FALL_EN = 0,
+  .TRIG_RISI_EN = 0,
+  .SELECT_CH  = 0,
 };
 
 AFG_AnalogStates AFG_FE = {
@@ -264,7 +258,40 @@ void DPO_FE_Update(void) {
   HAL_GPIO_WritePin(DPO_AC2_GPIO_Port,DPO_AC2_Pin, DPO_FE.CH2_AC_DC);
   HAL_GPIO_WritePin(DPO_EN1_GPIO_Port,DPO_EN1_Pin, DPO_FE.DPO_EN1);
   HAL_GPIO_WritePin(DPO_EN2_GPIO_Port,DPO_EN2_Pin, DPO_FE.DPO_EN2);
+
+
+  if (DPO_FE.SELECT_CH)
+  {
+    LL_EXTI_DisableFallingTrig_0_31(COMP_EXTI_LINE_COMP5);
+    LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP5);
+    if (DPO_FE.TRIG_FALL_EN) 
+    LL_EXTI_EnableFallingTrig_0_31(COMP_EXTI_LINE_COMP2);
+  else 
+    LL_EXTI_DisableFallingTrig_0_31(COMP_EXTI_LINE_COMP2);
+  if (DPO_FE.TRIG_RISI_EN)  
+    LL_EXTI_EnableRisingTrig_0_31(COMP_EXTI_LINE_COMP2); 
+  else 
+    LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP2);
+  } else
+  {
+    LL_EXTI_DisableFallingTrig_0_31(COMP_EXTI_LINE_COMP2);
+    LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP2);
+      if (DPO_FE.TRIG_FALL_EN) 
+    LL_EXTI_EnableFallingTrig_0_31(COMP_EXTI_LINE_COMP5);
+  else 
+    LL_EXTI_DisableFallingTrig_0_31(COMP_EXTI_LINE_COMP5);
+  if (DPO_FE.TRIG_RISI_EN)  
+    LL_EXTI_EnableRisingTrig_0_31(COMP_EXTI_LINE_COMP5); 
+  else 
+    LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP5);
+  }
+  
+
+
+
 }
+
+
 
 
 void AFG_Update(void) {
@@ -274,6 +301,8 @@ void AFG_Update(void) {
   TIM15->CCR2 = AFG_FE.CH2_REF;
   TIM15->CCR1 = AFG_FE.CH2_DC;
 }
+
+
 
 
 void WS2812_VIEW_Update(void) {
@@ -362,7 +391,7 @@ void WS2812_VIEW_Update(void) {
     WS2812_Write_Data(THEME_CONFIG.MAIN, LED_ENC_4U);
     WS2812_Write_Data(THEME_CONFIG.MAIN, LED_ENC_4D);
     break;
-
+    
 
   default:
     break;
@@ -399,8 +428,12 @@ void Key_Update(uint16_t KEY_PRESSED)
 
 void View_ONCE_INTRO(void) {
   ST7789_Fill_Color(0x0000);
-  ST7789_DrawImage(10, 10, 160, 160, (uint16_t *)doubao);
-  ST7789_WriteString(20, 180, " !\"#$\%&\'\()", Han_Array32, WHITE, BLACK);
+  ST7789_DrawImage(80, 0, 160, 160, (uint16_t *)doubao);
+  ST7789_WriteString(80, 175, " !\"#$\%&\'\()", Han_Array32, WHITE, BLACK);
+  ST7789_WriteString(40, 210, "TOUCH SCREEN TO START", Font_11x18, GRAY, BLACK);
+  ST7789_WriteString(0, 230, "https://github.com/Z-o-o-d", Font_7x10, GRAY, BLACK);
+
+
 }
 
 void View_ONCE_PROC(void) {
@@ -434,6 +467,7 @@ void View_ONCE_PROC(void) {
 
     ST7789_DrawRectangle(20, 0, 319, 239, convert_24bit_to_16bit(THEME_CONFIG.MAIN),4);
 
+  ST7789_DrawLine(0, 0, 319, 0, convert_24bit_to_16bit(THEME_CONFIG.MAIN));
 
   
 
@@ -1294,28 +1328,7 @@ void KEY_PROC_AFG2(){
 }
 
 
-
-
-
-void HID_PROCESS(void) {
-	//SET OFFSET
-
-  FT6336_GetTouchPoint(&TouchPoints);    
-  HAL_I2C_Master_Receive(&hi2c3, 0x49, &KEY_PRESSED,1, 1000);
-  #ifdef DEBUGING
-    printf("1_x,1_y,2_x,2_y:%d,%d,%d,%d,0x%x\r\n", TouchPoints.point1_x,TouchPoints.point1_y,TouchPoints.point2_x,TouchPoints.point2_y,KEY_PRESSED);
-  #endif
-
-
-  sprintf(&BUFFER_TEMP,"KEY:0x%x",KEY_PRESSED);
-  ST7789_WriteString(200, 10, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
-  sprintf(&BUFFER_TEMP,"ENC3:%5d",TIM3->CNT);
-  ST7789_WriteString(200, 30, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
-  sprintf(&BUFFER_TEMP,"ENC1:%5d",TIM1->CNT);
-  ST7789_WriteString(200, 50, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
-  sprintf(&BUFFER_TEMP,"ENC4:%5d",TIM4->CNT);
-  ST7789_WriteString(200, 70, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
-
+void VIEW_UPDATE(void) {
   switch (CURRENT_VIEW)
   {
   case VIEW_INTRO:
@@ -1341,8 +1354,31 @@ void HID_PROCESS(void) {
   default:
     break;
   }
+}
+
+
+
+void HID_PROCESS(void) {
+	//SET OFFSET
+
+  FT6336_GetTouchPoint(&TouchPoints);    
+  HAL_I2C_Master_Receive(&hi2c3, 0x49, &KEY_PRESSED,1, 1000);
+  #ifdef DEBUGING
+    printf("1_x,1_y,2_x,2_y:%d,%d,%d,%d,0x%x\r\n", TouchPoints.point1_x,TouchPoints.point1_y,TouchPoints.point2_x,TouchPoints.point2_y,KEY_PRESSED);
+  #endif
+
+
+  sprintf(&BUFFER_TEMP,"KEY:0x%x",KEY_PRESSED);
+  ST7789_WriteString(200, 10, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
+  sprintf(&BUFFER_TEMP,"ENC3:%5d",TIM3->CNT);
+  ST7789_WriteString(200, 30, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
+  sprintf(&BUFFER_TEMP,"ENC1:%5d",TIM1->CNT);
+  ST7789_WriteString(200, 50, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
+  sprintf(&BUFFER_TEMP,"ENC4:%5d",TIM4->CNT);
+  ST7789_WriteString(200, 70, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
+
+  VIEW_UPDATE();
   WS2812_VIEW_Update();
-  DPO_FE_Update();
 
 }
 
@@ -1432,32 +1468,52 @@ int main(void)
   HAL_TIM_PWM_Start(&htim15, TIM_CHANNEL_2);
 
   
+
+  
   HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
 
 
-  HAL_TIM_Base_Start(&htim6);
   HAL_TIM_Base_Start(&htim7);
   HAL_TIM_Base_Start(&htim15);
 
-
-  HAL_OPAMP_Start(&hopamp4);
-  HAL_OPAMP_Start(&hopamp5);
-  
-  printf("hello world\r\n");
+    printf("hello world\r\n");
   
   FT6336_Init();
   ST7789_Init();
   LCD_BRIGHT(LCD_BRIGHTNESS);
   HAL_I2C_Master_Transmit(&hi2c3, 0x48, &KEY_PRESSED,1, 1000);
 
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&BUFFER_DPO1, DPO_DEEP);
+  HAL_ADC_Start_DMA(&hadc3, (uint32_t*)&BUFFER_DPO2, DPO_DEEP);
+
+
+  HAL_OPAMP_Start(&hopamp4);
+  HAL_OPAMP_Start(&hopamp5);
+
+  
+  HAL_OPAMP_Start(&hopamp1);
+  HAL_OPAMP_Start(&hopamp2);
+  HAL_OPAMP_Start(&hopamp3);
+  HAL_OPAMP_Start(&hopamp6);
+
+
+
+  HAL_TIM_Base_Start(&htim6);
+  HAL_TIM_Base_Start(&htim7);
+
+  
+
+
+
 
   WS2812_Set_All(0x000010);
   HAL_TIMEx_PWMN_Start(&htim8,TIM_CHANNEL_4);
-  View_ONCE_PROC();
-
-
+  View_ONCE_INTRO();
+  // WS2812_RunningHorse(100,100);
+  
+  
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -1469,6 +1525,34 @@ int main(void)
     AFG_Update();
     HID_PROCESS();
     WS2812_VIEW_Update();
+
+
+
+
+TIM6->CR1 &= ~TIM_CR1_CEN;  // 清零CEN位以停止计数
+
+  // HAL_ADC_Stop_DMA(&hadc1);
+  uint32_t TIRG_P =  hadc1.DMA_Handle->Instance->CNDTR;
+  
+  uint32_t Show_Value[DPO_DEEP] = {0};
+
+  uint32_t split_index = DPO_DEEP - TIRG_P;
+
+  for (size_t i = 0; i < DPO_DEEP; i++)
+  {
+      size_t src_index = (i + split_index) % DPO_DEEP;
+      Show_Value[i] = BUFFER_DPO1[src_index];
+  
+      printf("adc:%d, %d, %d, %d\r\n", 
+             BUFFER_DPO1[i], 
+             (DPO_DEEP - i == TIRG_P) ? 2048 : i, 
+             TIRG_P, 
+             Show_Value[i]);
+  }
+
+TIM6->CR1 |= TIM_CR1_CEN;  // 设置CEN位来启动定时器
+
+
 
     /* USER CODE END WHILE */
 
@@ -1499,7 +1583,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
-  RCC_OscInitStruct.PLL.PLLN = 85;
+  RCC_OscInitStruct.PLL.PLLN = 90;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV6;
   RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
   RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
@@ -1555,8 +1639,8 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ContinuousConvMode = DISABLE;
   hadc1.Init.NbrOfConversion = 1;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
-  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+  hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIG_T6_TRGO;
+  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING;
   hadc1.Init.DMAContinuousRequests = ENABLE;
   hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
   hadc1.Init.OversamplingMode = DISABLE;
@@ -1567,9 +1651,7 @@ static void MX_ADC1_Init(void)
 
   /** Configure the ADC multi-mode
   */
-  multimode.Mode = ADC_DUALMODE_INTERL;
-  multimode.DMAAccessMode = ADC_DMAACCESSMODE_12_10_BITS;
-  multimode.TwoSamplingDelay = ADC_TWOSAMPLINGDELAY_4CYCLES;
+  multimode.Mode = ADC_MODE_INDEPENDENT;
   if (HAL_ADCEx_MultiModeConfigChannel(&hadc1, &multimode) != HAL_OK)
   {
     Error_Handler();
@@ -1624,6 +1706,8 @@ static void MX_ADC2_Init(void)
   hadc2.Init.ContinuousConvMode = DISABLE;
   hadc2.Init.NbrOfConversion = 1;
   hadc2.Init.DiscontinuousConvMode = DISABLE;
+  hadc2.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc2.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc2.Init.DMAContinuousRequests = DISABLE;
   hadc2.Init.Overrun = ADC_OVR_DATA_PRESERVED;
   hadc2.Init.OversamplingMode = DISABLE;
@@ -1682,9 +1766,9 @@ static void MX_ADC3_Init(void)
   hadc3.Init.ContinuousConvMode = DISABLE;
   hadc3.Init.NbrOfConversion = 1;
   hadc3.Init.DiscontinuousConvMode = DISABLE;
-  hadc3.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc3.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc3.Init.DMAContinuousRequests = DISABLE;
+  hadc3.Init.ExternalTrigConv = ADC_EXTERNALTRIG_T6_TRGO;
+  hadc3.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING;
+  hadc3.Init.DMAContinuousRequests = ENABLE;
   hadc3.Init.Overrun = ADC_OVR_DATA_PRESERVED;
   hadc3.Init.OversamplingMode = DISABLE;
   if (HAL_ADC_Init(&hadc3) != HAL_OK)
@@ -1694,7 +1778,9 @@ static void MX_ADC3_Init(void)
 
   /** Configure the ADC multi-mode
   */
-  multimode.Mode = ADC_MODE_INDEPENDENT;
+  multimode.Mode = ADC_DUALMODE_INTERL;
+  multimode.DMAAccessMode = ADC_DMAACCESSMODE_12_10_BITS;
+  multimode.TwoSamplingDelay = ADC_TWOSAMPLINGDELAY_4CYCLES;
   if (HAL_ADCEx_MultiModeConfigChannel(&hadc3, &multimode) != HAL_OK)
   {
     Error_Handler();
@@ -1749,8 +1835,6 @@ static void MX_ADC4_Init(void)
   hadc4.Init.ContinuousConvMode = DISABLE;
   hadc4.Init.NbrOfConversion = 1;
   hadc4.Init.DiscontinuousConvMode = DISABLE;
-  hadc4.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc4.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc4.Init.DMAContinuousRequests = DISABLE;
   hadc4.Init.Overrun = ADC_OVR_DATA_PRESERVED;
   hadc4.Init.OversamplingMode = DISABLE;
@@ -2154,7 +2238,7 @@ static void MX_I2C3_Init(void)
 
   /* USER CODE END I2C3_Init 1 */
   hi2c3.Instance = I2C3;
-  hi2c3.Init.Timing = 0x40B21236;
+  hi2c3.Init.Timing = 0x40621236;
   hi2c3.Init.OwnAddress1 = 0;
   hi2c3.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c3.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -2688,7 +2772,7 @@ static void MX_TIM6_Init(void)
   htim6.Instance = TIM6;
   htim6.Init.Prescaler = 0;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = 180;
+  htim6.Init.Period = 44;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
   {
@@ -3114,6 +3198,9 @@ static void MX_DMA_Init(void)
   /* DMA1_Channel4_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
+  /* DMA1_Channel5_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
   /* DMA2_Channel1_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Channel1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Channel1_IRQn);

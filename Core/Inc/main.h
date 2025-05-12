@@ -130,6 +130,10 @@ typedef struct {
   uint16_t CH1_AC_DC;
 	uint16_t CH2_AC_DC;
   uint16_t TRIG_MODE;
+  uint16_t TRIG_LEVEL;
+  uint16_t TRIG_FALL_EN;
+  uint16_t TRIG_RISI_EN;
+  uint16_t SELECT_CH;
 } DPO_AnalogStates;
 
 
@@ -159,6 +163,7 @@ typedef struct {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
+#define DPO_DEEP 2048
 
 /* USER CODE END EC */
 
