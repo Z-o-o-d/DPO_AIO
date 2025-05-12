@@ -1537,18 +1537,24 @@ TIM6->CR1 &= ~TIM_CR1_CEN;  // 清零CEN位以停止计数
   uint32_t Show_Value[DPO_DEEP] = {0};
 
   uint32_t split_index = DPO_DEEP - TIRG_P;
+              ST7789_DrawFilledRectangle(25, 5, 290, 230, BLACK);
 
   for (size_t i = 0; i < DPO_DEEP; i++)
   {
       size_t src_index = (i + split_index) % DPO_DEEP;
       Show_Value[i] = BUFFER_DPO1[src_index];
   
-      printf("adc:%d, %d, %d, %d\r\n", 
-             BUFFER_DPO1[i], 
-             (DPO_DEEP - i == TIRG_P) ? 2048 : i, 
-             TIRG_P, 
-             Show_Value[i]);
+      // printf("adc:%d, %d, %d, %d\r\n", 
+      //        BUFFER_DPO1[i], 
+      //        (DPO_DEEP - i == TIRG_P) ? 2048 : i, 
+      //        TIRG_P, 
+      //        Show_Value[i]);
+
+
+      ST7789_DrawPixel(i+25, Show_Value[i]/20, WHITE);
+      // ST7789_DrawLine(i+25, Show_Value[i]/20, i+26, Show_Value[i+1]/20, WHITE);
   }
+  // HAL_Delay(10);
 
 TIM6->CR1 |= TIM_CR1_CEN;  // 设置CEN位来启动定时器
 
