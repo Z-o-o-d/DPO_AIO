@@ -159,7 +159,7 @@ int fputc(int ch, FILE *f)
 
 volatile char BUFFER_TEMP[100] = "Hello World\r\n";
 volatile uint16_t LCD_BRIGHTNESS = 10000;
-volatile uint8_t KEY_PRESSED = 0x01;
+volatile uint8_t KEY_PRESSED = 0x79;
 uint8_t CURRENT_VIEW = VIEW_INTRO;
 
 
@@ -221,30 +221,30 @@ AFG_AnalogStates AFG_FE = {
 //gbr
 THEMEs THEME_DPO_1 = {
   .MAIN = 0x00FFFF,
-  .WAKE = 0x000F0F,
+  .WAKE = 0x001F1F,
   .SHUT = 0x000F0F,
 };
 
 THEMEs THEME_DPO_2 = {
   .MAIN = 0xFF0000,
-  .WAKE = 0x0F0000,
+  .WAKE = 0x1F0000,
   .SHUT = 0x0F0000,
 };
 
 THEMEs THEME_AFG_1 = {
   .MAIN = 0xFFFF00,
-  .WAKE = 0x0F0F00,
+  .WAKE = 0x1F1F00,
   .SHUT = 0x000000,
 };
 
 THEMEs THEME_AFG_2 = {
   .MAIN = 0x0000FF,
-  .WAKE = 0x00000F,
+  .WAKE = 0x00001F,
   .SHUT = 0x000000,
 };
 
 THEMEs THEME_CONFIG = {
-  .MAIN = 0xFFFFFF,
+  .MAIN = 0x0F0F0F,
   .WAKE = 0x000000,
   .SHUT = 0x000000,
 };
@@ -405,14 +405,37 @@ void View_ONCE_INTRO(void) {
 
 void View_ONCE_PROC(void) {
   ST7789_DrawFilledRectangle(0, 0, 20, 60, convert_24bit_to_16bit(AFG_FE.AFG_EN1 ? THEME_AFG_1.MAIN : THEME_AFG_1.WAKE));
+
   ST7789_DrawFilledRectangle(0, 60, 20, 60, convert_24bit_to_16bit(AFG_FE.AFG_EN2 ? THEME_AFG_2.MAIN : THEME_AFG_2.WAKE));
+
+
   ST7789_DrawFilledRectangle(0, 120, 20, 60, convert_24bit_to_16bit(DPO_FE.DPO_EN1 ? THEME_DPO_1.MAIN : THEME_DPO_1.WAKE));
+  if (DPO_FE.CH1_AC_DC)
+  {
+    ST7789_WriteString(0, 140, "AC", Font_11x18, convert_24bit_to_16bit(DPO_FE.DPO_EN1 ? THEME_DPO_1.WAKE : THEME_DPO_1.MAIN), convert_24bit_to_16bit(DPO_FE.DPO_EN1 ? THEME_DPO_1.MAIN : THEME_DPO_1.WAKE));
+  }
+  else
+  {
+    ST7789_WriteString(0, 140, "DC", Font_11x18, convert_24bit_to_16bit(DPO_FE.DPO_EN1 ? THEME_DPO_1.WAKE : THEME_DPO_1.MAIN), convert_24bit_to_16bit(DPO_FE.DPO_EN1 ? THEME_DPO_1.MAIN : THEME_DPO_1.WAKE));
+  }
+  
+  // ST7789_WriteString(0, 140, "AC", Font_11x18, convert_24bit_to_16bit(DPO_FE.DPO_EN1 ? THEME_DPO_1.WAKE : THEME_DPO_1.MAIN), convert_24bit_to_16bit(DPO_FE.DPO_EN1 ? THEME_DPO_1.MAIN : THEME_DPO_1.WAKE));
+
+
   ST7789_DrawFilledRectangle(0, 180, 20, 60, convert_24bit_to_16bit(DPO_FE.DPO_EN2 ? THEME_DPO_2.MAIN : THEME_DPO_2.WAKE));    
+  if (DPO_FE.CH2_AC_DC)
+  {
+    ST7789_WriteString(0, 200, "AC", Font_11x18, convert_24bit_to_16bit(DPO_FE.DPO_EN2 ? THEME_DPO_2.WAKE : THEME_DPO_2.MAIN),convert_24bit_to_16bit( DPO_FE.DPO_EN2 ? THEME_DPO_2.MAIN : THEME_DPO_2.WAKE));
+  }else
+  {
+    ST7789_WriteString(0, 200, "DC", Font_11x18, convert_24bit_to_16bit(DPO_FE.DPO_EN2 ? THEME_DPO_2.WAKE : THEME_DPO_2.MAIN),convert_24bit_to_16bit( DPO_FE.DPO_EN2 ? THEME_DPO_2.MAIN : THEME_DPO_2.WAKE));
+  }
 
-  // ST7789_DrawFilledRectangle(20, 0, 320, 3, convert_24bit_to_16bit(THEME_CONFIG.MAIN));    
-  // ST7789_DrawFilledRectangle(20, 237, 320, 3, convert_24bit_to_16bit(THEME_CONFIG.MAIN));    
 
-  ST7789_DrawRectangle(20, 0, 319, 239, convert_24bit_to_16bit(THEME_CONFIG.MAIN),4);
+    ST7789_DrawRectangle(20, 0, 319, 239, convert_24bit_to_16bit(THEME_CONFIG.MAIN),4);
+
+
+  
 
 
 }
@@ -434,49 +457,57 @@ void ENC_PROC_INTRO(void) {
 	TIM4->CNT=32767;
 	diff = (int32_t)(current_cnt - 32767);
 }
-
 void KEY_PROC_INTRO(){
   Key_Update(KEY_PRESSED);
   switch(KEY_PROCESS) {
-    case KET_AFG_1: 
+    case KEY_AFG_1: 
         printf("处理AFG通道1按键\n");
         CURRENT_VIEW   = VIEW_AFG1;
         AFG_FE.AFG_EN1 = 1;
         ST7789_Fill_Color(0x0000);
+        THEME_CONFIG = THEME_AFG_1;
+        View_ONCE_PROC();
         break;
         
-    case KET_AFG_2: 
+    case KEY_AFG_2: 
         printf("处理AFG通道2按键\n");
         CURRENT_VIEW   = VIEW_AFG2;
         AFG_FE.AFG_EN2 = 1;
         ST7789_Fill_Color(0x0000);
-
+        THEME_CONFIG = THEME_AFG_2;
+        View_ONCE_PROC();
         break;
         
-    case KET_DPO_1: 
+    case KEY_DPO_1: 
         printf("处理DPO通道1按键\n");
         CURRENT_VIEW   = VIEW_DPO1;
         DPO_FE.DPO_EN1 = 1;
         ST7789_Fill_Color(0x0000);
+        THEME_CONFIG = THEME_DPO_1;
+        View_ONCE_PROC();
 
         break;
         
-    case KET_DPO_2: 
+    case KEY_DPO_2: 
         printf("处理DPO通道2按键\n");
         CURRENT_VIEW   = VIEW_DPO2;
         DPO_FE.DPO_EN2 = 1;
         ST7789_Fill_Color(0x0000);
+        THEME_CONFIG = THEME_DPO_2;
+        View_ONCE_PROC();
 
         break;
         
-    case KET_DPO_1_AC: 
+    case KEY_DPO_1_AC: 
         printf("处理DPO通道1交流耦合按键\n");
         DPO_FE.CH1_AC_DC = !DPO_FE.CH1_AC_DC;
+        View_ONCE_PROC();
         break;
         
-    case KET_DPO_2_AC: 
+    case KEY_DPO_2_AC: 
         printf("处理DPO通道2交流耦合按键\n");
         DPO_FE.CH2_AC_DC = !DPO_FE.CH2_AC_DC;
+        View_ONCE_PROC();
         break;
         
     case KEY_RUN_STOP: 
@@ -606,7 +637,7 @@ void ENC_PROC_DPO1(void) {
 void KEY_PROC_DPO1(){
   Key_Update(KEY_PRESSED);
   switch(KEY_PROCESS) {
-    case KET_AFG_1: 
+    case KEY_AFG_1: 
         printf("处理AFG通道1按键\n");
         CURRENT_VIEW   = VIEW_AFG1;
         AFG_FE.AFG_EN1 = 1;
@@ -614,7 +645,7 @@ void KEY_PROC_DPO1(){
         View_ONCE_PROC();
         break;
         
-    case KET_AFG_2: 
+    case KEY_AFG_2: 
         printf("处理AFG通道2按键\n");
         CURRENT_VIEW   = VIEW_AFG2;
         AFG_FE.AFG_EN2 = 1;
@@ -622,14 +653,14 @@ void KEY_PROC_DPO1(){
         View_ONCE_PROC();
         break;
         
-    case KET_DPO_1: 
+    case KEY_DPO_1: 
         printf("处理DPO通道1按键\n");
         CURRENT_VIEW   = VIEW_DPO1;
         DPO_FE.DPO_EN1 = !DPO_FE.DPO_EN1;
         View_ONCE_PROC();
         break;
         
-    case KET_DPO_2: 
+    case KEY_DPO_2: 
         printf("处理DPO通道2按键\n");
         CURRENT_VIEW   = VIEW_DPO2;
         DPO_FE.DPO_EN2 = 1;
@@ -637,14 +668,16 @@ void KEY_PROC_DPO1(){
         View_ONCE_PROC();
         break;
         
-    case KET_DPO_1_AC: 
+    case KEY_DPO_1_AC: 
         printf("处理DPO通道1交流耦合按键\n");
         DPO_FE.CH1_AC_DC = !DPO_FE.CH1_AC_DC;
+        View_ONCE_PROC();
         break;
         
-    case KET_DPO_2_AC: 
+    case KEY_DPO_2_AC: 
         printf("处理DPO通道2交流耦合按键\n");
         DPO_FE.CH2_AC_DC = !DPO_FE.CH2_AC_DC;
+        View_ONCE_PROC();
         break;
         
     case KEY_RUN_STOP: 
@@ -773,7 +806,7 @@ void ENC_PROC_DPO2(void) {
 void KEY_PROC_DPO2(){
   Key_Update(KEY_PRESSED);
   switch(KEY_PROCESS) {
-    case KET_AFG_1: 
+    case KEY_AFG_1: 
         printf("处理AFG通道1按键\n");
         CURRENT_VIEW   = VIEW_AFG1;
         AFG_FE.AFG_EN1 = 1;
@@ -781,7 +814,7 @@ void KEY_PROC_DPO2(){
         View_ONCE_PROC();
         break;
         
-    case KET_AFG_2: 
+    case KEY_AFG_2: 
         printf("处理AFG通道2按键\n");
         CURRENT_VIEW   = VIEW_AFG2;
         AFG_FE.AFG_EN2 = 1;
@@ -789,7 +822,7 @@ void KEY_PROC_DPO2(){
         View_ONCE_PROC();
         break;
         
-    case KET_DPO_1: 
+    case KEY_DPO_1: 
         printf("处理DPO通道1按键\n");
         CURRENT_VIEW   = VIEW_DPO1;
         DPO_FE.DPO_EN1 = 1;
@@ -797,21 +830,23 @@ void KEY_PROC_DPO2(){
         View_ONCE_PROC();
         break;
         
-    case KET_DPO_2: 
+    case KEY_DPO_2: 
         printf("处理DPO通道2按键\n");
         CURRENT_VIEW   = VIEW_DPO2;
         DPO_FE.DPO_EN2 = !DPO_FE.DPO_EN2;
         View_ONCE_PROC();
         break;
         
-    case KET_DPO_1_AC: 
+    case KEY_DPO_1_AC: 
         printf("处理DPO通道1交流耦合按键\n");
         DPO_FE.CH1_AC_DC = !DPO_FE.CH1_AC_DC;
+        View_ONCE_PROC();
         break;
         
-    case KET_DPO_2_AC: 
+    case KEY_DPO_2_AC: 
         printf("处理DPO通道2交流耦合按键\n");
         DPO_FE.CH2_AC_DC = !DPO_FE.CH2_AC_DC;
+        View_ONCE_PROC();
         break;
         
     case KEY_RUN_STOP: 
@@ -940,14 +975,14 @@ void ENC_PROC_AFG1(void) {
 void KEY_PROC_AFG1(){
   Key_Update(KEY_PRESSED);
   switch(KEY_PROCESS) {
-    case KET_AFG_1: 
+    case KEY_AFG_1: 
         printf("处理AFG通道1按键\n");
         CURRENT_VIEW   = VIEW_AFG1;
         AFG_FE.AFG_EN1 = !AFG_FE.AFG_EN1 ;
         View_ONCE_PROC();
         break;
         
-    case KET_AFG_2: 
+    case KEY_AFG_2: 
         printf("处理AFG通道2按键\n");
         CURRENT_VIEW   = VIEW_AFG2;
         AFG_FE.AFG_EN2 = 1;
@@ -955,7 +990,7 @@ void KEY_PROC_AFG1(){
         View_ONCE_PROC();
         break;
         
-    case KET_DPO_1: 
+    case KEY_DPO_1: 
         printf("处理DPO通道1按键\n");
         CURRENT_VIEW   = VIEW_DPO1;
         DPO_FE.DPO_EN1 = 1;
@@ -963,7 +998,7 @@ void KEY_PROC_AFG1(){
         View_ONCE_PROC();        
         break;
         
-    case KET_DPO_2: 
+    case KEY_DPO_2: 
         printf("处理DPO通道2按键\n");
         CURRENT_VIEW   = VIEW_DPO2;
         DPO_FE.DPO_EN2 = 1;
@@ -971,14 +1006,16 @@ void KEY_PROC_AFG1(){
         View_ONCE_PROC();
         break;
         
-    case KET_DPO_1_AC: 
+    case KEY_DPO_1_AC: 
         printf("处理DPO通道1交流耦合按键\n");
         DPO_FE.CH1_AC_DC = !DPO_FE.CH1_AC_DC;
+        View_ONCE_PROC();
         break;
         
-    case KET_DPO_2_AC: 
+    case KEY_DPO_2_AC: 
         printf("处理DPO通道2交流耦合按键\n");
         DPO_FE.CH2_AC_DC = !DPO_FE.CH2_AC_DC;
+        View_ONCE_PROC();
         break;
         
     case KEY_RUN_STOP: 
@@ -1107,7 +1144,7 @@ void ENC_PROC_AFG2(void) {
 void KEY_PROC_AFG2(){
   Key_Update(KEY_PRESSED);
   switch(KEY_PROCESS) {
-    case KET_AFG_1: 
+    case KEY_AFG_1: 
         printf("处理AFG通道1按键\n");
         CURRENT_VIEW   = VIEW_AFG1;
         AFG_FE.AFG_EN1 = 1;
@@ -1115,14 +1152,14 @@ void KEY_PROC_AFG2(){
         View_ONCE_PROC();
         break;
         
-    case KET_AFG_2: 
+    case KEY_AFG_2: 
         printf("处理AFG通道2按键\n");
         CURRENT_VIEW   = VIEW_AFG2;
         AFG_FE.AFG_EN2 = !AFG_FE.AFG_EN2;
         View_ONCE_PROC();
         break;
         
-    case KET_DPO_1: 
+    case KEY_DPO_1: 
         printf("处理DPO通道1按键\n");
         CURRENT_VIEW   = VIEW_DPO1;
         DPO_FE.DPO_EN1 = 1;
@@ -1130,7 +1167,7 @@ void KEY_PROC_AFG2(){
         View_ONCE_PROC();
         break;
         
-    case KET_DPO_2: 
+    case KEY_DPO_2: 
         printf("处理DPO通道2按键\n");
         CURRENT_VIEW   = VIEW_DPO2;
         DPO_FE.DPO_EN2 = 1;
@@ -1138,14 +1175,16 @@ void KEY_PROC_AFG2(){
         View_ONCE_PROC();
         break;
         
-    case KET_DPO_1_AC: 
+    case KEY_DPO_1_AC: 
         printf("处理DPO通道1交流耦合按键\n");
         DPO_FE.CH1_AC_DC = !DPO_FE.CH1_AC_DC;
+        View_ONCE_PROC();
         break;
         
-    case KET_DPO_2_AC: 
+    case KEY_DPO_2_AC: 
         printf("处理DPO通道2交流耦合按键\n");
         DPO_FE.CH2_AC_DC = !DPO_FE.CH2_AC_DC;
+        View_ONCE_PROC();
         break;
         
     case KEY_RUN_STOP: 
@@ -1260,7 +1299,6 @@ void KEY_PROC_AFG2(){
 
 void HID_PROCESS(void) {
 	//SET OFFSET
-  // HAL_Delay(25);
 
   FT6336_GetTouchPoint(&TouchPoints);    
   HAL_I2C_Master_Receive(&hi2c3, 0x49, &KEY_PRESSED,1, 1000);
@@ -1406,17 +1444,13 @@ int main(void)
 
   HAL_OPAMP_Start(&hopamp4);
   HAL_OPAMP_Start(&hopamp5);
-
-  FT6336_Init();
   
   printf("hello world\r\n");
+  
+  FT6336_Init();
   ST7789_Init();
-
-  HAL_Delay(10);
   LCD_BRIGHT(LCD_BRIGHTNESS);
-
-
-  // HAL_GPIO_WritePin(ST_CS_GPIO_Port, ST_CS_Pin, GPIO_PIN_RESET);
+  HAL_I2C_Master_Transmit(&hi2c3, 0x48, &KEY_PRESSED,1, 1000);
 
 
   WS2812_Set_All(0x000010);
@@ -1436,7 +1470,6 @@ int main(void)
     HID_PROCESS();
     WS2812_VIEW_Update();
 
-    View_ONCE_PROC();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -2121,7 +2154,7 @@ static void MX_I2C3_Init(void)
 
   /* USER CODE END I2C3_Init 1 */
   hi2c3.Instance = I2C3;
-  hi2c3.Init.Timing = 0x40621236;
+  hi2c3.Init.Timing = 0x40B21236;
   hi2c3.Init.OwnAddress1 = 0;
   hi2c3.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c3.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;

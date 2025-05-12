@@ -63,12 +63,12 @@ enum LEDS
 
 enum KEYS
 {
-  KET_AFG_1    = 0x6F,
-  KET_AFG_2    = 0x6E,
-  KET_DPO_1    = 0x6D,
-  KET_DPO_2    = 0x6C,
-  KET_DPO_1_AC = 0x65,
-  KET_DPO_2_AC = 0x64,
+  KEY_AFG_1    = 0x6F,
+  KEY_AFG_2    = 0x6E,
+  KEY_DPO_1    = 0x6D,
+  KEY_DPO_2    = 0x6C,
+  KEY_DPO_1_AC = 0x65,
+  KEY_DPO_2_AC = 0x64,
   KEY_RUN_STOP = 0x67,
   KEY_SINGLE   = 0x5F,
   KEY_UP       = 0x5E,
