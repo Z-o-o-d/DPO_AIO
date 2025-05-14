@@ -255,27 +255,18 @@ void THEME_CONVER_565(THEMEs *theme)
 }
 
 
-uint8_t wave_buf[94 * 204 * 2]={0}; // 每段缓冲区
+    static uint8_t wave_buf[94 * 204 * 2]={0}; // 每段缓冲区
 
-void DrawWaveSegment(uint16_t start_x, uint16_t part_w, uint16_t h, uint16_t x_offset, uint8_t H_DPO1, uint8_t L_DPO1) {
-    memset(wave_buf, 0, sizeof(wave_buf));
-    for (uint16_t px = 0; px < part_w; px++) {
-        uint16_t global_x = start_x + px; // 相对整体波形数据的X
-        for (uint16_t py = 0; py < h; py++) {
-            uint32_t index = py * part_w + px;
-            if (Show_Value1[global_x]/ 20 == py) {
-                wave_buf[2 * index]     = H_DPO1;
-                wave_buf[2 * index + 1] = L_DPO1;
-            }
-        }
-    }
-    ST7789_SetAddressWindow(x_offset, 18, x_offset + part_w - 1, 18 + h - 1);
-    ST7789_WriteData(wave_buf, part_w * h * 2);
-}
-
-
-void ST7789_DrawWave() {
-    uint16_t x = 31;
+/**
+ * @brief Draw an Image on the screen
+ * @param x&y -> start point of the Image
+ * @param w&h -> width & height of the Image to Draw
+ * @param data -> pointer of the Image array
+ * @return none
+ */
+void ST7789_DrawWave()
+{
+   uint16_t x = 31;
     uint16_t y = 18;
     uint16_t w = 282;
     uint16_t h = 204;
@@ -283,21 +274,124 @@ void ST7789_DrawWave() {
     // 每段宽度
     uint16_t part_w = w / 3;
 
+
     uint8_t H_DPO1 = THEME_DPO_1.MAIN_565 >> 8;
     uint8_t L_DPO1 = THEME_DPO_1.MAIN_565 & 0xFF;
 
+    uint8_t H_DPO2 = THEME_DPO_2.MAIN_565 >> 8;
+    uint8_t L_DPO2 = THEME_DPO_2.MAIN_565 & 0xFF;
+
+    uint8_t H_BGR = 0x84;
+    uint8_t L_BGR = 0x30;
+
+    // uint8_t H_BGR = 0x84;
+    // uint8_t L_BGR = 0x30;
+
+
     ST7789_Select();
+    memset(wave_buf,0,sizeof(wave_buf));
+    // ----------- 段0：左 -----------
+    for (uint16_t px = 0; px < part_w; px++) {
+        uint16_t global_x = px; // 相对整体波形数据的X
 
-    // 绘制段0：左
-    DrawWaveSegment(0, part_w, h, x, H_DPO1, L_DPO1);
+        for (uint16_t py = 0; py < h; py++) {
+            uint32_t index = py * part_w + px;
+            if (BUFFER_DPO1[global_x]/20 == py) {
+                wave_buf[2 * index]     = H_DPO1;
+                wave_buf[2 * index + 1] = L_DPO1;
+            } 
+        }
+    }
+    ST7789_SetAddressWindow(x_offset, 18, x_offset + part_w - 1, 18 + h - 1);
+    ST7789_WriteData(wave_buf, part_w * h * 2);
+    memset(wave_buf,0,sizeof(wave_buf));
+    // ----------- 段1：中 -----------
+    for (uint16_t px = 0; px < part_w; px++) {
+        uint16_t global_x = part_w + px;
 
-    // 绘制段1：中
-    DrawWaveSegment(part_w, part_w, h, x + part_w, H_DPO1, L_DPO1);
+        for (uint16_t py = 0; py < h; py++) {
+            uint32_t index = py * part_w + px;
+            if (BUFFER_DPO1[global_x]/20 == py) {
+                wave_buf[2 * index]     = H_DPO1;
+                wave_buf[2 * index + 1] = L_DPO1;
+            }
+        }
 
-    // 绘制段2：右
-    DrawWaveSegment(2 * part_w, part_w, h, x + 2 * part_w, H_DPO1, L_DPO1);
-
+    }
+    ST7789_SetAddressWindow(x + part_w, y, x + 2 * part_w - 1, y + h - 1);
+    ST7789_WriteData(wave_buf, part_w * h * 2);
+    memset(wave_buf,0,sizeof(wave_buf));
+    // ----------- 段2：右 -----------
+    for (uint16_t px = 0; px < part_w; px++) {
+        uint16_t global_x = 2 * part_w + px;
+        for (uint16_t py = 0; py < h; py++) {
+            uint32_t index = py * part_w + px;
+            if (BUFFER_DPO1[global_x]/20 == py) {
+                wave_buf[2 * index]     = H_DPO1;
+                wave_buf[2 * index + 1] = L_DPO1;
+            }
+        }
+    }
+    ST7789_SetAddressWindow(x + 2 * part_w, y, x + w - 1, y + h - 1);
+    ST7789_WriteData(wave_buf, part_w * h * 2);
     ST7789_UnSelect();
+
+
+
+
+
+    // uint16_t x = 31;
+    // uint16_t y = 18;
+    // uint16_t w = 282;
+    // uint16_t h = 204;
+
+    // if (x >= ST7789_WIDTH || y >= ST7789_HEIGHT)
+    //     return;
+
+    // if ((x + w - 1) >= ST7789_WIDTH)
+    //     w = ST7789_WIDTH - x;
+
+    // if ((y + h - 1) >= ST7789_HEIGHT)
+    //     h = ST7789_HEIGHT - y;
+
+    // ST7789_Select();
+
+    // // 每段宽度
+    // uint16_t part_w = w / 3;
+
+    // static uint8_t wave_buf[94 * 204 * 2]; // 每部分是 94x204 的图像
+
+    // uint8_t H_DPO1 = THEME_DPO_1.MAIN_565 >> 8;
+    // uint8_t L_DPO1 = THEME_DPO_1.MAIN_565 & 0xFF;
+
+    // uint8_t H_DPO2 = THEME_DPO_2.MAIN_565 >> 8;
+    // uint8_t L_DPO2 = THEME_DPO_2.MAIN_565 & 0xFF;
+
+    // // 左边部分
+    // for (uint16_t i = 0; i < part_w * h; i++) {
+    //     wave_buf[2 * i]     = H_DPO1;
+    //     wave_buf[2 * i + 1] = L_DPO1;
+    // }
+    // ST7789_SetAddressWindow(x, y, x + part_w - 1, y + h - 1);
+    // ST7789_WriteData(wave_buf, part_w * h * 2);
+
+    // // 中间部分
+    // for (uint16_t i = 0; i < part_w * h; i++) {
+    //     wave_buf[2 * i]     = H_DPO2;
+    //     wave_buf[2 * i + 1] = L_DPO2;
+    // }
+    // ST7789_SetAddressWindow(x + part_w, y, x + 2 * part_w - 1, y + h - 1);
+    // ST7789_WriteData(wave_buf, part_w * h * 2);
+
+    // // 右边部分
+    // for (uint16_t i = 0; i < part_w * h; i++) {
+    //     wave_buf[2 * i]     = H_DPO1;
+    //     wave_buf[2 * i + 1] = L_DPO1;
+    // }
+    // ST7789_SetAddressWindow(x + 2 * part_w, y, x + w - 1, y + h - 1);
+    // ST7789_WriteData(wave_buf, part_w * h * 2);
+
+    // ST7789_UnSelect();
 }
 
 void DPO_FE_Update(void) {
@@ -1709,34 +1803,26 @@ int main(void)
 
 
     HAL_SPI_Transmit(&hspi3, (uint8_t*)&BUFFER_DPO1, DPO_DEEP, 1000);
-
-
-
-// TIM6->CR1 &= ~TIM_CR1_CEN;  // 清零CEN位以停止计数
-
-  // HAL_ADC_Stop_DMA(&hadc1);
-  uint32_t TIRG_P =  hadc1.DMA_Handle->Instance->CNDTR;
+    
+    uint32_t TIRG_P =  hadc1.DMA_Handle->Instance->CNDTR;
   
-  uint32_t Show_Value[DPO_DEEP] = {0};
+    uint32_t Show_Value[DPO_DEEP] = {0};
 
   uint32_t split_index = DPO_DEEP - TIRG_P;
-      // ST7789_DrawFilledRectangle(22, 14, 295, 209, BLACK);
-  for (size_t i = 0; i < DPO_DEEP; i++)
-  {
-      size_t src_index = (i + split_index) % DPO_DEEP;
-      Show_Value1[i] = BUFFER_DPO1[src_index];
+      ST7789_DrawFilledRectangle(22, 14, 295, 209, BLACK);
+  // for (size_t i = 0; i < DPO_DEEP; i++)
+  // {
+  //     size_t src_index = (i + split_index) % DPO_DEEP;
+  //     Show_Value[i] = BUFFER_DPO1[src_index];
   //     ST7789_DrawPixel(i*DPO_FE.H_ZOOM/32+23, Show_Value[i]/DPO_FE.Y_ZOOM1+ST7789_HEIGHT/2-2048/DPO_FE.Y_ZOOM1, THEME_DPO_1.MAIN_565);
   //     Show_Value[i] = BUFFER_DPO2[src_index];
   //     ST7789_DrawPixel(i*DPO_FE.H_ZOOM/32+23, Show_Value[i]/DPO_FE.Y_ZOOM2+ST7789_HEIGHT/2-2048/DPO_FE.Y_ZOOM2, THEME_DPO_2.MAIN_565);
-  }
+  // }
 
 
   ST7789_DrawWave();
-    // HAL_Delay(100);
 
-  // HAL_Delay(100);
 
-          // HAL_Delay(100);
 
   TIM6->CR1 |= TIM_CR1_CEN;  // 设置CEN位来启动定时器
   HAL_COMP_Start(&hcomp2);
@@ -1771,7 +1857,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
-  RCC_OscInitStruct.PLL.PLLN = 85;
+  RCC_OscInitStruct.PLL.PLLN = 90;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV6;
   RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
   RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
@@ -2010,22 +2096,22 @@ static void MX_ADC4_Init(void)
 
   /** Common config
   */
-  hadc4.Instance = ADC4;
-  hadc4.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
-  hadc4.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc4.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc4.Init.GainCompensation = 0;
-  hadc4.Init.ScanConvMode = ADC_SCAN_DISABLE;
-  hadc4.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
-  hadc4.Init.LowPowerAutoWait = DISABLE;
-  hadc4.Init.ContinuousConvMode = DISABLE;
-  hadc4.Init.NbrOfConversion = 1;
+  hadc4.Instance                   = ADC4;
+  hadc4.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV1;
+  hadc4.Init.Resolution            = ADC_RESOLUTION_12B;
+  hadc4.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+  hadc4.Init.GainCompensation      = 0;
+  hadc4.Init.ScanConvMode          = ADC_SCAN_DISABLE;
+  hadc4.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
+  hadc4.Init.LowPowerAutoWait      = DISABLE;
+  hadc4.Init.ContinuousConvMode    = DISABLE;
+  hadc4.Init.NbrOfConversion       = 1;
   hadc4.Init.DiscontinuousConvMode = DISABLE;
-  hadc4.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc4.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+  hadc4.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
+  hadc4.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc4.Init.DMAContinuousRequests = DISABLE;
-  hadc4.Init.Overrun = ADC_OVR_DATA_PRESERVED;
-  hadc4.Init.OversamplingMode = DISABLE;
+  hadc4.Init.Overrun               = ADC_OVR_DATA_PRESERVED;
+  hadc4.Init.OversamplingMode      = DISABLE;
   if (HAL_ADC_Init(&hadc4) != HAL_OK)
   {
     Error_Handler();
