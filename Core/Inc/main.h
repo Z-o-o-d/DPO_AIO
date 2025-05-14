@@ -120,6 +120,16 @@ enum VIEWS
   VIEW_CONFIG = 5,
 };
 
+enum PGA_GAN
+{
+  PGA_GAIN_1 = 0,
+  PGA_GAIN_2 = 1,
+  PGA_GAIN_4 = 2,
+  PGA_GAIN_8 = 3,
+  PGA_GAIN_16 = 4,
+  PGA_GAIN_32 = 5,
+  PGA_GAIN_64 = 6,
+};
 
 
 typedef struct {
@@ -136,6 +146,8 @@ typedef struct {
   uint16_t TRIG_FALL_EN;
   uint16_t TRIG_RISI_EN;
   uint16_t SELECT_CH;
+  uint16_t OPAGAIN1;
+  uint16_t OPAGAIN2;
 } DPO_AnalogStates;
 
 
@@ -157,6 +169,9 @@ typedef struct {
 	uint32_t MAIN;
 	uint32_t WAKE;
 	uint32_t SHUT;
+	uint16_t MAIN_565;
+	uint16_t WAKE_565;
+	uint16_t SHUT_565;
 } THEMEs;
 
 
@@ -165,7 +180,7 @@ typedef struct {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-#define DPO_DEEP 512
+#define DPO_DEEP 1024
 
 /* USER CODE END EC */
 

@@ -8,7 +8,8 @@
         "files.associations": {
             "cstddef": "c",
             "limits": "c",
-            "main.h": "c"
+            "main.h": "c",
+            "usb_device.h": "c"
         }
     },
     "extensions": {}

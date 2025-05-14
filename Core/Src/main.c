@@ -195,6 +195,8 @@ DPO_AnalogStates DPO_FE = {
   .TRIG_FALL_EN = 0,
   .TRIG_RISI_EN = 0,
   .SELECT_CH  = 0,
+  .OPAGAIN1 = 0,
+  .OPAGAIN2 = 0,
 };
 
 AFG_AnalogStates AFG_FE = {
@@ -236,13 +238,14 @@ THEMEs THEME_AFG_2 = {
   .SHUT = 0x000000,
 };
 
-THEMEs THEME_CONFIG = {
-  .MAIN = 0x0F0F0F,
-  .WAKE = 0x000000,
-  .SHUT = 0x000000,
-};
+THEMEs THEME_CONFIG = {0};
 
-
+void THEME_CONVER_565(THEMEs *theme)
+{
+  theme->MAIN_565 = convert_24bit_to_16bit(theme->MAIN);
+  theme->WAKE_565 = convert_24bit_to_16bit(theme->WAKE);
+  theme->SHUT_565 = convert_24bit_to_16bit(theme->SHUT);
+}
 
 void DPO_FE_Update(void) {
 	//SET OFFSET
@@ -256,8 +259,114 @@ void DPO_FE_Update(void) {
 	HAL_DAC_Start(&hdac4, DAC_CHANNEL_2);
   HAL_GPIO_WritePin(DPO_AC1_GPIO_Port,DPO_AC1_Pin, DPO_FE.CH1_AC_DC);
   HAL_GPIO_WritePin(DPO_AC2_GPIO_Port,DPO_AC2_Pin, DPO_FE.CH2_AC_DC);
-  HAL_GPIO_WritePin(DPO_EN1_GPIO_Port,DPO_EN1_Pin, DPO_FE.DPO_EN1);
-  HAL_GPIO_WritePin(DPO_EN2_GPIO_Port,DPO_EN2_Pin, DPO_FE.DPO_EN2);
+  // HAL_GPIO_WritePin(DPO_EN1_GPIO_Port,DPO_EN1_Pin, DPO_FE.DPO_EN1);
+  // HAL_GPIO_WritePin(DPO_EN2_GPIO_Port,DPO_EN2_Pin, DPO_FE.DPO_EN2);
+
+
+  switch (DPO_FE.OPAGAIN1)
+  {
+    case PGA_GAIN_1: 
+        hopamp1.Init.Mode       = OPAMP_FOLLOWER_MODE;
+        hopamp2.Init.Mode       = OPAMP_FOLLOWER_MODE;
+        hopamp1.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_NO;
+        hopamp2.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_NO;
+        break;
+    case PGA_GAIN_2: 
+        hopamp1.Init.Mode       = OPAMP_PGA_MODE;
+        hopamp2.Init.Mode       = OPAMP_PGA_MODE;
+        hopamp1.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
+        hopamp2.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
+        hopamp1.Init.PgaGain    = OPAMP_PGA_GAIN_2_OR_MINUS_1;
+        hopamp2.Init.PgaGain    = OPAMP_PGA_GAIN_2_OR_MINUS_1;
+        break;
+    case PGA_GAIN_4: 
+        hopamp1.Init.Mode       = OPAMP_PGA_MODE;
+        hopamp2.Init.Mode       = OPAMP_PGA_MODE;
+        hopamp1.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
+        hopamp2.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
+        hopamp1.Init.PgaGain    = OPAMP_PGA_GAIN_4_OR_MINUS_3;        
+        hopamp2.Init.PgaGain    = OPAMP_PGA_GAIN_4_OR_MINUS_3;
+        break;
+    case PGA_GAIN_8: 
+        hopamp1.Init.Mode       = OPAMP_PGA_MODE;
+        hopamp2.Init.Mode       = OPAMP_PGA_MODE;
+        hopamp1.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
+        hopamp2.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
+        hopamp1.Init.PgaGain    = OPAMP_PGA_GAIN_8_OR_MINUS_7;
+        hopamp2.Init.PgaGain    = OPAMP_PGA_GAIN_8_OR_MINUS_7;
+        break;
+    case PGA_GAIN_16: 
+        hopamp1.Init.Mode       = OPAMP_PGA_MODE;
+        hopamp2.Init.Mode       = OPAMP_PGA_MODE;
+        hopamp1.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
+        hopamp2.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
+        hopamp1.Init.PgaGain    = OPAMP_PGA_GAIN_16_OR_MINUS_15;
+        hopamp2.Init.PgaGain    = OPAMP_PGA_GAIN_16_OR_MINUS_15;
+        break;
+    case PGA_GAIN_32: 
+        hopamp1.Init.Mode       = OPAMP_PGA_MODE;
+        hopamp2.Init.Mode       = OPAMP_PGA_MODE;
+        hopamp1.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
+        hopamp2.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
+        hopamp1.Init.PgaGain    = OPAMP_PGA_GAIN_32_OR_MINUS_31;
+        hopamp2.Init.PgaGain    = OPAMP_PGA_GAIN_32_OR_MINUS_31;
+        break;
+    case PGA_GAIN_64: 
+        hopamp1.Init.Mode       = OPAMP_PGA_MODE;
+        hopamp2.Init.Mode       = OPAMP_PGA_MODE;
+        hopamp1.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
+        hopamp2.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
+        hopamp1.Init.PgaGain    = OPAMP_PGA_GAIN_64_OR_MINUS_63;
+        hopamp2.Init.PgaGain    = OPAMP_PGA_GAIN_64_OR_MINUS_63;
+ default: 
+    break;
+  }
+
+
+  switch (DPO_FE.OPAGAIN2)
+  {
+    case 0: 
+        hopamp3.Init.Mode       = OPAMP_FOLLOWER_MODE;
+        hopamp3.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_NO;
+        break;
+    case 1: 
+        hopamp3.Init.Mode       = OPAMP_PGA_MODE;
+        hopamp3.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
+        hopamp3.Init.PgaGain    = OPAMP_PGA_GAIN_2_OR_MINUS_1;
+        break;
+    case 2: 
+        hopamp3.Init.Mode       = OPAMP_PGA_MODE;
+        hopamp3.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
+        hopamp3.Init.PgaGain    = OPAMP_PGA_GAIN_4_OR_MINUS_3;
+        break;
+    case 3: 
+        hopamp3.Init.Mode       = OPAMP_PGA_MODE;
+        hopamp3.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
+        hopamp3.Init.PgaGain    = OPAMP_PGA_GAIN_8_OR_MINUS_7;
+        break;
+    case KEY_4: 
+        hopamp3.Init.Mode       = OPAMP_PGA_MODE;
+        hopamp3.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
+        hopamp3.Init.PgaGain    = OPAMP_PGA_GAIN_16_OR_MINUS_15;
+        break;
+    case KEY_5: 
+        hopamp3.Init.Mode       = OPAMP_PGA_MODE;
+        hopamp3.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
+        hopamp3.Init.PgaGain    = OPAMP_PGA_GAIN_32_OR_MINUS_31;
+        break;
+    case KEY_6: 
+        hopamp3.Init.Mode       = OPAMP_PGA_MODE;
+        hopamp3.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
+        hopamp3.Init.PgaGain    = OPAMP_PGA_GAIN_64_OR_MINUS_63;
+ default: 
+    break;
+  }
+  HAL_OPAMP_Init(&hopamp1);
+  HAL_OPAMP_Init(&hopamp2);
+  HAL_OPAMP_Init(&hopamp3);
+  HAL_OPAMP_Init(&hopamp6);
+
+
 
 
   if (DPO_FE.SELECT_CH)
@@ -286,6 +395,7 @@ void DPO_FE_Update(void) {
     LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP5);
   }
   
+
 
 
 
@@ -437,35 +547,32 @@ void View_ONCE_INTRO(void) {
 }
 
 void View_ONCE_PROC(void) {
-  ST7789_DrawFilledRectangle(0, 0, 20, 60, convert_24bit_to_16bit(AFG_FE.AFG_EN1 ? THEME_AFG_1.MAIN : THEME_AFG_1.WAKE));
+  ST7789_DrawFilledRectangle(0, 0, 20, 60,  (AFG_FE.AFG_EN1 ? THEME_AFG_1.MAIN_565 : THEME_AFG_1.WAKE_565));
 
-  ST7789_DrawFilledRectangle(0, 60, 20, 60, convert_24bit_to_16bit(AFG_FE.AFG_EN2 ? THEME_AFG_2.MAIN : THEME_AFG_2.WAKE));
+  ST7789_DrawFilledRectangle(0, 60, 20, 60,  (AFG_FE.AFG_EN2 ? THEME_AFG_2.MAIN_565 : THEME_AFG_2.WAKE_565));
 
 
-  ST7789_DrawFilledRectangle(0, 120, 20, 60, convert_24bit_to_16bit(DPO_FE.DPO_EN1 ? THEME_DPO_1.MAIN : THEME_DPO_1.WAKE));
+  ST7789_DrawFilledRectangle(0, 120, 20, 60,  (DPO_FE.DPO_EN1 ? THEME_DPO_1.MAIN_565 : THEME_DPO_1.WAKE_565));
   if (DPO_FE.CH1_AC_DC)
   {
-    ST7789_WriteString(0, 140, "AC", Font_11x18, convert_24bit_to_16bit(DPO_FE.DPO_EN1 ? THEME_DPO_1.WAKE : THEME_DPO_1.MAIN), convert_24bit_to_16bit(DPO_FE.DPO_EN1 ? THEME_DPO_1.MAIN : THEME_DPO_1.WAKE));
+    ST7789_WriteString(0, 140, "DC", Font_11x18,  (DPO_FE.DPO_EN1 ? THEME_DPO_1.WAKE_565 : THEME_DPO_1.MAIN_565),  (DPO_FE.DPO_EN1 ? THEME_DPO_1.MAIN_565 : THEME_DPO_1.WAKE_565));
   }
   else
   {
-    ST7789_WriteString(0, 140, "DC", Font_11x18, convert_24bit_to_16bit(DPO_FE.DPO_EN1 ? THEME_DPO_1.WAKE : THEME_DPO_1.MAIN), convert_24bit_to_16bit(DPO_FE.DPO_EN1 ? THEME_DPO_1.MAIN : THEME_DPO_1.WAKE));
+    ST7789_WriteString(0, 140, "AC", Font_11x18,  (DPO_FE.DPO_EN1 ? THEME_DPO_1.WAKE_565 : THEME_DPO_1.MAIN_565),  (DPO_FE.DPO_EN1 ? THEME_DPO_1.MAIN_565 : THEME_DPO_1.WAKE_565));
   }
   
-  // ST7789_WriteString(0, 140, "AC", Font_11x18, convert_24bit_to_16bit(DPO_FE.DPO_EN1 ? THEME_DPO_1.WAKE : THEME_DPO_1.MAIN), convert_24bit_to_16bit(DPO_FE.DPO_EN1 ? THEME_DPO_1.MAIN : THEME_DPO_1.WAKE));
-
-
-  ST7789_DrawFilledRectangle(0, 180, 20, 60, convert_24bit_to_16bit(DPO_FE.DPO_EN2 ? THEME_DPO_2.MAIN : THEME_DPO_2.WAKE));    
+  ST7789_DrawFilledRectangle(0, 180, 20, 60,  (DPO_FE.DPO_EN2 ? THEME_DPO_2.MAIN_565 : THEME_DPO_2.WAKE_565));    
   if (DPO_FE.CH2_AC_DC)
   {
-    ST7789_WriteString(0, 200, "AC", Font_11x18, convert_24bit_to_16bit(DPO_FE.DPO_EN2 ? THEME_DPO_2.WAKE : THEME_DPO_2.MAIN),convert_24bit_to_16bit( DPO_FE.DPO_EN2 ? THEME_DPO_2.MAIN : THEME_DPO_2.WAKE));
+    ST7789_WriteString(0, 200, "DC", Font_11x18,  (DPO_FE.DPO_EN2 ? THEME_DPO_2.WAKE_565 : THEME_DPO_2.MAIN_565), ( DPO_FE.DPO_EN2 ? THEME_DPO_2.MAIN_565 : THEME_DPO_2.WAKE_565));
   }else
   {
-    ST7789_WriteString(0, 200, "DC", Font_11x18, convert_24bit_to_16bit(DPO_FE.DPO_EN2 ? THEME_DPO_2.WAKE : THEME_DPO_2.MAIN),convert_24bit_to_16bit( DPO_FE.DPO_EN2 ? THEME_DPO_2.MAIN : THEME_DPO_2.WAKE));
+    ST7789_WriteString(0, 200, "AC", Font_11x18,  (DPO_FE.DPO_EN2 ? THEME_DPO_2.WAKE_565 : THEME_DPO_2.MAIN_565), ( DPO_FE.DPO_EN2 ? THEME_DPO_2.MAIN_565 : THEME_DPO_2.WAKE_565));
   }
 
 
-    ST7789_DrawRectangle(20, 12, 319, 224, convert_24bit_to_16bit(THEME_CONFIG.MAIN),3);
+    ST7789_DrawRectangle(20, 12, 319, 224,  (THEME_CONFIG.MAIN_565),3);
 
 
   
@@ -745,47 +852,37 @@ void KEY_PROC_DPO1(){
         
     case KEY_0: 
         printf("数字键 {0} 被按下\n");
-        hopamp1.Init.PgaGain =OPAMP_PGA_GAIN_2_OR_MINUS_1;
-        HAL_OPAMP_Init(&hopamp1);
+        DPO_FE.OPAGAIN1 = 0;
         break;
         
     case KEY_1: 
         printf("数字键 {1} 被按下\n");
-        hopamp1.Init.PgaGain =OPAMP_PGA_GAIN_4_OR_MINUS_3;
-        HAL_OPAMP_Init(&hopamp1);
-
+        DPO_FE.OPAGAIN1 = 1;
         break;
         
     case KEY_2: 
         printf("数字键 {2} 被按下\n");
-        hopamp1.Init.PgaGain =OPAMP_PGA_GAIN_8_OR_MINUS_7;
-        HAL_OPAMP_Init(&hopamp1);
-
+        DPO_FE.OPAGAIN1 = 2;
         break;
         
     case KEY_3: 
         printf("数字键 {3} 被按下\n");
-        hopamp1.Init.PgaGain =OPAMP_PGA_GAIN_16_OR_MINUS_15;
-        HAL_OPAMP_Init(&hopamp1);
-
+        DPO_FE.OPAGAIN1 = 3;
         break;
         
     case KEY_4: 
         printf("数字键 {4} 被按下\n");
-        hopamp1.Init.PgaGain =OPAMP_PGA_GAIN_32_OR_MINUS_31;
-        HAL_OPAMP_Init(&hopamp1);
-
+        DPO_FE.OPAGAIN1 = 4;
         break;
         
     case KEY_5: 
         printf("数字键 {5} 被按下\n");
-        hopamp1.Init.PgaGain =OPAMP_PGA_GAIN_64_OR_MINUS_63;
-        HAL_OPAMP_Init(&hopamp1);
-
+        DPO_FE.OPAGAIN1 = 5;
         break;
         
     case KEY_6: 
         printf("数字键 {6} 被按下\n");
+        DPO_FE.OPAGAIN1 = 6;
         break;
         
     case KEY_7: 
@@ -1514,14 +1611,20 @@ int main(void)
   HAL_TIM_Base_Start(&htim7);
 
   
+  THEME_CONVER_565(&THEME_AFG_1);
+  THEME_CONVER_565(&THEME_AFG_2);
+  THEME_CONVER_565(&THEME_DPO_1);
+  THEME_CONVER_565(&THEME_DPO_2);
+  
 
-
-
+  HAL_GPIO_WritePin(DPO_EN1_GPIO_Port,DPO_EN1_Pin, 1);
+  HAL_GPIO_WritePin(DPO_EN2_GPIO_Port,DPO_EN2_Pin, 1);
 
   WS2812_Set_All(0x000010);
   HAL_TIMEx_PWMN_Start(&htim8,TIM_CHANNEL_4);
   View_ONCE_INTRO();
   WS2812_RunningHorse(100,100);
+  
   
   
 
@@ -1553,7 +1656,7 @@ TIM6->CR1 &= ~TIM_CR1_CEN;  // 清零CEN位以停止计数
   uint32_t split_index = DPO_DEEP - TIRG_P;
               ST7789_DrawFilledRectangle(22, 14, 294, 209, BLACK);
 
-  for (size_t i = 0; i < DPO_DEEP-1; i++)
+  for (size_t i = 0; i < DPO_DEEP; i++)
   {
       size_t src_index = (i + split_index) % DPO_DEEP;
       Show_Value[i] = BUFFER_DPO1[src_index];
@@ -1565,8 +1668,25 @@ TIM6->CR1 &= ~TIM_CR1_CEN;  // 清零CEN位以停止计数
       //        Show_Value[i]);
 
 
-      ST7789_DrawPixel(i+23, Show_Value[i]/20+18, WHITE);
+      ST7789_DrawPixel(i/4+23, Show_Value[i]/20+18, THEME_DPO_1.MAIN_565);
   }
+
+  for (size_t i = 0; i < DPO_DEEP; i++)
+  {
+      size_t src_index = (i + split_index) % DPO_DEEP;
+      Show_Value[i] = BUFFER_DPO2[src_index];
+  
+      // printf("adc:%d, %d, %d, %d\r\n", 
+      //        BUFFER_DPO1[i], 
+      //        (DPO_DEEP - i == TIRG_P) ? 2048 : i, 
+      //        TIRG_P, 
+      //        Show_Value[i]);
+
+
+      ST7789_DrawPixel(i/4+23, Show_Value[i]/20+18, THEME_DPO_2.MAIN_565);
+  }
+
+
   // HAL_Delay(100);
 
 TIM6->CR1 |= TIM_CR1_CEN;  // 设置CEN位来启动定时器
@@ -1602,7 +1722,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
-  RCC_OscInitStruct.PLL.PLLN = 85;
+  RCC_OscInitStruct.PLL.PLLN = 90;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV6;
   RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
   RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
@@ -1797,9 +1917,7 @@ static void MX_ADC3_Init(void)
 
   /** Configure the ADC multi-mode
   */
-  multimode.Mode = ADC_DUALMODE_INTERL;
-  multimode.DMAAccessMode = ADC_DMAACCESSMODE_12_10_BITS;
-  multimode.TwoSamplingDelay = ADC_TWOSAMPLINGDELAY_4CYCLES;
+  multimode.Mode = ADC_MODE_INDEPENDENT;
   if (HAL_ADCEx_MultiModeConfigChannel(&hadc3, &multimode) != HAL_OK)
   {
     Error_Handler();
@@ -1854,6 +1972,8 @@ static void MX_ADC4_Init(void)
   hadc4.Init.ContinuousConvMode = DISABLE;
   hadc4.Init.NbrOfConversion = 1;
   hadc4.Init.DiscontinuousConvMode = DISABLE;
+  hadc4.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc4.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc4.Init.DMAContinuousRequests = DISABLE;
   hadc4.Init.Overrun = ADC_OVR_DATA_PRESERVED;
   hadc4.Init.OversamplingMode = DISABLE;
@@ -2291,7 +2411,7 @@ static void MX_I2C3_Init(void)
 
 /**
   * @brief OPAMP1 Initialization Function
-  * @param NoneOPAMP_PGA_GAIN_2_OR_MINUS_1
+  * @param None
   * @retval None
   */
 static void MX_OPAMP1_Init(void)
@@ -2305,7 +2425,7 @@ static void MX_OPAMP1_Init(void)
 
   /* USER CODE END OPAMP1_Init 1 */
   hopamp1.Instance = OPAMP1;
-  hopamp1.Init.PowerMode = OPAMP_POWERMODE_NORMALSPEED;
+  hopamp1.Init.PowerMode = OPAMP_POWERMODE_HIGHSPEED;
   hopamp1.Init.Mode = OPAMP_PGA_MODE;
   hopamp1.Init.NonInvertingInput = OPAMP_NONINVERTINGINPUT_IO2;
   hopamp1.Init.InternalOutput = ENABLE;
@@ -2339,7 +2459,7 @@ static void MX_OPAMP2_Init(void)
 
   /* USER CODE END OPAMP2_Init 1 */
   hopamp2.Instance = OPAMP2;
-  hopamp2.Init.PowerMode = OPAMP_POWERMODE_NORMALSPEED;
+  hopamp2.Init.PowerMode = OPAMP_POWERMODE_HIGHSPEED;
   hopamp2.Init.Mode = OPAMP_PGA_MODE;
   hopamp2.Init.NonInvertingInput = OPAMP_NONINVERTINGINPUT_IO0;
   hopamp2.Init.InternalOutput = ENABLE;
@@ -2373,7 +2493,7 @@ static void MX_OPAMP3_Init(void)
 
   /* USER CODE END OPAMP3_Init 1 */
   hopamp3.Instance = OPAMP3;
-  hopamp3.Init.PowerMode = OPAMP_POWERMODE_NORMALSPEED;
+  hopamp3.Init.PowerMode = OPAMP_POWERMODE_HIGHSPEED;
   hopamp3.Init.Mode = OPAMP_PGA_MODE;
   hopamp3.Init.NonInvertingInput = OPAMP_NONINVERTINGINPUT_IO1;
   hopamp3.Init.InternalOutput = ENABLE;
@@ -2471,7 +2591,7 @@ static void MX_OPAMP6_Init(void)
 
   /* USER CODE END OPAMP6_Init 1 */
   hopamp6.Instance = OPAMP6;
-  hopamp6.Init.PowerMode = OPAMP_POWERMODE_NORMALSPEED;
+  hopamp6.Init.PowerMode = OPAMP_POWERMODE_HIGHSPEED;
   hopamp6.Init.Mode = OPAMP_PGA_MODE;
   hopamp6.Init.NonInvertingInput = OPAMP_NONINVERTINGINPUT_IO2;
   hopamp6.Init.InternalOutput = ENABLE;
@@ -2548,7 +2668,7 @@ static void MX_SPI3_Init(void)
   hspi3.Instance = SPI3;
   hspi3.Init.Mode = SPI_MODE_MASTER;
   hspi3.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi3.Init.DataSize = SPI_DATASIZE_16BIT;
+  hspi3.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi3.Init.CLKPolarity = SPI_POLARITY_HIGH;
   hspi3.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi3.Init.NSS = SPI_NSS_HARD_OUTPUT;

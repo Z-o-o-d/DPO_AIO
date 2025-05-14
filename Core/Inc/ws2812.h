@@ -42,6 +42,10 @@ static inline uint16_t convert_24bit_to_16bit(uint32_t color_24bit) {
            (b >> 3);             // B[7:3]
 }
 
+
+
+
+
 uint32_t WS2812_rgb2color(uint8_t red, uint8_t green, uint8_t blue);
 
 void WS2812_RunningHorse(uint8_t speed,uint8_t color_offset);
