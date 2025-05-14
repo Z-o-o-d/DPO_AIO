@@ -96,6 +96,7 @@ TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim7;
 TIM_HandleTypeDef htim8;
 TIM_HandleTypeDef htim15;
+TIM_HandleTypeDef htim16;
 TIM_HandleTypeDef htim17;
 TIM_HandleTypeDef htim20;
 DMA_HandleTypeDef hdma_tim17_ch1;
@@ -146,6 +147,7 @@ static void MX_OPAMP2_Init(void);
 static void MX_OPAMP3_Init(void);
 static void MX_OPAMP6_Init(void);
 static void MX_CORDIC_Init(void);
+static void MX_TIM16_Init(void);
 /* USER CODE BEGIN PFP */
 
 int fputc(int ch, FILE *f)
@@ -198,8 +200,8 @@ DPO_AnalogStates DPO_FE = {
   .DPO_EN2    = 0,
   .TRIG_MODE  = 0,
   .TRIG_LEVEL = 0,
-  .TRIG_FALL_EN = 0,
-  .TRIG_RISI_EN = 0,
+  .TRIG_FALL_EN = 1,
+  .TRIG_RISI_EN = 1,
   .SELECT_CH  = 0,
   .OPAGAIN1 = 0,
   .OPAGAIN2 = 0,
@@ -437,30 +439,35 @@ void DPO_FE_Update(void) {
 
   if (DPO_FE.SELECT_CH)
   {
-    LL_EXTI_DisableFallingTrig_0_31(COMP_EXTI_LINE_COMP5);
-    LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP5);
-    if (DPO_FE.TRIG_FALL_EN) 
-    LL_EXTI_EnableFallingTrig_0_31(COMP_EXTI_LINE_COMP2);
-  else 
-    LL_EXTI_DisableFallingTrig_0_31(COMP_EXTI_LINE_COMP2);
-  if (DPO_FE.TRIG_RISI_EN)  
-    LL_EXTI_EnableRisingTrig_0_31(COMP_EXTI_LINE_COMP2); 
-  else 
-    LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP2);
-  } else
-  {
-    LL_EXTI_DisableFallingTrig_0_31(COMP_EXTI_LINE_COMP2);
-    LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP2);
+      LL_EXTI_DisableFallingTrig_0_31(COMP_EXTI_LINE_COMP5);
+      LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP5);
       if (DPO_FE.TRIG_FALL_EN) 
-    LL_EXTI_EnableFallingTrig_0_31(COMP_EXTI_LINE_COMP5);
-  else 
-    LL_EXTI_DisableFallingTrig_0_31(COMP_EXTI_LINE_COMP5);
-  if (DPO_FE.TRIG_RISI_EN)  
-    LL_EXTI_EnableRisingTrig_0_31(COMP_EXTI_LINE_COMP5); 
-  else 
-    LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP5);
+      LL_EXTI_EnableFallingTrig_0_31(COMP_EXTI_LINE_COMP2);
+    else 
+      LL_EXTI_DisableFallingTrig_0_31(COMP_EXTI_LINE_COMP2);
+
+    if (DPO_FE.TRIG_RISI_EN)  
+      LL_EXTI_EnableRisingTrig_0_31(COMP_EXTI_LINE_COMP2); 
+    else 
+      LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP2);
+    } else
+    {
+      LL_EXTI_DisableFallingTrig_0_31(COMP_EXTI_LINE_COMP2);
+      LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP2);
+        if (DPO_FE.TRIG_FALL_EN) {
+          LL_EXTI_EnableFallingTrig_0_31(COMP_EXTI_LINE_COMP5);
+        }
+    else {
+      LL_EXTI_DisableFallingTrig_0_31(COMP_EXTI_LINE_COMP5);
+    }
+
+    if (DPO_FE.TRIG_RISI_EN)  {
+      LL_EXTI_EnableRisingTrig_0_31(COMP_EXTI_LINE_COMP5); 
+    }
+    else{
+      LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP5);
+    } 
   }
-  
 
 
 
@@ -1538,7 +1545,7 @@ void HID_PROCESS(void) {
   FT6336_GetTouchPoint(&TouchPoints);    
   HAL_I2C_Master_Receive(&hi2c3, 0x49, &KEY_PRESSED,1, 1000);
   #ifdef DEBUGING
-    printf("1_x,1_y,2_x,2_y:%d,%d,%d,%d,0x%x\r\n", TouchPoints.point1_x,TouchPoints.point1_y,TouchPoints.point2_x,TouchPoints.point2_y,KEY_PRESSED);
+    // printf("1_x,1_y,2_x,2_y:%d,%d,%d,%d,0x%x\r\n", TouchPoints.point1_x,TouchPoints.point1_y,TouchPoints.point2_x,TouchPoints.point2_y,KEY_PRESSED);
   #endif
 
 
@@ -1630,6 +1637,7 @@ int main(void)
   MX_OPAMP3_Init();
   MX_OPAMP6_Init();
   MX_CORDIC_Init();
+  MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
 
 
@@ -1649,8 +1657,6 @@ int main(void)
   HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
 
 
-  HAL_TIM_Base_Start(&htim7);
-  HAL_TIM_Base_Start(&htim15);
 
     printf("hello world\r\n");
   
@@ -1675,7 +1681,7 @@ int main(void)
 
 
   HAL_TIM_Base_Start(&htim6);
-  HAL_TIM_Base_Start(&htim7);
+  HAL_TIM_Base_Start(&htim16);
 
   
   THEME_CONVER_565(&THEME_AFG_1);
@@ -1690,10 +1696,11 @@ int main(void)
   WS2812_Set_All(0x000010);
   HAL_TIMEx_PWMN_Start(&htim8,TIM_CHANNEL_4);
   View_ONCE_INTRO();
-  WS2812_RunningHorse(100,100);
+  // WS2812_RunningHorse(100,100);
   
   
-  
+  HAL_COMP_Start(&hcomp2);
+
 
 
   /* USER CODE END 2 */
@@ -1706,36 +1713,34 @@ int main(void)
     AFG_Update();
     HID_PROCESS();
     WS2812_VIEW_Update();   
-    HAL_SPI_Transmit(&hspi3, (uint8_t*)&BUFFER_DPO1, DPO_DEEP, 1000);    
-    
+    // HAL_SPI_Transmit(&hspi3, (uint8_t*)&BUFFER_DPO1, DPO_DEEP, 1000);    
+
     DPO_FE_Update();
-TIM6->CR1 &= ~TIM_CR1_CEN;  // 清零CEN位以停止计数
+// TIM6->CR1 &= ~TIM_CR1_CEN;  // 清零CEN位以停止计数
 
-  // HAL_ADC_Stop_DMA(&hadc1);
-  uint32_t TIRG_P =  hadc1.DMA_Handle->Instance->CNDTR;
+//   // HAL_ADC_Stop_DMA(&hadc1);
+//   uint32_t TIRG_P =  hadc1.DMA_Handle->Instance->CNDTR;
   
-  uint32_t Show_Value[DPO_DEEP] = {0};
+//   uint32_t Show_Value[DPO_DEEP] = {0};
 
-  uint32_t split_index = DPO_DEEP - TIRG_P;
-      ST7789_DrawFilledRectangle(23, 15, 293, 208, BLACK);
-
-
-      // ST7789_DrawWave(23, 15, 293, 207);
-
-  for (size_t i = 0; i < DPO_DEEP; i++)
-  {
-      size_t src_index = (i + split_index) % DPO_DEEP;
-      Show_Value[i] = BUFFER_DPO1[src_index];
-      ST7789_DrawPixel(i*DPO_FE.H_ZOOM/32+23, Show_Value[i]/DPO_FE.Y_ZOOM1+ST7789_HEIGHT/2-2048/DPO_FE.Y_ZOOM1, THEME_DPO_1.MAIN_565);
-      Show_Value[i] = BUFFER_DPO2[src_index];
-      ST7789_DrawPixel(i*DPO_FE.H_ZOOM/32+23, Show_Value[i]/DPO_FE.Y_ZOOM2+ST7789_HEIGHT/2-2048/DPO_FE.Y_ZOOM2, THEME_DPO_2.MAIN_565);
-  }
+//   uint32_t split_index = DPO_DEEP - TIRG_P;
+//       ST7789_DrawFilledRectangle(23, 15, 293, 208, BLACK);
 
 
-  // HAL_Delay(100);
+//       // ST7789_DrawWave(23, 15, 293, 207);
 
-TIM6->CR1 |= TIM_CR1_CEN;  // 设置CEN位来启动定时器
+  // for (size_t i = 0; i < DPO_DEEP; i++)
+  // {
+  //     size_t src_index = (i + split_index) % DPO_DEEP;
+  //     Show_Value[i] = BUFFER_DPO1[src_index];
+  //     ST7789_DrawPixel(i*DPO_FE.H_ZOOM/32+23, Show_Value[i]/DPO_FE.Y_ZOOM1+ST7789_HEIGHT/2-2048/DPO_FE.Y_ZOOM1, THEME_DPO_1.MAIN_565);
+  //     Show_Value[i] = BUFFER_DPO2[src_index];
+  //     ST7789_DrawPixel(i*DPO_FE.H_ZOOM/32+23, Show_Value[i]/DPO_FE.Y_ZOOM2+ST7789_HEIGHT/2-2048/DPO_FE.Y_ZOOM2, THEME_DPO_2.MAIN_565);
+  // }
+// TIM6->CR1 |= TIM_CR1_CEN;  // 设置CEN位来启动定时器
+    printf("while loop\r\n");
 
+        HAL_COMP_Start(&hcomp2);
 
 
     /* USER CODE END WHILE */
@@ -1767,7 +1772,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
-  RCC_OscInitStruct.PLL.PLLN = 90;
+  RCC_OscInitStruct.PLL.PLLN = 85;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV6;
   RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
   RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
@@ -3162,6 +3167,38 @@ static void MX_TIM15_Init(void)
 
   /* USER CODE END TIM15_Init 2 */
   HAL_TIM_MspPostInit(&htim15);
+
+}
+
+/**
+  * @brief TIM16 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM16_Init(void)
+{
+
+  /* USER CODE BEGIN TIM16_Init 0 */
+
+  /* USER CODE END TIM16_Init 0 */
+
+  /* USER CODE BEGIN TIM16_Init 1 */
+
+  /* USER CODE END TIM16_Init 1 */
+  htim16.Instance = TIM16;
+  htim16.Init.Prescaler = 0;
+  htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim16.Init.Period = 65535;
+  htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim16.Init.RepetitionCounter = 0;
+  htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim16) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM16_Init 2 */
+
+  /* USER CODE END TIM16_Init 2 */
 
 }
 

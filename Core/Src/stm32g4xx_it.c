@@ -22,10 +22,30 @@
 #include "stm32g4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+
+
+#include "string.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "math.h"
+// #include "arm_math.h"
+
+// #include "usbd_cdc_if.h"
+
+#include "st7789.h"
+#include "ft6336.h"
+#include "Views.h"
+#include "ws2812.h"
+#include "mylib.h"
+
+
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
+
+
 
 /* USER CODE END TD */
 
@@ -52,6 +72,13 @@
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+// int fputc(int ch, FILE *f)
+// {
+//     /* 发送一个字节数据到串口 USARTx */
+//     HAL_UART_Transmit(&huart1, (uint8_t*)&ch, 1, HAL_MAX_DELAY);
+//     return (ch);
+// }
+
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -63,10 +90,25 @@ extern COMP_HandleTypeDef hcomp5;
 extern DMA_HandleTypeDef hdma_spi1_tx;
 extern DMA_HandleTypeDef hdma_spi3_tx;
 extern DMA_HandleTypeDef hdma_tim17_ch1;
+extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim16;
 extern DMA_HandleTypeDef hdma_usart1_rx;
 extern DMA_HandleTypeDef hdma_usart1_tx;
 extern UART_HandleTypeDef huart1;
 /* USER CODE BEGIN EV */
+extern TIM_HandleTypeDef htim6;
+extern ADC_HandleTypeDef hadc1;
+
+extern uint32_t BUFFER_DPO1[];
+
+
+extern DPO_AnalogStates DPO_FE;
+
+extern THEMEs THEME_DPO_1;
+extern THEMEs THEME_DPO_2;
+
+
+
 
 /* USER CODE END EV */
 
@@ -293,6 +335,55 @@ void USB_LP_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles TIM1 update interrupt and TIM16 global interrupt.
+  */
+void TIM1_UP_TIM16_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 0 */
+  TIM6->CR1 &= ~(TIM_CR1_CEN);
+  __HAL_TIM_DISABLE_IT(&htim16, TIM_IT_UPDATE);
+  // __HAL_TIM_CLEAR_FLAG(&htim16, TIM_IT_UPDATE);
+
+
+  uint32_t TIRG_P =  hadc1.DMA_Handle->Instance->CNDTR;
+  
+  uint32_t Show_Value[DPO_DEEP] = {0};
+  uint32_t split_index = DPO_DEEP - TIRG_P;
+
+
+
+    for (size_t i = 0; i < DPO_DEEP; i++)
+  {
+      size_t src_index = (i + split_index) % DPO_DEEP;
+      Show_Value[i] = BUFFER_DPO1[src_index];
+      ST7789_DrawPixel(i*DPO_FE.H_ZOOM/32+23, Show_Value[i]/DPO_FE.Y_ZOOM1+ST7789_HEIGHT/2-2048/DPO_FE.Y_ZOOM1, THEME_DPO_1.MAIN_565);
+      // Show_Value[i] = BUFFER_DPO2[src_index];
+      // ST7789_DrawPixel(i*DPO_FE.H_ZOOM/32+23, Show_Value[i]/DPO_FE.Y_ZOOM2+ST7789_HEIGHT/2-2048/DPO_FE.Y_ZOOM2, THEME_DPO_2.MAIN_565);
+  }
+
+  for (size_t i = 0; i < DPO_DEEP; i++)
+  {
+      size_t src_index = (i + split_index) % DPO_DEEP;
+      Show_Value[i] = BUFFER_DPO1[src_index];
+  
+      printf("adc:%d, %d, %d, %d\r\n", 
+             BUFFER_DPO1[i], 
+             (DPO_DEEP - i == TIRG_P) ? 2048 : i, 
+             TIRG_P, 
+             Show_Value[i]);
+  }
+
+
+  TIM6->CR1 |= TIM_CR1_CEN;
+  /* USER CODE END TIM1_UP_TIM16_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim1);
+  HAL_TIM_IRQHandler(&htim16);
+  /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 1 */
+
+  /* USER CODE END TIM1_UP_TIM16_IRQn 1 */
+}
+
+/**
   * @brief This function handles USART1 global interrupt / USART1 wake-up interrupt through EXTI line 25.
   */
 void USART1_IRQHandler(void)
@@ -326,10 +417,16 @@ void DMA2_Channel1_IRQHandler(void)
 void COMP1_2_3_IRQHandler(void)
 {
   /* USER CODE BEGIN COMP1_2_3_IRQn 0 */
+  TIM16->CNT = 0;
+  HAL_COMP_Stop(&hcomp2);
+  LL_EXTI_ClearFlag_0_31(COMP_EXTI_LINE_COMP2);
 
   /* USER CODE END COMP1_2_3_IRQn 0 */
-  HAL_COMP_IRQHandler(&hcomp2);
+  // HAL_COMP_IRQHandler(&hcomp2);
   /* USER CODE BEGIN COMP1_2_3_IRQn 1 */
+  __HAL_TIM_CLEAR_FLAG(&htim16, TIM_IT_UPDATE);
+  __HAL_TIM_ENABLE_IT(&htim16, TIM_IT_UPDATE);
+
 
   /* USER CODE END COMP1_2_3_IRQn 1 */
 }

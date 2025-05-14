@@ -41,4 +41,6 @@ dpo_aio/stm32g4xx_it.o: ..\Core\Src\stm32g4xx_it.c ..\Core\Inc\main.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_tim_ex.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_uart.h \
   ..\Drivers\STM32G4xx_HAL_Driver\Inc\stm32g4xx_hal_uart_ex.h \
-  ..\Core\Inc\stm32g4xx_it.h
+  ..\Core\Inc\stm32g4xx_it.h ..\Core\Inc\st7789.h ..\Core\Inc\fonts.h \
+  ..\Core\Inc\ft6336.h ..\Core\Inc\Views.h ..\Core\Inc\ws2812.h \
+  ..\Core\Inc\mylib.h
