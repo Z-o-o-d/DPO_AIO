@@ -184,7 +184,7 @@ typedef struct {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-#define DPO_DEEP 2048
+#define DPO_DEEP 282*2
 
 /* USER CODE END EC */
 
