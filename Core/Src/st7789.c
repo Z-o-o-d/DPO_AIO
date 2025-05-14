@@ -33,7 +33,7 @@ static void ST7789_WriteCommand(uint8_t cmd)
  * @param buff_size -> size of the data buffer
  * @return none
  */
-void ST7789_WriteData(uint8_t *buff, size_t buff_size)
+static void ST7789_WriteData(uint8_t *buff, size_t buff_size)
 {
 	ST7789_Select();
 	ST7789_DC_Set();
@@ -104,7 +104,7 @@ void ST7789_SetRotation(uint8_t m)
  * @param xi&yi -> coordinates of window
  * @return none
  */
-void ST7789_SetAddressWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
+static void ST7789_SetAddressWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
 {
 	ST7789_Select();
 	uint16_t x_start = x0 + X_SHIFT, x_end = x1 + X_SHIFT;
@@ -568,7 +568,7 @@ void ST7789_DrawFilledRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, 
     ST7789_Select();
     ST7789_SetAddressWindow(x, y, x + w - 1, y + h - 1);
 
-    static uint8_t color_buf[240 * 2]; // 960 pixels max
+    static uint8_t color_buf[240 * 2]; // 240 pixels max
     uint8_t high = color >> 8;
     uint8_t low = color & 0xFF;
 
@@ -576,10 +576,13 @@ void ST7789_DrawFilledRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, 
         color_buf[2 * i]     = high;
         color_buf[2 * i + 1] = low;
     }
+
     while (h--) {
         ST7789_WriteData(color_buf, w * 2);
     }
+
     ST7789_UnSelect();
+
 }
 
 /** 
