@@ -10,6 +10,7 @@
         <File path="src/gowin_pll/gowin_pll.v" type="file.verilog" enable="1"/>
         <File path="src/spi_slave.v" type="file.verilog" enable="1"/>
         <File path="src/led_flash.cst" type="file.cst" enable="1"/>
+        <File path="src/DDS.rao" type="file.gao" enable="1"/>
         <File path="src/sin_wave.dat" type="file.other" enable="1"/>
     </FileList>
 </Project>

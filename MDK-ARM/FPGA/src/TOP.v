@@ -7,9 +7,14 @@ module TOP(
 
 
     output [DAC_W-1 : 0]  dds_dout_2,
-    output DAC_CLK_2
+    output DAC_CLK_2,
+    
 
 
+    input      sclk,      
+    input       mosi,        
+    input       cs_n,   
+    output      miso     
 );
 
 // Parameters             
@@ -80,6 +85,19 @@ dds #(
     .freq_word               ( freq_word2  [ FW_W-1:0] ),
     .triangle_sym            (  154748364  ),
     .ramp_wave_dout          ( dds_dout_2              )
+);
+
+
+spi_slave U_SPI_S(
+    .clk                     ( clkout0                 ),
+    .rst_n                   ( rst_n                   ),
+
+
+    .sclk              (  sclk                      ),
+    .mosi               ( mosi  ),
+    .cs_n            (  cs_n  ),
+    .miso          ( miso              )
+
 );
 
 endmodule

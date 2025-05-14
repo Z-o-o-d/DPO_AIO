@@ -9,7 +9,7 @@
   "SubInsts" : [
    {
     "InstFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/TOP.v",
-    "InstLine" : 27,
+    "InstLine" : 32,
     "InstName" : "u_Gowin_PLL",
     "ModuleFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/gowin_pll/gowin_pll.v",
     "ModuleLine" : 10,
@@ -17,7 +17,7 @@
    },
    {
     "InstFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/TOP.v",
-    "InstLine" : 59,
+    "InstLine" : 64,
     "InstName" : "u_dds_1",
     "ModuleFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/dds.v",
     "ModuleLine" : 1,
@@ -25,20 +25,20 @@
    },
    {
     "InstFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/TOP.v",
-    "InstLine" : 74,
+    "InstLine" : 79,
     "InstName" : "u_dds_2",
     "ModuleFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/dds.v",
     "ModuleLine" : 1,
     "ModuleName" : "dds"
+   },
+   {
+    "InstFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/TOP.v",
+    "InstLine" : 91,
+    "InstName" : "U_SPI_S",
+    "ModuleFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/spi_slave.v",
+    "ModuleLine" : 1,
+    "ModuleName" : "spi_slave"
    }
   ]
- },
- {
-  "InstFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/spi_slave.v",
-  "InstLine" : 1,
-  "InstName" : "spi_slave",
-  "ModuleFile" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/spi_slave.v",
-  "ModuleLine" : 1,
-  "ModuleName" : "spi_slave"
  }
 ]

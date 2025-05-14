@@ -988,7 +988,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
     PB3     ------> SPI1_SCK
     PB5     ------> SPI1_MOSI
     */
-    GPIO_InitStruct.Pin = ST_SPI3_SCK_Pin|ST_SPI3_MOSI_Pin;
+    GPIO_InitStruct.Pin = ST_SPI1_SCK_Pin|ST_SPI1_MOSI_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -1056,7 +1056,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
     hdma_spi3_tx.Init.MemInc = DMA_MINC_ENABLE;
     hdma_spi3_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     hdma_spi3_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-    hdma_spi3_tx.Init.Mode = DMA_NORMAL;
+    hdma_spi3_tx.Init.Mode = DMA_CIRCULAR;
     hdma_spi3_tx.Init.Priority = DMA_PRIORITY_LOW;
     if (HAL_DMA_Init(&hdma_spi3_tx) != HAL_OK)
     {
@@ -1092,7 +1092,7 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* hspi)
     PB3     ------> SPI1_SCK
     PB5     ------> SPI1_MOSI
     */
-    HAL_GPIO_DeInit(GPIOB, ST_SPI3_SCK_Pin|ST_SPI3_MOSI_Pin);
+    HAL_GPIO_DeInit(GPIOB, ST_SPI1_SCK_Pin|ST_SPI1_MOSI_Pin);
 
     /* SPI1 DMA DeInit */
     HAL_DMA_DeInit(hspi->hdmatx);

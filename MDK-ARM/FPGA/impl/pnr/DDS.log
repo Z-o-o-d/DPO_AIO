@@ -7,6 +7,7 @@ Running placement......
 [10%] Placement Phase 0 completed
 [20%] Placement Phase 1 completed
 [30%] Placement Phase 2 completed
+WARN  (TA1132) :  'tck_pad_i' was determined to be a clock but was not created.
 [50%] Placement Phase 3 completed
 Running routing......
 [60%] Routing Phase 0 completed
@@ -25,5 +26,5 @@ Generate file "C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\impl\pnr\DDS.pin.htm
 Generate file "C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\impl\pnr\DDS.rpt.html" completed
 Generate file "C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\impl\pnr\DDS.rpt.txt" completed
 Generate file "C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\impl\pnr\DDS.tr.html" completed
-Mon May 12 12:25:28 2025
+Wed May 14 01:37:47 2025
 

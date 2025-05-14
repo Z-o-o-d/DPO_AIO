@@ -181,7 +181,6 @@ uint16_t KEY_PROCESS = 0;
 /* USER CODE BEGIN 0 */
 
 
-
 DPO_AnalogStates DPO_FE = {
   .CH1_OFFSET = 1024,
   .CH2_OFFSET = 1024,
@@ -242,6 +241,7 @@ THEMEs THEME_CONFIG = {
   .WAKE = 0x000000,
   .SHUT = 0x000000,
 };
+
 
 
 void DPO_FE_Update(void) {
@@ -465,9 +465,8 @@ void View_ONCE_PROC(void) {
   }
 
 
-    ST7789_DrawRectangle(20, 0, 319, 239, convert_24bit_to_16bit(THEME_CONFIG.MAIN),4);
+    ST7789_DrawRectangle(20, 12, 319, 224, convert_24bit_to_16bit(THEME_CONFIG.MAIN),3);
 
-  ST7789_DrawLine(0, 0, 319, 0, convert_24bit_to_16bit(THEME_CONFIG.MAIN));
 
   
 
@@ -746,31 +745,42 @@ void KEY_PROC_DPO1(){
         
     case KEY_0: 
         printf("数字键 {0} 被按下\n");
-
+        hopamp1.Init.PgaGain =OPAMP_PGA_GAIN_2_OR_MINUS_1;
+        HAL_OPAMP_Init(&hopamp1);
         break;
         
     case KEY_1: 
         printf("数字键 {1} 被按下\n");
+        hopamp1.Init.PgaGain =OPAMP_PGA_GAIN_4_OR_MINUS_3;
+        HAL_OPAMP_Init(&hopamp1);
 
         break;
         
     case KEY_2: 
         printf("数字键 {2} 被按下\n");
+        hopamp1.Init.PgaGain =OPAMP_PGA_GAIN_8_OR_MINUS_7;
+        HAL_OPAMP_Init(&hopamp1);
 
         break;
         
     case KEY_3: 
         printf("数字键 {3} 被按下\n");
+        hopamp1.Init.PgaGain =OPAMP_PGA_GAIN_16_OR_MINUS_15;
+        HAL_OPAMP_Init(&hopamp1);
 
         break;
         
     case KEY_4: 
         printf("数字键 {4} 被按下\n");
+        hopamp1.Init.PgaGain =OPAMP_PGA_GAIN_32_OR_MINUS_31;
+        HAL_OPAMP_Init(&hopamp1);
 
         break;
         
     case KEY_5: 
         printf("数字键 {5} 被按下\n");
+        hopamp1.Init.PgaGain =OPAMP_PGA_GAIN_64_OR_MINUS_63;
+        HAL_OPAMP_Init(&hopamp1);
 
         break;
         
@@ -1368,14 +1378,14 @@ void HID_PROCESS(void) {
   #endif
 
 
-  sprintf(&BUFFER_TEMP,"KEY:0x%x",KEY_PRESSED);
-  ST7789_WriteString(200, 10, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
-  sprintf(&BUFFER_TEMP,"ENC3:%5d",TIM3->CNT);
-  ST7789_WriteString(200, 30, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
-  sprintf(&BUFFER_TEMP,"ENC1:%5d",TIM1->CNT);
-  ST7789_WriteString(200, 50, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
-  sprintf(&BUFFER_TEMP,"ENC4:%5d",TIM4->CNT);
-  ST7789_WriteString(200, 70, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
+  // sprintf(&BUFFER_TEMP,"KEY:0x%x",KEY_PRESSED);
+  // ST7789_WriteString(200, 10, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
+  // sprintf(&BUFFER_TEMP,"ENC3:%5d",TIM3->CNT);
+  // ST7789_WriteString(200, 30, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
+  // sprintf(&BUFFER_TEMP,"ENC1:%5d",TIM1->CNT);
+  // ST7789_WriteString(200, 50, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
+  // sprintf(&BUFFER_TEMP,"ENC4:%5d",TIM4->CNT);
+  // ST7789_WriteString(200, 70, &BUFFER_TEMP, Font_11x18, WHITE, BLACK);
 
   VIEW_UPDATE();
   WS2812_VIEW_Update();
@@ -1511,9 +1521,11 @@ int main(void)
   WS2812_Set_All(0x000010);
   HAL_TIMEx_PWMN_Start(&htim8,TIM_CHANNEL_4);
   View_ONCE_INTRO();
-  // WS2812_RunningHorse(100,100);
+  WS2812_RunningHorse(100,100);
   
   
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -1527,6 +1539,8 @@ int main(void)
     WS2812_VIEW_Update();
 
 
+    HAL_SPI_Transmit(&hspi3, (uint8_t*)&BUFFER_DPO1, DPO_DEEP, 1000);
+
 
 
 TIM6->CR1 &= ~TIM_CR1_CEN;  // 清零CEN位以停止计数
@@ -1537,9 +1551,9 @@ TIM6->CR1 &= ~TIM_CR1_CEN;  // 清零CEN位以停止计数
   uint32_t Show_Value[DPO_DEEP] = {0};
 
   uint32_t split_index = DPO_DEEP - TIRG_P;
-              ST7789_DrawFilledRectangle(25, 5, 290, 230, BLACK);
+              ST7789_DrawFilledRectangle(22, 14, 294, 209, BLACK);
 
-  for (size_t i = 0; i < DPO_DEEP; i++)
+  for (size_t i = 0; i < DPO_DEEP-1; i++)
   {
       size_t src_index = (i + split_index) % DPO_DEEP;
       Show_Value[i] = BUFFER_DPO1[src_index];
@@ -1551,10 +1565,9 @@ TIM6->CR1 &= ~TIM_CR1_CEN;  // 清零CEN位以停止计数
       //        Show_Value[i]);
 
 
-      ST7789_DrawPixel(i+25, Show_Value[i]/20, WHITE);
-      // ST7789_DrawLine(i+25, Show_Value[i]/20, i+26, Show_Value[i+1]/20, WHITE);
+      ST7789_DrawPixel(i+23, Show_Value[i]/20+18, WHITE);
   }
-  // HAL_Delay(10);
+  // HAL_Delay(100);
 
 TIM6->CR1 |= TIM_CR1_CEN;  // 设置CEN位来启动定时器
 
@@ -1589,7 +1602,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
-  RCC_OscInitStruct.PLL.PLLN = 90;
+  RCC_OscInitStruct.PLL.PLLN = 85;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV6;
   RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
   RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
@@ -2278,7 +2291,7 @@ static void MX_I2C3_Init(void)
 
 /**
   * @brief OPAMP1 Initialization Function
-  * @param None
+  * @param NoneOPAMP_PGA_GAIN_2_OR_MINUS_1
   * @retval None
   */
 static void MX_OPAMP1_Init(void)
@@ -2535,7 +2548,7 @@ static void MX_SPI3_Init(void)
   hspi3.Instance = SPI3;
   hspi3.Init.Mode = SPI_MODE_MASTER;
   hspi3.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi3.Init.DataSize = SPI_DATASIZE_8BIT;
+  hspi3.Init.DataSize = SPI_DATASIZE_16BIT;
   hspi3.Init.CLKPolarity = SPI_POLARITY_HIGH;
   hspi3.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi3.Init.NSS = SPI_NSS_HARD_OUTPUT;
@@ -2778,7 +2791,7 @@ static void MX_TIM6_Init(void)
   htim6.Instance = TIM6;
   htim6.Init.Prescaler = 0;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = 44;
+  htim6.Init.Period = 180;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
   {

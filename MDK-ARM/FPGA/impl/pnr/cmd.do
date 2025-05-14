@@ -3,6 +3,7 @@
 -pn GW5A-LV25UG324ES
 -cst C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\led_flash.cst
 -cfg C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\impl\pnr\device.cfg
+-gao_crc 0101010010011111
 -bit
 -tr
 -ph
@@ -16,3 +17,4 @@
 -route_maxfan 23
 -global_freq 100.000
 -enable_dsrm 0
+-rtl_gao

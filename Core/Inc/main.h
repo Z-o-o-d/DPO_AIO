@@ -120,6 +120,8 @@ enum VIEWS
   VIEW_CONFIG = 5,
 };
 
+
+
 typedef struct {
 	uint32_t CH1_OFFSET;
 	uint32_t CH2_OFFSET;
@@ -138,12 +140,12 @@ typedef struct {
 
 
 typedef struct {
-  uint16_t AFG_EN1;
-	uint16_t AFG_EN2;
 	uint16_t CH1_DC;
 	uint16_t CH2_DC;
   uint16_t CH1_REF;
 	uint16_t CH2_REF;
+  uint16_t AFG_EN1;
+	uint16_t AFG_EN2;
   uint64_t CH1_FREQ;
   uint64_t CH2_FREQ;
   uint16_t CH1_TYPE;
@@ -236,12 +238,12 @@ void Error_Handler(void);
 #define FPGA_SPI3_MOSI_GPIO_Port GPIOC
 #define ST_CS_Pin GPIO_PIN_2
 #define ST_CS_GPIO_Port GPIOD
-#define ST_SPI3_SCK_Pin GPIO_PIN_3
-#define ST_SPI3_SCK_GPIO_Port GPIOB
+#define ST_SPI1_SCK_Pin GPIO_PIN_3
+#define ST_SPI1_SCK_GPIO_Port GPIOB
 #define FT_INT_EXTI4_Pin GPIO_PIN_4
 #define FT_INT_EXTI4_GPIO_Port GPIOB
-#define ST_SPI3_MOSI_Pin GPIO_PIN_5
-#define ST_SPI3_MOSI_GPIO_Port GPIOB
+#define ST_SPI1_MOSI_Pin GPIO_PIN_5
+#define ST_SPI1_MOSI_GPIO_Port GPIOB
 #define ENC4_P_Pin GPIO_PIN_6
 #define ENC4_P_GPIO_Port GPIOB
 #define ENC4_N_Pin GPIO_PIN_7
