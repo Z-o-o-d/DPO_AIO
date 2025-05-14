@@ -163,12 +163,16 @@ volatile uint16_t LCD_BRIGHTNESS = 10000;
 volatile uint8_t KEY_PRESSED = 0x79;
 uint8_t CURRENT_VIEW = VIEW_INTRO;
 
+
+
+uint8_t BUFFER_AFG[24] = {0};
+
+
 uint32_t BUFFER_DPO1[DPO_DEEP] = {0};
 uint32_t BUFFER_DPO2[DPO_DEEP] = {0};
 
-
-  uint32_t Show_Value1[DPO_DEEP] = {0};
-    uint32_t Show_Value2[DPO_DEEP] = {0};
+uint32_t Show_Value1[DPO_DEEP] = {0};
+uint32_t Show_Value2[DPO_DEEP] = {0};
 
 
 volatile uint16_t LED_BLINK=0;
@@ -301,8 +305,15 @@ void DrawWaveSegment(uint16_t start_x, uint16_t part_w, uint16_t h, uint16_t x_o
         uint16_t trig_y = DPO_FE.TRIG_LEVEL / 20;
 
         if (DPO_FE.CH_SELECT) {
-          DrawLine(part_w, h, wave_buf, px, y21, px + 1, y22, H_DPO2, L_DPO2);  // 通道2先
-          DrawLine(part_w, h, wave_buf, px, y11, px + 1, y12, H_DPO1, L_DPO1);  // 通道1后
+          if (DPO_FE.DPO_EN2)
+          {
+            DrawLine(part_w, h, wave_buf, px, y21, px + 1, y22, H_DPO2, L_DPO2);  // 通道2先
+          }
+           if (DPO_FE.DPO_EN1)
+          {
+            DrawLine(part_w, h, wave_buf, px, y11, px + 1, y12, H_DPO1, L_DPO1);  // 通道1后
+          }
+
             if (trig_y < h) {
                 for (uint16_t px = 0; px < part_w; px++) {
                     uint32_t index = trig_y * part_w + px;
@@ -311,8 +322,16 @@ void DrawWaveSegment(uint16_t start_x, uint16_t part_w, uint16_t h, uint16_t x_o
                   }
                 }
               } else {
-          DrawLine(part_w, h, wave_buf, px, y11, px + 1, y12, H_DPO1, L_DPO1);  // 通道1先
-          DrawLine(part_w, h, wave_buf, px, y21, px + 1, y22, H_DPO2, L_DPO2);  // 通道2后
+
+          if (DPO_FE.DPO_EN1)
+          {
+            DrawLine(part_w, h, wave_buf, px, y11, px + 1, y12, H_DPO1, L_DPO1);  // 通道1后
+          }
+          if (DPO_FE.DPO_EN2)
+          {
+            DrawLine(part_w, h, wave_buf, px, y21, px + 1, y22, H_DPO2, L_DPO2);  // 通道2先
+          }
+
             if (trig_y < h) {
                 for (uint16_t px = 0; px < part_w; px++) {
                     uint32_t index = trig_y * part_w + px;
@@ -499,11 +518,12 @@ void DPO_FE_Update(void) {
   HAL_OPAMP_Init(&hopamp6);
 
 
-  if (DPO_FE.CH_SELECT)
+if (DPO_FE.CH_SELECT)
   {
-      LL_EXTI_DisableFallingTrig_0_31(COMP_EXTI_LINE_COMP5);
-      LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP5);
-      if (DPO_FE.TRIG_FALL_EN) 
+    LL_EXTI_DisableFallingTrig_0_31(COMP_EXTI_LINE_COMP5);
+    LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP5);
+
+    if (DPO_FE.TRIG_FALL_EN) 
       LL_EXTI_EnableFallingTrig_0_31(COMP_EXTI_LINE_COMP2);
     else 
       LL_EXTI_DisableFallingTrig_0_31(COMP_EXTI_LINE_COMP2);
@@ -513,40 +533,23 @@ void DPO_FE_Update(void) {
     else 
       LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP2);
 
-
-
-  HAL_COMP_Start(&hcomp2);
-
-      
-    } 
-    
-    else
-
-    {
+      HAL_COMP_Start(&hcomp2);    
+    }else{
       LL_EXTI_DisableFallingTrig_0_31(COMP_EXTI_LINE_COMP2);
       LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP2);
-        if (DPO_FE.TRIG_FALL_EN) {
-          LL_EXTI_EnableFallingTrig_0_31(COMP_EXTI_LINE_COMP5);
-        }
-    else {
+
+    if (DPO_FE.TRIG_FALL_EN)
+      LL_EXTI_EnableFallingTrig_0_31(COMP_EXTI_LINE_COMP5);
+    else
       LL_EXTI_DisableFallingTrig_0_31(COMP_EXTI_LINE_COMP5);
-    }
 
-    if (DPO_FE.TRIG_RISI_EN)  {
+    if (DPO_FE.TRIG_RISI_EN)
       LL_EXTI_EnableRisingTrig_0_31(COMP_EXTI_LINE_COMP5); 
-    }
-    else{
+    else
       LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP5);
-    } 
 
-  HAL_COMP_Start(&hcomp5);
-
-
+      HAL_COMP_Start(&hcomp5);
   }
-
-
-
-
 }
 
 
@@ -555,8 +558,26 @@ void DPO_FE_Update(void) {
 void AFG_Update(void) {
 	//SET OFFSET
   TIM2->CCR4 = AFG_FE.CH1_DC;
+
+
+
+  if (AFG_FE.AFG_EN1)
+  {
   TIM2->CCR3 = AFG_FE.CH1_REF;
+  }else
+  {
+      TIM2->CCR3 = 0;
+  }
+    
+  if (AFG_FE.AFG_EN2)
+  {
   TIM15->CCR2 = AFG_FE.CH2_REF;
+  }else
+  {
+  TIM15->CCR2 = 0;
+  }
+
+
   TIM15->CCR1 = AFG_FE.CH2_DC;
 }
 
@@ -1279,6 +1300,8 @@ void ENC_PROC_AFG1(void) {
 	current_cnt = TIM1->CNT;
 	TIM1->CNT   = 32767;
 	diff        = (int32_t)(current_cnt - 32767);
+    AFG_FE.CH1_REF+=diff;
+
 
 	current_cnt = TIM4->CNT;
 	TIM4->CNT   = 32767;
@@ -1456,6 +1479,8 @@ void ENC_PROC_AFG2(void) {
 	current_cnt = TIM1->CNT;
 	TIM1->CNT   = 32767;
 	diff        = (int32_t)(current_cnt - 32767);
+      AFG_FE.CH2_REF+=diff;
+
 
 	current_cnt = TIM4->CNT;
 	TIM4->CNT   = 32767;
@@ -1808,7 +1833,7 @@ int main(void)
   WS2812_Set_All(0x000010);
   HAL_TIMEx_PWMN_Start(&htim8,TIM_CHANNEL_4);
   View_ONCE_INTRO();
-  // WS2812_RunningHorse(100,100);
+  WS2812_RunningHorse(100,100);
   View_ONCE_PROC();
   
   HAL_COMP_Start(&hcomp2);
@@ -1829,39 +1854,17 @@ int main(void)
     WS2812_VIEW_Update();
 
 
-    HAL_SPI_Transmit(&hspi3, (uint8_t*)&BUFFER_DPO1, DPO_DEEP, 1000);
-
-
-
-// TIM6->CR1 &= ~TIM_CR1_CEN;  // 清零CEN位以停止计数
-
-  // HAL_ADC_Stop_DMA(&hadc1);
+  HAL_SPI_Transmit(&hspi3, (uint8_t*)&BUFFER_AFG, DPO_DEEP, 1000);
   uint32_t TIRG_P =  hadc1.DMA_Handle->Instance->CNDTR;
-  
-  uint32_t Show_Value[DPO_DEEP] = {0};
-
+    uint32_t Show_Value[DPO_DEEP] = {0};
   uint32_t split_index = DPO_DEEP - TIRG_P;
-      // ST7789_DrawFilledRectangle(22, 14, 295, 209, BLACK);
   for (size_t i = 0; i < DPO_DEEP; i++)
   {
       size_t src_index = (i + split_index) % DPO_DEEP;
       Show_Value1[i] = BUFFER_DPO1[src_index];
-      // ST7789_DrawPixel(i*DPO_FE.H_ZOOM/32+23, Show_Value[i]/DPO_FE.Y_ZOOM1+ST7789_HEIGHT/2-2048/DPO_FE.Y_ZOOM1, THEME_DPO_1.MAIN_565);
       Show_Value2[i] = BUFFER_DPO2[src_index];
-      // ST7789_DrawPixel(i*DPO_FE.H_ZOOM/32+23, Show_Value[i]/DPO_FE.Y_ZOOM2+ST7789_HEIGHT/2-2048/DPO_FE.Y_ZOOM2, THEME_DPO_2.MAIN_565);
   }
-
-
-
-
-
-
-  
-
   ST7789_DrawWave();
-    // HAL_Delay(100);
-
-
   TIM6->CR1 |= TIM_CR1_CEN;  // 设置CEN位来启动定时器
   
 

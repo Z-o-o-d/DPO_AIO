@@ -2,15 +2,15 @@
  "Device" : "GW5A-25A",
  "Files" : [
   {
+   "Path" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/TOP.v",
+   "Type" : "verilog"
+  },
+  {
    "Path" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/dds.v",
    "Type" : "verilog"
   },
   {
    "Path" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/gowin_pll/gowin_pll.v",
-   "Type" : "verilog"
-  },
-  {
-   "Path" : "C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/TOP.v",
    "Type" : "verilog"
   },
   {
