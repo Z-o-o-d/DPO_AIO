@@ -258,28 +258,67 @@ void THEME_CONVER_565(THEMEs *theme)
 
 uint8_t wave_buf[94 * 204 * 2]={0}; // 每段缓冲区
 
-void DrawWaveSegment(uint16_t start_x, uint16_t part_w, uint16_t h, uint16_t x_offset, uint8_t H_DPO1, uint8_t L_DPO1, uint8_t H_DPO2, uint8_t L_DPO2) {
+void DrawWaveSegment(uint16_t start_x, uint16_t part_w, uint16_t h, uint16_t x_offset,
+                     uint8_t H_DPO1, uint8_t L_DPO1,
+                     uint8_t H_DPO2, uint8_t L_DPO2) {
     memset(wave_buf, 0, sizeof(wave_buf));
-    for (uint16_t px = 0; px < part_w; px++) {
-        uint16_t global_x = start_x + px; // 相对整体波形数据的X
-        for (uint16_t py = 0; py < h; py++) {
-            uint32_t index = py * part_w + px;
 
-            if (Show_Value1[global_x]/ 20 == py) {
+    for (uint16_t px = 0; px < part_w - 1; px++) {
+        uint16_t global_x1 = start_x + px;
+        uint16_t global_x2 = start_x + px + 1;
+
+        // 获取当前点和下一个点的 Y 值（像素坐标，顶->底）
+        uint16_t y1_val1 = Show_Value1[global_x1] / 20;
+        uint16_t y2_val1 = Show_Value1[global_x2] / 20;
+
+        uint16_t y1_val2 = Show_Value2[global_x1] / 20;
+        uint16_t y2_val2 = Show_Value2[global_x2] / 20;
+
+        // 画第一组数据连线（DPO1）
+        int16_t x0 = px, x1 = px + 1;
+        int16_t y0 = y1_val1, y1 = y2_val1;
+
+        int16_t dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+        int16_t dy = -abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+        int16_t err = dx + dy;
+
+        while (1) {
+            if (x0 >= 0 && x0 < part_w && y0 < h) {
+                uint32_t index = y0 * part_w + x0;
                 wave_buf[2 * index]     = H_DPO1;
                 wave_buf[2 * index + 1] = L_DPO1;
             }
+            if (x0 == x1 && y0 == y1) break;
+            int16_t e2 = 2 * err;
+            if (e2 >= dy) { err += dy; x0 += sx; }
+            if (e2 <= dx) { err += dx; y0 += sy; }
+        }
 
-            if (Show_Value2[global_x]/ 20 == py) {
+        // 画第二组数据连线（DPO2）
+        x0 = px; x1 = px + 1;
+        y0 = y1_val2; y1 = y2_val2;
+
+        dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+        dy = -abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+        err = dx + dy;
+
+        while (1) {
+            if (x0 >= 0 && x0 < part_w && y0 < h) {
+                uint32_t index = y0 * part_w + x0;
                 wave_buf[2 * index]     = H_DPO2;
                 wave_buf[2 * index + 1] = L_DPO2;
             }
-
+            if (x0 == x1 && y0 == y1) break;
+            int16_t e2 = 2 * err;
+            if (e2 >= dy) { err += dy; x0 += sx; }
+            if (e2 <= dx) { err += dx; y0 += sy; }
         }
     }
+
     ST7789_SetAddressWindow(x_offset, 18, x_offset + part_w - 1, 18 + h - 1);
     ST7789_WriteData(wave_buf, part_w * h * 2);
 }
+
 
 
 void ST7789_DrawWave() {
