@@ -145,7 +145,7 @@ typedef struct {
   uint16_t TRIG_LEVEL;
   uint16_t TRIG_FALL_EN;
   uint16_t TRIG_RISI_EN;
-  uint16_t SELECT_CH;
+  uint16_t CH_SELECT;
   uint16_t OPAGAIN1;
   uint16_t OPAGAIN2;
 
@@ -167,6 +167,8 @@ typedef struct {
   uint16_t CH1_TYPE;
   uint16_t CH2_TYPE;
   uint16_t TRIG_MODE;
+
+  uint16_t CH_SELECT;
 } AFG_AnalogStates;
 
 typedef struct {

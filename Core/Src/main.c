@@ -198,7 +198,7 @@ DPO_AnalogStates DPO_FE = {
   .TRIG_LEVEL = 2048,
   .TRIG_FALL_EN = 1,
   .TRIG_RISI_EN = 0,
-  .SELECT_CH  = 1,
+  .CH_SELECT  = 1,
   .OPAGAIN1 = 0,
   .OPAGAIN2 = 0,
   .Y_ZOOM1   = 32,
@@ -218,6 +218,7 @@ AFG_AnalogStates AFG_FE = {
   .CH1_TYPE  = 0,
   .CH2_TYPE  = 0,
   .TRIG_MODE = 0,
+  .CH_SELECT = 0,
 };
 
 //gbr
@@ -258,62 +259,71 @@ void THEME_CONVER_565(THEMEs *theme)
 
 uint8_t wave_buf[94 * 204 * 2]={0}; // 每段缓冲区
 
+
+void DrawLine(uint16_t part_w, uint16_t h, uint8_t *buf, uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1,
+              uint8_t H, uint8_t L) {
+    int16_t dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+    int16_t dy = -abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+    int16_t err = dx + dy;
+
+    while (1) {
+        if (x0 < part_w && y0 < h) {
+            uint32_t index = y0 * part_w + x0;
+            buf[2 * index]     = H;
+            buf[2 * index + 1] = L;
+        }
+        if (x0 == x1 && y0 == y1) break;
+        int16_t e2 = 2 * err;
+        if (e2 >= dy) { err += dy; x0 += sx; }
+        if (e2 <= dx) { err += dx; y0 += sy; }
+    }
+}
+
+
 void DrawWaveSegment(uint16_t start_x, uint16_t part_w, uint16_t h, uint16_t x_offset,
                      uint8_t H_DPO1, uint8_t L_DPO1,
                      uint8_t H_DPO2, uint8_t L_DPO2) {
     memset(wave_buf, 0, sizeof(wave_buf));
 
     for (uint16_t px = 0; px < part_w - 1; px++) {
-        uint16_t global_x1 = start_x + px;
-        uint16_t global_x2 = start_x + px + 1;
+        uint16_t gx1 = start_x + px;
+        uint16_t gx2 = start_x + px + 1;
 
-        // 获取当前点和下一个点的 Y 值（像素坐标，顶->底）
-        uint16_t y1_val1 = Show_Value1[global_x1] / 20;
-        uint16_t y2_val1 = Show_Value1[global_x2] / 20;
+        uint16_t y11 = Show_Value1[gx1] / 20;
+        uint16_t y12 = Show_Value1[gx2] / 20;
+        uint16_t y21 = Show_Value2[gx1] / 20;
+        uint16_t y22 = Show_Value2[gx2] / 20;
 
-        uint16_t y1_val2 = Show_Value2[global_x1] / 20;
-        uint16_t y2_val2 = Show_Value2[global_x2] / 20;
 
-        // 画第一组数据连线（DPO1）
-        int16_t x0 = px, x1 = px + 1;
-        int16_t y0 = y1_val1, y1 = y2_val1;
+        
 
-        int16_t dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
-        int16_t dy = -abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
-        int16_t err = dx + dy;
+                       // 绘制触发电平线（整条横线）
+        uint16_t trig_y = DPO_FE.TRIG_LEVEL / 20;
 
-        while (1) {
-            if (x0 >= 0 && x0 < part_w && y0 < h) {
-                uint32_t index = y0 * part_w + x0;
-                wave_buf[2 * index]     = H_DPO1;
-                wave_buf[2 * index + 1] = L_DPO1;
+        if (DPO_FE.CH_SELECT) {
+          DrawLine(part_w, h, wave_buf, px, y21, px + 1, y22, H_DPO2, L_DPO2);  // 通道2先
+          DrawLine(part_w, h, wave_buf, px, y11, px + 1, y12, H_DPO1, L_DPO1);  // 通道1后
+            if (trig_y < h) {
+                for (uint16_t px = 0; px < part_w; px++) {
+                    uint32_t index = trig_y * part_w + px;
+                    wave_buf[2 * index]     = H_DPO1;
+                    wave_buf[2 * index + 1] = L_DPO1;
+                  }
+                }
+              } else {
+          DrawLine(part_w, h, wave_buf, px, y11, px + 1, y12, H_DPO1, L_DPO1);  // 通道1先
+          DrawLine(part_w, h, wave_buf, px, y21, px + 1, y22, H_DPO2, L_DPO2);  // 通道2后
+            if (trig_y < h) {
+                for (uint16_t px = 0; px < part_w; px++) {
+                    uint32_t index = trig_y * part_w + px;
+                    wave_buf[2 * index]     = H_DPO2;
+                    wave_buf[2 * index + 1] = L_DPO2;
+                }
             }
-            if (x0 == x1 && y0 == y1) break;
-            int16_t e2 = 2 * err;
-            if (e2 >= dy) { err += dy; x0 += sx; }
-            if (e2 <= dx) { err += dx; y0 += sy; }
-        }
-
-        // 画第二组数据连线（DPO2）
-        x0 = px; x1 = px + 1;
-        y0 = y1_val2; y1 = y2_val2;
-
-        dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
-        dy = -abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
-        err = dx + dy;
-
-        while (1) {
-            if (x0 >= 0 && x0 < part_w && y0 < h) {
-                uint32_t index = y0 * part_w + x0;
-                wave_buf[2 * index]     = H_DPO2;
-                wave_buf[2 * index + 1] = L_DPO2;
-            }
-            if (x0 == x1 && y0 == y1) break;
-            int16_t e2 = 2 * err;
-            if (e2 >= dy) { err += dy; x0 += sx; }
-            if (e2 <= dx) { err += dx; y0 += sy; }
         }
     }
+
+
 
     ST7789_SetAddressWindow(x_offset, 18, x_offset + part_w - 1, 18 + h - 1);
     ST7789_WriteData(wave_buf, part_w * h * 2);
@@ -369,8 +379,6 @@ void DPO_FE_Update(void) {
 	HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, DPO_FE.CH2_OFFSET);
   HAL_DAC_SetValue(&hdac4, DAC_CHANNEL_1, DAC_ALIGN_12B_R, DPO_FE.CH1_BIAS);
 	HAL_DAC_SetValue(&hdac4, DAC_CHANNEL_2, DAC_ALIGN_12B_R, DPO_FE.CH2_BIAS);
-  HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_2, DAC_ALIGN_12B_R, DPO_FE.TRIG_LEVEL);
-	HAL_DAC_SetValue(&hdac3, DAC_CHANNEL_2, DAC_ALIGN_12B_R, DPO_FE.TRIG_LEVEL);
   HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_2, DAC_ALIGN_12B_R, DPO_FE.TRIG_LEVEL);
 	HAL_DAC_SetValue(&hdac3, DAC_CHANNEL_2, DAC_ALIGN_12B_R, DPO_FE.TRIG_LEVEL);
 
@@ -449,36 +457,36 @@ void DPO_FE_Update(void) {
 
   switch (DPO_FE.OPAGAIN2)
   {
-    case 0: 
+    case PGA_GAIN_1: 
         hopamp3.Init.Mode       = OPAMP_FOLLOWER_MODE;
         hopamp3.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_NO;
         break;
-    case 1: 
+    case PGA_GAIN_2: 
         hopamp3.Init.Mode       = OPAMP_PGA_MODE;
         hopamp3.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
         hopamp3.Init.PgaGain    = OPAMP_PGA_GAIN_2_OR_MINUS_1;
         break;
-    case 2: 
+    case PGA_GAIN_4: 
         hopamp3.Init.Mode       = OPAMP_PGA_MODE;
         hopamp3.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
         hopamp3.Init.PgaGain    = OPAMP_PGA_GAIN_4_OR_MINUS_3;
         break;
-    case 3: 
+    case PGA_GAIN_8: 
         hopamp3.Init.Mode       = OPAMP_PGA_MODE;
         hopamp3.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
         hopamp3.Init.PgaGain    = OPAMP_PGA_GAIN_8_OR_MINUS_7;
         break;
-    case KEY_4: 
+    case PGA_GAIN_16: 
         hopamp3.Init.Mode       = OPAMP_PGA_MODE;
         hopamp3.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
         hopamp3.Init.PgaGain    = OPAMP_PGA_GAIN_16_OR_MINUS_15;
         break;
-    case KEY_5: 
+    case PGA_GAIN_32: 
         hopamp3.Init.Mode       = OPAMP_PGA_MODE;
         hopamp3.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
         hopamp3.Init.PgaGain    = OPAMP_PGA_GAIN_32_OR_MINUS_31;
         break;
-    case KEY_6: 
+    case PGA_GAIN_64: 
         hopamp3.Init.Mode       = OPAMP_PGA_MODE;
         hopamp3.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
         hopamp3.Init.PgaGain    = OPAMP_PGA_GAIN_64_OR_MINUS_63;
@@ -491,7 +499,7 @@ void DPO_FE_Update(void) {
   HAL_OPAMP_Init(&hopamp6);
 
 
-  if (DPO_FE.SELECT_CH)
+  if (DPO_FE.CH_SELECT)
   {
       LL_EXTI_DisableFallingTrig_0_31(COMP_EXTI_LINE_COMP5);
       LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP5);
@@ -504,7 +512,10 @@ void DPO_FE_Update(void) {
       LL_EXTI_EnableRisingTrig_0_31(COMP_EXTI_LINE_COMP2); 
     else 
       LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP2);
-    } else
+    } 
+    
+    else
+
     {
       LL_EXTI_DisableFallingTrig_0_31(COMP_EXTI_LINE_COMP2);
       LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP2);
@@ -751,8 +762,8 @@ void KEY_PROC_INTRO(){
         DPO_FE.DPO_EN1 = 1;
         ST7789_Fill_Color(0x0000);
         THEME_CONFIG = THEME_DPO_1;
+        DPO_FE.CH_SELECT =1;
         View_ONCE_PROC();
-
         break;
         
     case KEY_DPO_2: 
@@ -761,6 +772,8 @@ void KEY_PROC_INTRO(){
         DPO_FE.DPO_EN2 = 1;
         ST7789_Fill_Color(0x0000);
         THEME_CONFIG = THEME_DPO_2;
+        DPO_FE.CH_SELECT =0;
+
         View_ONCE_PROC();
 
         break;
@@ -884,23 +897,25 @@ void KEY_PROC_INTRO(){
     }
     
 
-// DPO1 PROCESS
+    // DPO1 PROCESS
 void ENC_PROC_DPO1(void) {
 	int32_t diff;
 	uint32_t current_cnt;
 
 	current_cnt = TIM3->CNT;
-	TIM3->CNT=32767;
-	diff = (int32_t)(current_cnt - 32767);
+	TIM3->CNT   = 32767;
+	diff        = (int32_t)(current_cnt - 32767);
+  handle_overflow(&DPO_FE.H_ZOOM,diff,0,64);
 
 	current_cnt = TIM1->CNT;
-	TIM1->CNT=32767;
-	diff = (int32_t)(current_cnt - 32767);
+	TIM1->CNT   = 32767;
+	diff        = (int32_t)(current_cnt - 32767);
 
-  current_cnt = TIM4->CNT;
-	TIM4->CNT=32767;
-	diff = (int32_t)(current_cnt - 32767);
-    handle_overflow(&DPO_FE.H_ZOOM,diff,0,64);
+	current_cnt = TIM4->CNT;
+	TIM4->CNT   = 32767;
+	diff        = (int32_t)(current_cnt - 32767);
+  handle_overflow(&DPO_FE.TRIG_LEVEL,5*diff,0,4096);
+
 
 }
 void KEY_PROC_DPO1(){
@@ -908,32 +923,38 @@ void KEY_PROC_DPO1(){
   switch(KEY_PROCESS) {
     case KEY_AFG_1: 
         printf("处理AFG通道1按键\n");
-        CURRENT_VIEW   = VIEW_AFG1;
-        AFG_FE.AFG_EN1 = 1;
-        THEME_CONFIG = THEME_AFG_1;
+        CURRENT_VIEW     = VIEW_AFG1;
+        AFG_FE.AFG_EN1   = 1;
+        THEME_CONFIG     = THEME_AFG_1;
+        AFG_FE.CH_SELECT = 1;
         View_ONCE_PROC();
         break;
         
     case KEY_AFG_2: 
         printf("处理AFG通道2按键\n");
-        CURRENT_VIEW   = VIEW_AFG2;
-        AFG_FE.AFG_EN2 = 1;
-        THEME_CONFIG = THEME_AFG_2;
+        CURRENT_VIEW     = VIEW_AFG2;
+        AFG_FE.AFG_EN2   = 1;
+        THEME_CONFIG     = THEME_AFG_2;
+        AFG_FE.CH_SELECT = 0;
         View_ONCE_PROC();
         break;
         
     case KEY_DPO_1: 
         printf("处理DPO通道1按键\n");
-        CURRENT_VIEW   = VIEW_DPO1;
-        DPO_FE.DPO_EN1 = !DPO_FE.DPO_EN1;
+        CURRENT_VIEW     = VIEW_DPO1;
+        DPO_FE.DPO_EN1   = !DPO_FE.DPO_EN1;
+        DPO_FE.CH_SELECT = 1;
+
         View_ONCE_PROC();
         break;
         
     case KEY_DPO_2: 
         printf("处理DPO通道2按键\n");
-        CURRENT_VIEW   = VIEW_DPO2;
-        DPO_FE.DPO_EN2 = 1;
-        THEME_CONFIG = THEME_DPO_2;
+        CURRENT_VIEW     = VIEW_DPO2;
+        DPO_FE.DPO_EN2   = 1;
+        THEME_CONFIG     = THEME_DPO_2;
+        DPO_FE.CH_SELECT = 0;
+
         View_ONCE_PROC();
         break;
         
@@ -1056,54 +1077,64 @@ void KEY_PROC_DPO1(){
 
 }
 
-// DPO2 PROCESS
+  // DPO2 PROCESS
 void ENC_PROC_DPO2(void) {
 	int32_t diff;
 	uint32_t current_cnt;
 
 	current_cnt = TIM3->CNT;
-	TIM3->CNT=32767;
-	diff = (int32_t)(current_cnt - 32767);
+	TIM3->CNT   = 32767;
+	diff        = (int32_t)(current_cnt - 32767);
 
 	current_cnt = TIM1->CNT;
-	TIM1->CNT=32767;
-	diff = (int32_t)(current_cnt - 32767);
+	TIM1->CNT   = 32767;
+	diff        = (int32_t)(current_cnt - 32767);
 
-  current_cnt = TIM4->CNT;
-	TIM4->CNT=32767;
-	diff = (int32_t)(current_cnt - 32767);
+	current_cnt = TIM4->CNT;
+	TIM4->CNT   = 32767;
+	diff        = (int32_t)(current_cnt - 32767);
+    handle_overflow(&DPO_FE.TRIG_LEVEL,5*diff,0,4096);
+
 }
 void KEY_PROC_DPO2(){
   Key_Update(KEY_PRESSED);
   switch(KEY_PROCESS) {
     case KEY_AFG_1: 
         printf("处理AFG通道1按键\n");
-        CURRENT_VIEW   = VIEW_AFG1;
-        AFG_FE.AFG_EN1 = 1;
-        THEME_CONFIG = THEME_AFG_1;
+        CURRENT_VIEW     = VIEW_AFG1;
+        AFG_FE.AFG_EN1   = 1;
+        THEME_CONFIG     = THEME_AFG_1;
+        AFG_FE.CH_SELECT = 1;
+
         View_ONCE_PROC();
         break;
         
     case KEY_AFG_2: 
         printf("处理AFG通道2按键\n");
-        CURRENT_VIEW   = VIEW_AFG2;
-        AFG_FE.AFG_EN2 = 1;
-        THEME_CONFIG = THEME_AFG_2;
+        CURRENT_VIEW     = VIEW_AFG2;
+        AFG_FE.AFG_EN2   = 1;
+        THEME_CONFIG     = THEME_AFG_2;
+        AFG_FE.CH_SELECT = 0;
+
         View_ONCE_PROC();
         break;
         
     case KEY_DPO_1: 
         printf("处理DPO通道1按键\n");
-        CURRENT_VIEW   = VIEW_DPO1;
-        DPO_FE.DPO_EN1 = 1;
-        THEME_CONFIG = THEME_DPO_1;
+        CURRENT_VIEW     = VIEW_DPO1;
+        DPO_FE.DPO_EN1   = 1;
+        THEME_CONFIG     = THEME_DPO_1;
+        DPO_FE.CH_SELECT = 1;
+
         View_ONCE_PROC();
         break;
         
     case KEY_DPO_2: 
         printf("处理DPO通道2按键\n");
-        CURRENT_VIEW   = VIEW_DPO2;
-        DPO_FE.DPO_EN2 = !DPO_FE.DPO_EN2;
+        CURRENT_VIEW     = VIEW_DPO2;
+        DPO_FE.DPO_EN2   = !DPO_FE.DPO_EN2;
+        DPO_FE.CH_SELECT = 0;
+
         View_ONCE_PROC();
         break;
         
@@ -1226,54 +1257,62 @@ void KEY_PROC_DPO2(){
 
 }
 
-// AFG1 PROCESS
+  // AFG1 PROCESS
 void ENC_PROC_AFG1(void) {
 	int32_t diff;
 	uint32_t current_cnt;
 
 	current_cnt = TIM3->CNT;
-	TIM3->CNT=32767;
-	diff = (int32_t)(current_cnt - 32767);
+	TIM3->CNT   = 32767;
+	diff        = (int32_t)(current_cnt - 32767);
 
 	current_cnt = TIM1->CNT;
-	TIM1->CNT=32767;
-	diff = (int32_t)(current_cnt - 32767);
+	TIM1->CNT   = 32767;
+	diff        = (int32_t)(current_cnt - 32767);
 
-  current_cnt = TIM4->CNT;
-	TIM4->CNT=32767;
-	diff = (int32_t)(current_cnt - 32767);
+	current_cnt = TIM4->CNT;
+	TIM4->CNT   = 32767;
+	diff        = (int32_t)(current_cnt - 32767);
 }
 void KEY_PROC_AFG1(){
   Key_Update(KEY_PRESSED);
   switch(KEY_PROCESS) {
     case KEY_AFG_1: 
         printf("处理AFG通道1按键\n");
-        CURRENT_VIEW   = VIEW_AFG1;
-        AFG_FE.AFG_EN1 = !AFG_FE.AFG_EN1 ;
+        CURRENT_VIEW     = VIEW_AFG1;
+        AFG_FE.AFG_EN1   = !AFG_FE.AFG_EN1 ;
+        AFG_FE.CH_SELECT = 1;
+
         View_ONCE_PROC();
         break;
         
     case KEY_AFG_2: 
         printf("处理AFG通道2按键\n");
-        CURRENT_VIEW   = VIEW_AFG2;
-        AFG_FE.AFG_EN2 = 1;
-        THEME_CONFIG = THEME_AFG_2;
+        CURRENT_VIEW     = VIEW_AFG2;
+        AFG_FE.AFG_EN2   = 1;
+        THEME_CONFIG     = THEME_AFG_2;
+        AFG_FE.CH_SELECT = 0;
+
         View_ONCE_PROC();
         break;
         
     case KEY_DPO_1: 
         printf("处理DPO通道1按键\n");
-        CURRENT_VIEW   = VIEW_DPO1;
-        DPO_FE.DPO_EN1 = 1;
-        THEME_CONFIG = THEME_DPO_1; 
+        CURRENT_VIEW     = VIEW_DPO1;
+        DPO_FE.DPO_EN1   = 1;
+        THEME_CONFIG     = THEME_DPO_1;
+        DPO_FE.CH_SELECT = 1;
+
         View_ONCE_PROC();        
         break;
         
     case KEY_DPO_2: 
         printf("处理DPO通道2按键\n");
-        CURRENT_VIEW   = VIEW_DPO2;
-        DPO_FE.DPO_EN2 = 1;
-        THEME_CONFIG = THEME_DPO_2;
+        CURRENT_VIEW     = VIEW_DPO2;
+        DPO_FE.DPO_EN2   = 1;
+        THEME_CONFIG     = THEME_DPO_2;
+        DPO_FE.CH_SELECT = 0;
+
         View_ONCE_PROC();
         break;
         
@@ -1395,54 +1434,62 @@ void KEY_PROC_AFG1(){
 
 }
 
-// AFG2 PROCESS
+    // AFG2 PROCESS
 void ENC_PROC_AFG2(void) {
 	int32_t diff;
 	uint32_t current_cnt;
 
 	current_cnt = TIM3->CNT;
-	TIM3->CNT=32767;
-	diff = (int32_t)(current_cnt - 32767);
+	TIM3->CNT   = 32767;
+	diff        = (int32_t)(current_cnt - 32767);
 
 	current_cnt = TIM1->CNT;
-	TIM1->CNT=32767;
-	diff = (int32_t)(current_cnt - 32767);
+	TIM1->CNT   = 32767;
+	diff        = (int32_t)(current_cnt - 32767);
 
-  current_cnt = TIM4->CNT;
-	TIM4->CNT=32767;
-	diff = (int32_t)(current_cnt - 32767);
+	current_cnt = TIM4->CNT;
+	TIM4->CNT   = 32767;
+	diff        = (int32_t)(current_cnt - 32767);
 }
 void KEY_PROC_AFG2(){
   Key_Update(KEY_PRESSED);
   switch(KEY_PROCESS) {
     case KEY_AFG_1: 
         printf("处理AFG通道1按键\n");
-        CURRENT_VIEW   = VIEW_AFG1;
-        AFG_FE.AFG_EN1 = 1;
-        THEME_CONFIG = THEME_AFG_1;
+        CURRENT_VIEW     = VIEW_AFG1;
+        AFG_FE.AFG_EN1   = 1;
+        THEME_CONFIG     = THEME_AFG_1;
+        AFG_FE.CH_SELECT = 1;
+
         View_ONCE_PROC();
         break;
         
     case KEY_AFG_2: 
         printf("处理AFG通道2按键\n");
-        CURRENT_VIEW   = VIEW_AFG2;
-        AFG_FE.AFG_EN2 = !AFG_FE.AFG_EN2;
+        CURRENT_VIEW     = VIEW_AFG2;
+        AFG_FE.AFG_EN2   = !AFG_FE.AFG_EN2;
+        AFG_FE.CH_SELECT = 0;
+
         View_ONCE_PROC();
         break;
         
     case KEY_DPO_1: 
         printf("处理DPO通道1按键\n");
-        CURRENT_VIEW   = VIEW_DPO1;
-        DPO_FE.DPO_EN1 = 1;
-        THEME_CONFIG = THEME_DPO_1;
+        CURRENT_VIEW     = VIEW_DPO1;
+        DPO_FE.DPO_EN1   = 1;
+        THEME_CONFIG     = THEME_DPO_1;
+        DPO_FE.CH_SELECT = 1;
+
         View_ONCE_PROC();
         break;
         
     case KEY_DPO_2: 
         printf("处理DPO通道2按键\n");
-        CURRENT_VIEW   = VIEW_DPO2;
-        DPO_FE.DPO_EN2 = 1;
-        THEME_CONFIG = THEME_DPO_2;
+        CURRENT_VIEW     = VIEW_DPO2;
+        DPO_FE.DPO_EN2   = 1;
+        THEME_CONFIG     = THEME_DPO_2;
+        DPO_FE.CH_SELECT = 0;
+
         View_ONCE_PROC();
         break;
         
