@@ -255,7 +255,7 @@ void THEME_CONVER_565(THEMEs *theme)
 }
 
 
-static uint8_t wave_buf[94 * 204 * 2]={0}; // 每段缓冲区
+uint8_t wave_buf[94 * 204 * 2]={0}; // 每段缓冲区
 
 void DrawWaveSegment(uint16_t start_x, uint16_t part_w, uint16_t h, uint16_t x_offset, uint8_t H_DPO1, uint8_t L_DPO1) {
     memset(wave_buf, 0, sizeof(wave_buf));
@@ -1708,26 +1708,14 @@ int main(void)
 
 
     HAL_SPI_Transmit(&hspi3, (uint8_t*)&BUFFER_DPO1, DPO_DEEP, 1000);
-
-
-
-// TIM6->CR1 &= ~TIM_CR1_CEN;  // 清零CEN位以停止计数
-
-  // HAL_ADC_Stop_DMA(&hadc1);
-  uint32_t TIRG_P =  hadc1.DMA_Handle->Instance->CNDTR;
+    
+    uint32_t TIRG_P =  hadc1.DMA_Handle->Instance->CNDTR;
   
+    uint32_t Show_Value[DPO_DEEP] = {0};
 
-  uint32_t split_index = DPO_DEEP - TIRG_P;
-      for (size_t i = 0; i < DPO_DEEP; i++)
-  {
-      size_t src_index = (i + split_index) % DPO_DEEP;
-      Show_Value1[i] = BUFFER_DPO1[src_index];
-      Show_Value2[i] = BUFFER_DPO2[src_index];
-  }
-  uint32_t Show_Value[DPO_DEEP]={0};
-
+    uint32_t split_index = DPO_DEEP - TIRG_P;
       ST7789_DrawFilledRectangle(22, 14, 295, 209, BLACK);
-       for (size_t i = 0; i < DPO_DEEP; i++)
+  for (size_t i = 0; i < DPO_DEEP; i++)
   {
       size_t src_index = (i + split_index) % DPO_DEEP;
       Show_Value[i] = BUFFER_DPO1[src_index];
@@ -1737,8 +1725,8 @@ int main(void)
   }
 
 
-  // ST7789_DrawWave();
-    // HAL_Delay(100);
+  ST7789_DrawWave();
+    HAL_Delay(100);
 
 
 
@@ -2014,22 +2002,22 @@ static void MX_ADC4_Init(void)
 
   /** Common config
   */
-  hadc4.Instance = ADC4;
-  hadc4.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
-  hadc4.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc4.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc4.Init.GainCompensation = 0;
-  hadc4.Init.ScanConvMode = ADC_SCAN_DISABLE;
-  hadc4.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
-  hadc4.Init.LowPowerAutoWait = DISABLE;
-  hadc4.Init.ContinuousConvMode = DISABLE;
-  hadc4.Init.NbrOfConversion = 1;
+  hadc4.Instance                   = ADC4;
+  hadc4.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV1;
+  hadc4.Init.Resolution            = ADC_RESOLUTION_12B;
+  hadc4.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+  hadc4.Init.GainCompensation      = 0;
+  hadc4.Init.ScanConvMode          = ADC_SCAN_DISABLE;
+  hadc4.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
+  hadc4.Init.LowPowerAutoWait      = DISABLE;
+  hadc4.Init.ContinuousConvMode    = DISABLE;
+  hadc4.Init.NbrOfConversion       = 1;
   hadc4.Init.DiscontinuousConvMode = DISABLE;
-  hadc4.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc4.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+  hadc4.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
+  hadc4.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc4.Init.DMAContinuousRequests = DISABLE;
-  hadc4.Init.Overrun = ADC_OVR_DATA_PRESERVED;
-  hadc4.Init.OversamplingMode = DISABLE;
+  hadc4.Init.Overrun               = ADC_OVR_DATA_PRESERVED;
+  hadc4.Init.OversamplingMode      = DISABLE;
   if (HAL_ADC_Init(&hadc4) != HAL_OK)
   {
     Error_Handler();
