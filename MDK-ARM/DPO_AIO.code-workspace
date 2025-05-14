@@ -9,7 +9,8 @@
             "cstddef": "c",
             "limits": "c",
             "main.h": "c",
-            "usb_device.h": "c"
+            "usb_device.h": "c",
+            "st7789.h": "c"
         }
     },
     "extensions": {}

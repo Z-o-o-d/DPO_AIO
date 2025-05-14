@@ -33,7 +33,7 @@ static void ST7789_WriteCommand(uint8_t cmd)
  * @param buff_size -> size of the data buffer
  * @return none
  */
-static void ST7789_WriteData(uint8_t *buff, size_t buff_size)
+void ST7789_WriteData(uint8_t *buff, size_t buff_size)
 {
 	ST7789_Select();
 	ST7789_DC_Set();
@@ -83,16 +83,16 @@ void ST7789_SetRotation(uint8_t m)
 	ST7789_WriteCommand(ST7789_MADCTL);	// MADCTL
 	switch (m) {
 	case 0:
-		ST7789_WriteSmallData(ST7789_MADCTL_MX | ST7789_MADCTL_MY | ST7789_MADCTL_RGB);
+		ST7789_WriteSmallData(ST7789_MADCTL_MX | ST7789_MADCTL_MY | ST7789_MADCTL_RGB|ST7789_MADCTL_MH);
 		break;
 	case 1:
-		ST7789_WriteSmallData(ST7789_MADCTL_MY | ST7789_MADCTL_MV | ST7789_MADCTL_RGB);
+		ST7789_WriteSmallData(ST7789_MADCTL_MY | ST7789_MADCTL_MV | ST7789_MADCTL_RGB|ST7789_MADCTL_MH);
 		break;
 	case 2:
-		ST7789_WriteSmallData(ST7789_MADCTL_RGB);
+		ST7789_WriteSmallData(ST7789_MADCTL_RGB|ST7789_MADCTL_MH);
 		break;
 	case 3:
-		ST7789_WriteSmallData(ST7789_MADCTL_MX | ST7789_MADCTL_MV | ST7789_MADCTL_RGB);
+		ST7789_WriteSmallData(ST7789_MADCTL_MX | ST7789_MADCTL_MV | ST7789_MADCTL_RGB|ST7789_MADCTL_MH);
 		break;
 	default:
 		break;
@@ -104,7 +104,7 @@ void ST7789_SetRotation(uint8_t m)
  * @param xi&yi -> coordinates of window
  * @return none
  */
-static void ST7789_SetAddressWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
+void ST7789_SetAddressWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
 {
 	ST7789_Select();
 	uint16_t x_start = x0 + X_SHIFT, x_end = x1 + X_SHIFT;
@@ -568,7 +568,7 @@ void ST7789_DrawFilledRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, 
     ST7789_Select();
     ST7789_SetAddressWindow(x, y, x + w - 1, y + h - 1);
 
-    static uint8_t color_buf[240 * 2]; // 240 pixels max
+    static uint8_t color_buf[240 * 2]; // 960 pixels max
     uint8_t high = color >> 8;
     uint8_t low = color & 0xFF;
 
@@ -576,13 +576,10 @@ void ST7789_DrawFilledRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, 
         color_buf[2 * i]     = high;
         color_buf[2 * i + 1] = low;
     }
-
     while (h--) {
         ST7789_WriteData(color_buf, w * 2);
     }
-
     ST7789_UnSelect();
-
 }
 
 /** 
@@ -798,7 +795,3 @@ void ST7789_Test(void)
 
 
 }
-
-
-
-

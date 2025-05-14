@@ -375,28 +375,6 @@ void TIM7_DAC_IRQHandler(void)
   __HAL_TIM_DISABLE_IT(&htim7, TIM_IT_UPDATE);
   __HAL_TIM_CLEAR_FLAG(&htim7, TIM_IT_UPDATE);
 
-
-  // uint32_t TIRG_P =  hadc1.DMA_Handle->Instance->CNDTR;
-  
-  // uint32_t Show_Value[DPO_DEEP] = {0};
-  // uint32_t split_index = DPO_DEEP - TIRG_P;
-
-
-  // for (size_t i = 0; i < DPO_DEEP; i++)
-  // {
-  //     size_t src_index = (i + split_index) % DPO_DEEP;
-  //     Show_Value[i] = BUFFER_DPO1[src_index];
-  
-  //     printf("adc:%d, %d, %d, %d\r\n", 
-  //            BUFFER_DPO1[i], 
-  //            (DPO_DEEP - i == TIRG_P) ? 2048 : i, 
-  //            TIRG_P, 
-  //            Show_Value[i]);
-  // }
-
-
-
-
   /* USER CODE END TIM7_DAC_IRQn 0 */
   HAL_TIM_IRQHandler(&htim7);
   HAL_DAC_IRQHandler(&hdac2);
@@ -428,10 +406,10 @@ void COMP1_2_3_IRQHandler(void)
   /* USER CODE BEGIN COMP1_2_3_IRQn 0 */
   TIM7->CNT = 0;
   HAL_COMP_Stop(&hcomp2);
-  // LL_EXTI_ClearFlag_0_31(COMP_EXTI_LINE_COMP2);
+  LL_EXTI_ClearFlag_0_31(COMP_EXTI_LINE_COMP2);
 
   /* USER CODE END COMP1_2_3_IRQn 0 */
-  HAL_COMP_IRQHandler(&hcomp2);
+  // HAL_COMP_IRQHandler(&hcomp2);
   /* USER CODE BEGIN COMP1_2_3_IRQn 1 */
   __HAL_TIM_CLEAR_FLAG(&htim7, TIM_IT_UPDATE);
   __HAL_TIM_ENABLE_IT(&htim7, TIM_IT_UPDATE);

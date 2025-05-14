@@ -237,6 +237,9 @@ extern SPI_HandleTypeDef ST7789_SPI_PORT;
 /* RGB/BGR Order ('0' = RGB, '1' = BGR) */
 #define ST7789_MADCTL_RGB 0x00
 
+#define ST7789_MADCTL_BGR 0x08  // BGR模式
+#define ST7789_MADCTL_MH  0x04  // 水平刷新顺序
+
 #define ST7789_RDID1   0xDA
 #define ST7789_RDID2   0xDB
 #define ST7789_RDID3   0xDC
@@ -286,6 +289,10 @@ void ST7789_DrawFilledRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, 
 void ST7789_DrawTriangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3, uint16_t color);
 void ST7789_DrawFilledTriangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3, uint16_t color);
 void ST7789_DrawFilledCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color);
+
+
+void ST7789_WriteData(uint8_t *buff, size_t buff_size);
+void ST7789_SetAddressWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
 
 /* Command functions */
 void ST7789_TearEffect(uint8_t tear);
