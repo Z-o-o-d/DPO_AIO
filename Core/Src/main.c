@@ -96,7 +96,6 @@ TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim7;
 TIM_HandleTypeDef htim8;
 TIM_HandleTypeDef htim15;
-TIM_HandleTypeDef htim16;
 TIM_HandleTypeDef htim17;
 TIM_HandleTypeDef htim20;
 DMA_HandleTypeDef hdma_tim17_ch1;
@@ -147,7 +146,6 @@ static void MX_OPAMP2_Init(void);
 static void MX_OPAMP3_Init(void);
 static void MX_OPAMP6_Init(void);
 static void MX_CORDIC_Init(void);
-static void MX_TIM16_Init(void);
 /* USER CODE BEGIN PFP */
 
 int fputc(int ch, FILE *f)
@@ -193,15 +191,15 @@ DPO_AnalogStates DPO_FE = {
   .DPO_EN1    = 0,
   .DPO_EN2    = 0,
   .TRIG_MODE  = 0,
-  .TRIG_LEVEL = 0,
+  .TRIG_LEVEL = 2048,
   .TRIG_FALL_EN = 1,
-  .TRIG_RISI_EN = 1,
-  .SELECT_CH  = 0,
+  .TRIG_RISI_EN = 0,
+  .SELECT_CH  = 1,
   .OPAGAIN1 = 0,
   .OPAGAIN2 = 0,
   .Y_ZOOM1   = 32,
   .Y_ZOOM2   = 32,
-  .H_ZOOM    = 64,
+  .H_ZOOM    = 128,
 };
 
 AFG_AnalogStates AFG_FE = {
@@ -258,10 +256,18 @@ void DPO_FE_Update(void) {
 	HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, DPO_FE.CH2_OFFSET);
   HAL_DAC_SetValue(&hdac4, DAC_CHANNEL_1, DAC_ALIGN_12B_R, DPO_FE.CH1_BIAS);
 	HAL_DAC_SetValue(&hdac4, DAC_CHANNEL_2, DAC_ALIGN_12B_R, DPO_FE.CH2_BIAS);
+  HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_2, DAC_ALIGN_12B_R, DPO_FE.TRIG_LEVEL);
+	HAL_DAC_SetValue(&hdac3, DAC_CHANNEL_2, DAC_ALIGN_12B_R, DPO_FE.TRIG_LEVEL);
+  HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_2, DAC_ALIGN_12B_R, DPO_FE.TRIG_LEVEL);
+	HAL_DAC_SetValue(&hdac3, DAC_CHANNEL_2, DAC_ALIGN_12B_R, DPO_FE.TRIG_LEVEL);
+
 	HAL_DAC_Start(&hdac2, DAC_CHANNEL_1);
 	HAL_DAC_Start(&hdac1, DAC_CHANNEL_1);
   HAL_DAC_Start(&hdac4, DAC_CHANNEL_1);
 	HAL_DAC_Start(&hdac4, DAC_CHANNEL_2);
+  HAL_DAC_Start(&hdac1, DAC_CHANNEL_2);
+  HAL_DAC_Start(&hdac3, DAC_CHANNEL_2);
+
   HAL_GPIO_WritePin(DPO_AC1_GPIO_Port,DPO_AC1_Pin, DPO_FE.CH1_AC_DC);
   HAL_GPIO_WritePin(DPO_AC2_GPIO_Port,DPO_AC2_Pin, DPO_FE.CH2_AC_DC);
   // HAL_GPIO_WritePin(DPO_EN1_GPIO_Port,DPO_EN1_Pin, DPO_FE.DPO_EN1);
@@ -370,8 +376,6 @@ void DPO_FE_Update(void) {
   HAL_OPAMP_Init(&hopamp2);
   HAL_OPAMP_Init(&hopamp3);
   HAL_OPAMP_Init(&hopamp6);
-
-
 
 
   if (DPO_FE.SELECT_CH)
@@ -607,6 +611,7 @@ void ENC_PROC_INTRO(void) {
 	TIM4->CNT=32767;
 	diff = (int32_t)(current_cnt - 32767);
 }
+
 void KEY_PROC_INTRO(){
   Key_Update(KEY_PRESSED);
   switch(KEY_PROCESS) {
@@ -783,6 +788,8 @@ void ENC_PROC_DPO1(void) {
   current_cnt = TIM4->CNT;
 	TIM4->CNT=32767;
 	diff = (int32_t)(current_cnt - 32767);
+    handle_overflow(&DPO_FE.H_ZOOM,diff,2,128);
+
 }
 void KEY_PROC_DPO1(){
   Key_Update(KEY_PRESSED);
@@ -1574,7 +1581,6 @@ int main(void)
   MX_OPAMP3_Init();
   MX_OPAMP6_Init();
   MX_CORDIC_Init();
-  MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
 
 
@@ -1618,7 +1624,7 @@ int main(void)
 
 
   HAL_TIM_Base_Start(&htim6);
-  HAL_TIM_Base_Start(&htim16);
+  HAL_TIM_Base_Start(&htim7);
 
   
   THEME_CONVER_565(&THEME_AFG_1);
@@ -1634,7 +1640,7 @@ int main(void)
   HAL_TIMEx_PWMN_Start(&htim8,TIM_CHANNEL_4);
   View_ONCE_INTRO();
   // WS2812_RunningHorse(100,100);
-  
+  View_ONCE_PROC();
   
   HAL_COMP_Start(&hcomp2);
 
@@ -1657,12 +1663,12 @@ int main(void)
 
 
 
-TIM6->CR1 &= ~TIM_CR1_CEN;  // 清零CEN位以停止计数
+// TIM6->CR1 &= ~TIM_CR1_CEN;  // 清零CEN位以停止计数
 
-//   // HAL_ADC_Stop_DMA(&hadc1);
-//   uint32_t TIRG_P =  hadc1.DMA_Handle->Instance->CNDTR;
+  // HAL_ADC_Stop_DMA(&hadc1);
+  uint32_t TIRG_P =  hadc1.DMA_Handle->Instance->CNDTR;
   
-//   uint32_t Show_Value[DPO_DEEP] = {0};
+  uint32_t Show_Value[DPO_DEEP] = {0};
 
   uint32_t split_index = DPO_DEEP - TIRG_P;
       ST7789_DrawFilledRectangle(22, 14, 295, 209, BLACK);
@@ -1678,9 +1684,10 @@ TIM6->CR1 &= ~TIM_CR1_CEN;  // 清零CEN位以停止计数
 
   // HAL_Delay(100);
 
-TIM6->CR1 |= TIM_CR1_CEN;  // 设置CEN位来启动定时器
+          // HAL_Delay(100);
 
-        HAL_COMP_Start(&hcomp2);
+  TIM6->CR1 |= TIM_CR1_CEN;  // 设置CEN位来启动定时器
+  HAL_COMP_Start(&hcomp2);
 
 
     /* USER CODE END WHILE */
@@ -2901,7 +2908,7 @@ static void MX_TIM6_Init(void)
   htim6.Instance = TIM6;
   htim6.Init.Prescaler = 0;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = 180;
+  htim6.Init.Period = 44;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
   {
@@ -2937,9 +2944,9 @@ static void MX_TIM7_Init(void)
 
   /* USER CODE END TIM7_Init 1 */
   htim7.Instance = TIM7;
-  htim7.Init.Prescaler = 0;
+  htim7.Init.Prescaler = 180;
   htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim7.Init.Period = 65535;
+  htim7.Init.Period = 1000;
   htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
   {
@@ -3107,38 +3114,6 @@ static void MX_TIM15_Init(void)
 
   /* USER CODE END TIM15_Init 2 */
   HAL_TIM_MspPostInit(&htim15);
-
-}
-
-/**
-  * @brief TIM16 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_TIM16_Init(void)
-{
-
-  /* USER CODE BEGIN TIM16_Init 0 */
-
-  /* USER CODE END TIM16_Init 0 */
-
-  /* USER CODE BEGIN TIM16_Init 1 */
-
-  /* USER CODE END TIM16_Init 1 */
-  htim16.Instance = TIM16;
-  htim16.Init.Prescaler = 0;
-  htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim16.Init.Period = 65535;
-  htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim16.Init.RepetitionCounter = 0;
-  htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_Base_Init(&htim16) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN TIM16_Init 2 */
-
-  /* USER CODE END TIM16_Init 2 */
 
 }
 

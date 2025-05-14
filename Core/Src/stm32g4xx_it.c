@@ -87,11 +87,13 @@ extern DMA_HandleTypeDef hdma_adc1;
 extern DMA_HandleTypeDef hdma_adc3;
 extern COMP_HandleTypeDef hcomp2;
 extern COMP_HandleTypeDef hcomp5;
+extern DAC_HandleTypeDef hdac2;
+extern DAC_HandleTypeDef hdac4;
 extern DMA_HandleTypeDef hdma_spi1_tx;
 extern DMA_HandleTypeDef hdma_spi3_tx;
 extern DMA_HandleTypeDef hdma_tim17_ch1;
 extern TIM_HandleTypeDef htim1;
-extern TIM_HandleTypeDef htim16;
+extern TIM_HandleTypeDef htim7;
 extern DMA_HandleTypeDef hdma_usart1_rx;
 extern DMA_HandleTypeDef hdma_usart1_tx;
 extern UART_HandleTypeDef huart1;
@@ -340,44 +342,9 @@ void USB_LP_IRQHandler(void)
 void TIM1_UP_TIM16_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 0 */
-  TIM6->CR1 &= ~(TIM_CR1_CEN);
-  __HAL_TIM_DISABLE_IT(&htim16, TIM_IT_UPDATE);
-  // __HAL_TIM_CLEAR_FLAG(&htim16, TIM_IT_UPDATE);
 
-
-  uint32_t TIRG_P =  hadc1.DMA_Handle->Instance->CNDTR;
-  
-  uint32_t Show_Value[DPO_DEEP] = {0};
-  uint32_t split_index = DPO_DEEP - TIRG_P;
-
-
-
-    for (size_t i = 0; i < DPO_DEEP; i++)
-  {
-      size_t src_index = (i + split_index) % DPO_DEEP;
-      Show_Value[i] = BUFFER_DPO1[src_index];
-      ST7789_DrawPixel(i*DPO_FE.H_ZOOM/32+23, Show_Value[i]/DPO_FE.Y_ZOOM1+ST7789_HEIGHT/2-2048/DPO_FE.Y_ZOOM1, THEME_DPO_1.MAIN_565);
-      // Show_Value[i] = BUFFER_DPO2[src_index];
-      // ST7789_DrawPixel(i*DPO_FE.H_ZOOM/32+23, Show_Value[i]/DPO_FE.Y_ZOOM2+ST7789_HEIGHT/2-2048/DPO_FE.Y_ZOOM2, THEME_DPO_2.MAIN_565);
-  }
-
-  for (size_t i = 0; i < DPO_DEEP; i++)
-  {
-      size_t src_index = (i + split_index) % DPO_DEEP;
-      Show_Value[i] = BUFFER_DPO1[src_index];
-  
-      printf("adc:%d, %d, %d, %d\r\n", 
-             BUFFER_DPO1[i], 
-             (DPO_DEEP - i == TIRG_P) ? 2048 : i, 
-             TIRG_P, 
-             Show_Value[i]);
-  }
-
-
-  TIM6->CR1 |= TIM_CR1_CEN;
   /* USER CODE END TIM1_UP_TIM16_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
-  HAL_TIM_IRQHandler(&htim16);
   /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 1 */
 
   /* USER CODE END TIM1_UP_TIM16_IRQn 1 */
@@ -395,6 +362,48 @@ void USART1_IRQHandler(void)
   /* USER CODE BEGIN USART1_IRQn 1 */
 
   /* USER CODE END USART1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM7 global interrupt, DAC2 and DAC4 channel underrun error interrupts.
+  */
+void TIM7_DAC_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM7_DAC_IRQn 0 */
+
+  htim6.Instance->CR1 &= ~(TIM_CR1_CEN);
+  __HAL_TIM_DISABLE_IT(&htim7, TIM_IT_UPDATE);
+  __HAL_TIM_CLEAR_FLAG(&htim7, TIM_IT_UPDATE);
+
+
+  // uint32_t TIRG_P =  hadc1.DMA_Handle->Instance->CNDTR;
+  
+  // uint32_t Show_Value[DPO_DEEP] = {0};
+  // uint32_t split_index = DPO_DEEP - TIRG_P;
+
+
+  // for (size_t i = 0; i < DPO_DEEP; i++)
+  // {
+  //     size_t src_index = (i + split_index) % DPO_DEEP;
+  //     Show_Value[i] = BUFFER_DPO1[src_index];
+  
+  //     printf("adc:%d, %d, %d, %d\r\n", 
+  //            BUFFER_DPO1[i], 
+  //            (DPO_DEEP - i == TIRG_P) ? 2048 : i, 
+  //            TIRG_P, 
+  //            Show_Value[i]);
+  // }
+
+
+
+
+  /* USER CODE END TIM7_DAC_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim7);
+  HAL_DAC_IRQHandler(&hdac2);
+  HAL_DAC_IRQHandler(&hdac4);
+  /* USER CODE BEGIN TIM7_DAC_IRQn 1 */
+
+  /* USER CODE END TIM7_DAC_IRQn 1 */
 }
 
 /**
@@ -417,15 +426,15 @@ void DMA2_Channel1_IRQHandler(void)
 void COMP1_2_3_IRQHandler(void)
 {
   /* USER CODE BEGIN COMP1_2_3_IRQn 0 */
-  TIM16->CNT = 0;
+  TIM7->CNT = 0;
   HAL_COMP_Stop(&hcomp2);
-  LL_EXTI_ClearFlag_0_31(COMP_EXTI_LINE_COMP2);
+  // LL_EXTI_ClearFlag_0_31(COMP_EXTI_LINE_COMP2);
 
   /* USER CODE END COMP1_2_3_IRQn 0 */
-  // HAL_COMP_IRQHandler(&hcomp2);
+  HAL_COMP_IRQHandler(&hcomp2);
   /* USER CODE BEGIN COMP1_2_3_IRQn 1 */
-  __HAL_TIM_CLEAR_FLAG(&htim16, TIM_IT_UPDATE);
-  __HAL_TIM_ENABLE_IT(&htim16, TIM_IT_UPDATE);
+  __HAL_TIM_CLEAR_FLAG(&htim7, TIM_IT_UPDATE);
+  __HAL_TIM_ENABLE_IT(&htim7, TIM_IT_UPDATE);
 
 
   /* USER CODE END COMP1_2_3_IRQn 1 */

@@ -549,6 +549,9 @@ void HAL_DAC_MspInit(DAC_HandleTypeDef* hdac)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(D2C1_OFFSET2_GPIO_Port, &GPIO_InitStruct);
 
+    /* DAC2 interrupt Init */
+    HAL_NVIC_SetPriority(TIM7_DAC_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(TIM7_DAC_IRQn);
   /* USER CODE BEGIN DAC2_MspInit 1 */
 
   /* USER CODE END DAC2_MspInit 1 */
@@ -571,6 +574,9 @@ void HAL_DAC_MspInit(DAC_HandleTypeDef* hdac)
   /* USER CODE END DAC4_MspInit 0 */
     /* Peripheral clock enable */
     __HAL_RCC_DAC4_CLK_ENABLE();
+    /* DAC4 interrupt Init */
+    HAL_NVIC_SetPriority(TIM7_DAC_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(TIM7_DAC_IRQn);
   /* USER CODE BEGIN DAC4_MspInit 1 */
 
   /* USER CODE END DAC4_MspInit 1 */
@@ -616,6 +622,15 @@ void HAL_DAC_MspDeInit(DAC_HandleTypeDef* hdac)
     */
     HAL_GPIO_DeInit(D2C1_OFFSET2_GPIO_Port, D2C1_OFFSET2_Pin);
 
+    /* DAC2 interrupt DeInit */
+  /* USER CODE BEGIN DAC2:TIM7_DAC_IRQn disable */
+    /**
+    * Uncomment the line below to disable the "TIM7_DAC_IRQn" interrupt
+    * Be aware, disabling shared interrupt may affect other IPs
+    */
+    /* HAL_NVIC_DisableIRQ(TIM7_DAC_IRQn); */
+  /* USER CODE END DAC2:TIM7_DAC_IRQn disable */
+
   /* USER CODE BEGIN DAC2_MspDeInit 1 */
 
   /* USER CODE END DAC2_MspDeInit 1 */
@@ -638,6 +653,16 @@ void HAL_DAC_MspDeInit(DAC_HandleTypeDef* hdac)
   /* USER CODE END DAC4_MspDeInit 0 */
     /* Peripheral clock disable */
     __HAL_RCC_DAC4_CLK_DISABLE();
+
+    /* DAC4 interrupt DeInit */
+  /* USER CODE BEGIN DAC4:TIM7_DAC_IRQn disable */
+    /**
+    * Uncomment the line below to disable the "TIM7_DAC_IRQn" interrupt
+    * Be aware, disabling shared interrupt may affect other IPs
+    */
+    /* HAL_NVIC_DisableIRQ(TIM7_DAC_IRQn); */
+  /* USER CODE END DAC4:TIM7_DAC_IRQn disable */
+
   /* USER CODE BEGIN DAC4_MspDeInit 1 */
 
   /* USER CODE END DAC4_MspDeInit 1 */
@@ -1273,6 +1298,9 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
   /* USER CODE END TIM7_MspInit 0 */
     /* Peripheral clock enable */
     __HAL_RCC_TIM7_CLK_ENABLE();
+    /* TIM7 interrupt Init */
+    HAL_NVIC_SetPriority(TIM7_DAC_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(TIM7_DAC_IRQn);
   /* USER CODE BEGIN TIM7_MspInit 1 */
 
   /* USER CODE END TIM7_MspInit 1 */
@@ -1287,20 +1315,6 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
   /* USER CODE BEGIN TIM8_MspInit 1 */
 
   /* USER CODE END TIM8_MspInit 1 */
-  }
-  else if(htim_base->Instance==TIM16)
-  {
-  /* USER CODE BEGIN TIM16_MspInit 0 */
-
-  /* USER CODE END TIM16_MspInit 0 */
-    /* Peripheral clock enable */
-    __HAL_RCC_TIM16_CLK_ENABLE();
-    /* TIM16 interrupt Init */
-    HAL_NVIC_SetPriority(TIM1_UP_TIM16_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(TIM1_UP_TIM16_IRQn);
-  /* USER CODE BEGIN TIM16_MspInit 1 */
-
-  /* USER CODE END TIM16_MspInit 1 */
   }
   else if(htim_base->Instance==TIM17)
   {
@@ -1480,14 +1494,7 @@ void HAL_TIM_Encoder_MspDeInit(TIM_HandleTypeDef* htim_encoder)
     HAL_GPIO_DeInit(GPIOC, ENC1_P_Pin|ENC1_N_Pin);
 
     /* TIM1 interrupt DeInit */
-  /* USER CODE BEGIN TIM1:TIM1_UP_TIM16_IRQn disable */
-    /**
-    * Uncomment the line below to disable the "TIM1_UP_TIM16_IRQn" interrupt
-    * Be aware, disabling shared interrupt may affect other IPs
-    */
-    /* HAL_NVIC_DisableIRQ(TIM1_UP_TIM16_IRQn); */
-  /* USER CODE END TIM1:TIM1_UP_TIM16_IRQn disable */
-
+    HAL_NVIC_DisableIRQ(TIM1_UP_TIM16_IRQn);
   /* USER CODE BEGIN TIM1_MspDeInit 1 */
 
   /* USER CODE END TIM1_MspDeInit 1 */
@@ -1590,6 +1597,16 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
   /* USER CODE END TIM7_MspDeInit 0 */
     /* Peripheral clock disable */
     __HAL_RCC_TIM7_CLK_DISABLE();
+
+    /* TIM7 interrupt DeInit */
+  /* USER CODE BEGIN TIM7:TIM7_DAC_IRQn disable */
+    /**
+    * Uncomment the line below to disable the "TIM7_DAC_IRQn" interrupt
+    * Be aware, disabling shared interrupt may affect other IPs
+    */
+    /* HAL_NVIC_DisableIRQ(TIM7_DAC_IRQn); */
+  /* USER CODE END TIM7:TIM7_DAC_IRQn disable */
+
   /* USER CODE BEGIN TIM7_MspDeInit 1 */
 
   /* USER CODE END TIM7_MspDeInit 1 */
@@ -1604,27 +1621,6 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
   /* USER CODE BEGIN TIM8_MspDeInit 1 */
 
   /* USER CODE END TIM8_MspDeInit 1 */
-  }
-  else if(htim_base->Instance==TIM16)
-  {
-  /* USER CODE BEGIN TIM16_MspDeInit 0 */
-
-  /* USER CODE END TIM16_MspDeInit 0 */
-    /* Peripheral clock disable */
-    __HAL_RCC_TIM16_CLK_DISABLE();
-
-    /* TIM16 interrupt DeInit */
-  /* USER CODE BEGIN TIM16:TIM1_UP_TIM16_IRQn disable */
-    /**
-    * Uncomment the line below to disable the "TIM1_UP_TIM16_IRQn" interrupt
-    * Be aware, disabling shared interrupt may affect other IPs
-    */
-    /* HAL_NVIC_DisableIRQ(TIM1_UP_TIM16_IRQn); */
-  /* USER CODE END TIM16:TIM1_UP_TIM16_IRQn disable */
-
-  /* USER CODE BEGIN TIM16_MspDeInit 1 */
-
-  /* USER CODE END TIM16_MspDeInit 1 */
   }
   else if(htim_base->Instance==TIM17)
   {
