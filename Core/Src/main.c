@@ -197,6 +197,9 @@ DPO_AnalogStates DPO_FE = {
   .SELECT_CH  = 0,
   .OPAGAIN1 = 0,
   .OPAGAIN2 = 0,
+  .Y_ZOOM1   = 32,
+  .Y_ZOOM2   = 32,
+  .H_ZOOM    = 64,
 };
 
 AFG_AnalogStates AFG_FE = {
@@ -1022,36 +1025,37 @@ void KEY_PROC_DPO2(){
         
     case KEY_0: 
         printf("数字键 {0} 被按下\n");
-
+        DPO_FE.OPAGAIN2 = 0;
         break;
         
     case KEY_1: 
         printf("数字键 {1} 被按下\n");
-
+        DPO_FE.OPAGAIN2 = 1;
         break;
         
     case KEY_2: 
         printf("数字键 {2} 被按下\n");
-
+        DPO_FE.OPAGAIN2 = 2;
         break;
         
     case KEY_3: 
         printf("数字键 {3} 被按下\n");
-
+        DPO_FE.OPAGAIN2 = 3;
         break;
         
     case KEY_4: 
         printf("数字键 {4} 被按下\n");
-
+        DPO_FE.OPAGAIN2 = 4;
         break;
         
     case KEY_5: 
         printf("数字键 {5} 被按下\n");
-
+        DPO_FE.OPAGAIN2 = 5;
         break;
         
     case KEY_6: 
         printf("数字键 {6} 被按下\n");
+        DPO_FE.OPAGAIN2 = 6;
         break;
         
     case KEY_7: 
@@ -1654,36 +1658,14 @@ TIM6->CR1 &= ~TIM_CR1_CEN;  // 清零CEN位以停止计数
   uint32_t Show_Value[DPO_DEEP] = {0};
 
   uint32_t split_index = DPO_DEEP - TIRG_P;
-              ST7789_DrawFilledRectangle(22, 14, 294, 209, BLACK);
-
+      ST7789_DrawFilledRectangle(22, 14, 295, 209, BLACK);
   for (size_t i = 0; i < DPO_DEEP; i++)
   {
       size_t src_index = (i + split_index) % DPO_DEEP;
       Show_Value[i] = BUFFER_DPO1[src_index];
-  
-      // printf("adc:%d, %d, %d, %d\r\n", 
-      //        BUFFER_DPO1[i], 
-      //        (DPO_DEEP - i == TIRG_P) ? 2048 : i, 
-      //        TIRG_P, 
-      //        Show_Value[i]);
-
-
-      ST7789_DrawPixel(i/4+23, Show_Value[i]/20+18, THEME_DPO_1.MAIN_565);
-  }
-
-  for (size_t i = 0; i < DPO_DEEP; i++)
-  {
-      size_t src_index = (i + split_index) % DPO_DEEP;
+      ST7789_DrawPixel(i*DPO_FE.H_ZOOM/32+23, Show_Value[i]/DPO_FE.Y_ZOOM1+ST7789_HEIGHT/2-2048/DPO_FE.Y_ZOOM1, THEME_DPO_1.MAIN_565);
       Show_Value[i] = BUFFER_DPO2[src_index];
-  
-      // printf("adc:%d, %d, %d, %d\r\n", 
-      //        BUFFER_DPO1[i], 
-      //        (DPO_DEEP - i == TIRG_P) ? 2048 : i, 
-      //        TIRG_P, 
-      //        Show_Value[i]);
-
-
-      ST7789_DrawPixel(i/4+23, Show_Value[i]/20+18, THEME_DPO_2.MAIN_565);
+      ST7789_DrawPixel(i*DPO_FE.H_ZOOM/32+23, Show_Value[i]/DPO_FE.Y_ZOOM2+ST7789_HEIGHT/2-2048/DPO_FE.Y_ZOOM2, THEME_DPO_2.MAIN_565);
   }
 
 

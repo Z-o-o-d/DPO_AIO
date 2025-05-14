@@ -148,6 +148,10 @@ typedef struct {
   uint16_t SELECT_CH;
   uint16_t OPAGAIN1;
   uint16_t OPAGAIN2;
+
+  uint16_t Y_ZOOM1;
+  uint16_t Y_ZOOM2;
+  uint16_t H_ZOOM;
 } DPO_AnalogStates;
 
 
