@@ -167,6 +167,10 @@ uint32_t BUFFER_DPO1[DPO_DEEP] = {0};
 uint32_t BUFFER_DPO2[DPO_DEEP] = {0};
 
 
+  uint32_t Show_Value1[DPO_DEEP] = {0};
+  uint32_t Show_Value2[DPO_DEEP] = {0};
+
+
 volatile uint16_t LED_BLINK=0;
 uint32_t cnt = 0;
 
@@ -251,18 +255,27 @@ void THEME_CONVER_565(THEMEs *theme)
 }
 
 
-    static uint8_t wave_buf[94 * 204 * 2]={0}; // 每段缓冲区
+uint8_t wave_buf[94 * 204 * 2]={0}; // 每段缓冲区
 
-/**
- * @brief Draw an Image on the screen
- * @param x&y -> start point of the Image
- * @param w&h -> width & height of the Image to Draw
- * @param data -> pointer of the Image array
- * @return none
- */
-void ST7789_DrawWave()
-{
-   uint16_t x = 31;
+void DrawWaveSegment(uint16_t start_x, uint16_t part_w, uint16_t h, uint16_t x_offset, uint8_t H_DPO1, uint8_t L_DPO1) {
+    memset(wave_buf, 0, sizeof(wave_buf));
+    for (uint16_t px = 0; px < part_w; px++) {
+        uint16_t global_x = start_x + px; // 相对整体波形数据的X
+        for (uint16_t py = 0; py < h; py++) {
+            uint32_t index = py * part_w + px;
+            if (Show_Value1[global_x]/ 20 == py) {
+                wave_buf[2 * index]     = H_DPO1;
+                wave_buf[2 * index + 1] = L_DPO1;
+            }
+        }
+    }
+    ST7789_SetAddressWindow(x_offset, 18, x_offset + part_w - 1, 18 + h - 1);
+    ST7789_WriteData(wave_buf, part_w * h * 2);
+}
+
+
+void ST7789_DrawWave() {
+    uint16_t x = 31;
     uint16_t y = 18;
     uint16_t w = 282;
     uint16_t h = 204;
@@ -270,126 +283,22 @@ void ST7789_DrawWave()
     // 每段宽度
     uint16_t part_w = w / 3;
 
-
     uint8_t H_DPO1 = THEME_DPO_1.MAIN_565 >> 8;
     uint8_t L_DPO1 = THEME_DPO_1.MAIN_565 & 0xFF;
 
-    uint8_t H_DPO2 = THEME_DPO_2.MAIN_565 >> 8;
-    uint8_t L_DPO2 = THEME_DPO_2.MAIN_565 & 0xFF;
-
-    uint8_t H_BGR = 0x84;
-    uint8_t L_BGR = 0x30;
-
-    // uint8_t H_BGR = 0x84;
-    // uint8_t L_BGR = 0x30;
-
-
     ST7789_Select();
-    memset(wave_buf,0,sizeof(wave_buf));
-    // ----------- 段0：左 -----------
-    for (uint16_t px = 0; px < part_w; px++) {
-        uint16_t global_x = px; // 相对整体波形数据的X
 
-        for (uint16_t py = 0; py < h; py++) {
-            uint32_t index = py * part_w + px;
-            if (BUFFER_DPO1[global_x]/20 == py) {
-                wave_buf[2 * index]     = H_DPO1;
-                wave_buf[2 * index + 1] = L_DPO1;
-            } 
-        }
-    }
-    ST7789_SetAddressWindow(x, y, x + part_w - 1, y + h - 1);
-    ST7789_WriteData(wave_buf, part_w * h * 2);
-    memset(wave_buf,0,sizeof(wave_buf));
-    // ----------- 段1：中 -----------
-    for (uint16_t px = 0; px < part_w; px++) {
-        uint16_t global_x = part_w + px;
+    // 绘制段0：左
+    DrawWaveSegment(0, part_w, h, x, H_DPO1, L_DPO1);
 
-        for (uint16_t py = 0; py < h; py++) {
-            uint32_t index = py * part_w + px;
-            if (BUFFER_DPO1[global_x]/20 == py) {
-                wave_buf[2 * index]     = H_DPO1;
-                wave_buf[2 * index + 1] = L_DPO1;
-            }
-        }
+    // 绘制段1：中
+    DrawWaveSegment(part_w, part_w, h, x + part_w, H_DPO1, L_DPO1);
 
-    }
-    ST7789_SetAddressWindow(x + part_w, y, x + 2 * part_w - 1, y + h - 1);
-    ST7789_WriteData(wave_buf, part_w * h * 2);
-    memset(wave_buf,0,sizeof(wave_buf));
-    // ----------- 段2：右 -----------
-    for (uint16_t px = 0; px < part_w; px++) {
-        uint16_t global_x = 2 * part_w + px;
-        for (uint16_t py = 0; py < h; py++) {
-            uint32_t index = py * part_w + px;
-            if (BUFFER_DPO1[global_x]/20 == py) {
-                wave_buf[2 * index]     = H_DPO1;
-                wave_buf[2 * index + 1] = L_DPO1;
-            }
-        }
-    }
-    ST7789_SetAddressWindow(x + 2 * part_w, y, x + w - 1, y + h - 1);
-    ST7789_WriteData(wave_buf, part_w * h * 2);
+    // 绘制段2：右
+    DrawWaveSegment(2 * part_w, part_w, h, x + 2 * part_w, H_DPO1, L_DPO1);
+
     ST7789_UnSelect();
-
-
-
-
-
-    // uint16_t x = 31;
-    // uint16_t y = 18;
-    // uint16_t w = 282;
-    // uint16_t h = 204;
-
-    // if (x >= ST7789_WIDTH || y >= ST7789_HEIGHT)
-    //     return;
-
-    // if ((x + w - 1) >= ST7789_WIDTH)
-    //     w = ST7789_WIDTH - x;
-
-    // if ((y + h - 1) >= ST7789_HEIGHT)
-    //     h = ST7789_HEIGHT - y;
-
-    // ST7789_Select();
-
-    // // 每段宽度
-    // uint16_t part_w = w / 3;
-
-    // static uint8_t wave_buf[94 * 204 * 2]; // 每部分是 94x204 的图像
-
-    // uint8_t H_DPO1 = THEME_DPO_1.MAIN_565 >> 8;
-    // uint8_t L_DPO1 = THEME_DPO_1.MAIN_565 & 0xFF;
-
-    // uint8_t H_DPO2 = THEME_DPO_2.MAIN_565 >> 8;
-    // uint8_t L_DPO2 = THEME_DPO_2.MAIN_565 & 0xFF;
-
-    // // 左边部分
-    // for (uint16_t i = 0; i < part_w * h; i++) {
-    //     wave_buf[2 * i]     = H_DPO1;
-    //     wave_buf[2 * i + 1] = L_DPO1;
-    // }
-    // ST7789_SetAddressWindow(x, y, x + part_w - 1, y + h - 1);
-    // ST7789_WriteData(wave_buf, part_w * h * 2);
-
-    // // 中间部分
-    // for (uint16_t i = 0; i < part_w * h; i++) {
-    //     wave_buf[2 * i]     = H_DPO2;
-    //     wave_buf[2 * i + 1] = L_DPO2;
-    // }
-    // ST7789_SetAddressWindow(x + part_w, y, x + 2 * part_w - 1, y + h - 1);
-    // ST7789_WriteData(wave_buf, part_w * h * 2);
-
-    // // 右边部分
-    // for (uint16_t i = 0; i < part_w * h; i++) {
-    //     wave_buf[2 * i]     = H_DPO1;
-    //     wave_buf[2 * i + 1] = L_DPO1;
-    // }
-    // ST7789_SetAddressWindow(x + 2 * part_w, y, x + w - 1, y + h - 1);
-    // ST7789_WriteData(wave_buf, part_w * h * 2);
-
-    // ST7789_UnSelect();
 }
-
 
 void DPO_FE_Update(void) {
 	//SET OFFSET
@@ -1811,11 +1720,11 @@ int main(void)
   uint32_t Show_Value[DPO_DEEP] = {0};
 
   uint32_t split_index = DPO_DEEP - TIRG_P;
-      ST7789_DrawFilledRectangle(22, 14, 295, 209, BLACK);
-  // for (size_t i = 0; i < DPO_DEEP; i++)
-  // {
-  //     size_t src_index = (i + split_index) % DPO_DEEP;
-  //     Show_Value[i] = BUFFER_DPO1[src_index];
+      // ST7789_DrawFilledRectangle(22, 14, 295, 209, BLACK);
+  for (size_t i = 0; i < DPO_DEEP; i++)
+  {
+      size_t src_index = (i + split_index) % DPO_DEEP;
+      Show_Value1[i] = BUFFER_DPO1[src_index];
   //     ST7789_DrawPixel(i*DPO_FE.H_ZOOM/32+23, Show_Value[i]/DPO_FE.Y_ZOOM1+ST7789_HEIGHT/2-2048/DPO_FE.Y_ZOOM1, THEME_DPO_1.MAIN_565);
   //     Show_Value[i] = BUFFER_DPO2[src_index];
   //     ST7789_DrawPixel(i*DPO_FE.H_ZOOM/32+23, Show_Value[i]/DPO_FE.Y_ZOOM2+ST7789_HEIGHT/2-2048/DPO_FE.Y_ZOOM2, THEME_DPO_2.MAIN_565);
