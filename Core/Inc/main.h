@@ -122,13 +122,13 @@ enum VIEWS
 
 enum PGA_GAN
 {
-  PGA_GAIN_1 = 0,
-  PGA_GAIN_2 = 1,
-  PGA_GAIN_4 = 2,
-  PGA_GAIN_8 = 3,
-  PGA_GAIN_16 = 4,
-  PGA_GAIN_32 = 5,
-  PGA_GAIN_64 = 6,
+  PGA_GAIN_1 = 1,
+  PGA_GAIN_2 = 2,
+  PGA_GAIN_4 = 4,
+  PGA_GAIN_8 = 8,
+  PGA_GAIN_16 = 16,
+  PGA_GAIN_32 = 32,
+  PGA_GAIN_64 = 64,
 };
 
 

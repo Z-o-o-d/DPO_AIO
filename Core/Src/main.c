@@ -1002,37 +1002,37 @@ void KEY_PROC_DPO1(){
         
     case KEY_0: 
         printf("数字键 {0} 被按下\n");
-        DPO_FE.OPAGAIN1 = 0;
+        DPO_FE.OPAGAIN1 = PGA_GAIN_1;
         break;
         
     case KEY_1: 
         printf("数字键 {1} 被按下\n");
-        DPO_FE.OPAGAIN1 = 1;
+        DPO_FE.OPAGAIN1 = PGA_GAIN_2;
         break;
         
     case KEY_2: 
         printf("数字键 {2} 被按下\n");
-        DPO_FE.OPAGAIN1 = 2;
+        DPO_FE.OPAGAIN1 = PGA_GAIN_4;
         break;
         
     case KEY_3: 
         printf("数字键 {3} 被按下\n");
-        DPO_FE.OPAGAIN1 = 3;
+        DPO_FE.OPAGAIN1 = PGA_GAIN_8;
         break;
         
     case KEY_4: 
         printf("数字键 {4} 被按下\n");
-        DPO_FE.OPAGAIN1 = 4;
+        DPO_FE.OPAGAIN1 = PGA_GAIN_16;
         break;
         
     case KEY_5: 
         printf("数字键 {5} 被按下\n");
-        DPO_FE.OPAGAIN1 = 5;
+        DPO_FE.OPAGAIN1 = PGA_GAIN_32;
         break;
         
     case KEY_6: 
         printf("数字键 {6} 被按下\n");
-        DPO_FE.OPAGAIN1 = 6;
+        DPO_FE.OPAGAIN1 = PGA_GAIN_64;
         break;
         
     case KEY_7: 
@@ -1182,37 +1182,37 @@ void KEY_PROC_DPO2(){
         
     case KEY_0: 
         printf("数字键 {0} 被按下\n");
-        DPO_FE.OPAGAIN2 = 0;
+        DPO_FE.OPAGAIN2 = PGA_GAIN_1;
         break;
         
     case KEY_1: 
         printf("数字键 {1} 被按下\n");
-        DPO_FE.OPAGAIN2 = 1;
+        DPO_FE.OPAGAIN2 = PGA_GAIN_2;
         break;
         
     case KEY_2: 
         printf("数字键 {2} 被按下\n");
-        DPO_FE.OPAGAIN2 = 2;
+        DPO_FE.OPAGAIN2 = PGA_GAIN_4;
         break;
         
     case KEY_3: 
         printf("数字键 {3} 被按下\n");
-        DPO_FE.OPAGAIN2 = 3;
+        DPO_FE.OPAGAIN2 = PGA_GAIN_8;
         break;
         
     case KEY_4: 
         printf("数字键 {4} 被按下\n");
-        DPO_FE.OPAGAIN2 = 4;
+        DPO_FE.OPAGAIN2 = PGA_GAIN_16;
         break;
         
     case KEY_5: 
         printf("数字键 {5} 被按下\n");
-        DPO_FE.OPAGAIN2 = 5;
+        DPO_FE.OPAGAIN2 = PGA_GAIN_32;
         break;
         
     case KEY_6: 
         printf("数字键 {6} 被按下\n");
-        DPO_FE.OPAGAIN2 = 6;
+        DPO_FE.OPAGAIN2 = PGA_GAIN_64;
         break;
         
     case KEY_7: 
@@ -1802,6 +1802,7 @@ int main(void)
   View_ONCE_PROC();
   
   HAL_COMP_Start(&hcomp2);
+  HAL_COMP_Start(&hcomp5);
 
 
 
