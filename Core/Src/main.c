@@ -165,6 +165,12 @@ uint8_t CURRENT_VIEW = VIEW_INTRO;
 
 uint32_t BUFFER_DPO1[DPO_DEEP] = {0};
 uint32_t BUFFER_DPO2[DPO_DEEP] = {0};
+uint16_t BUFFER_AFG[AFG_DEEP] = {0};
+
+
+uint8_t BUFFER_DISPLAY[295][209] = {0};
+
+uint16_t BUFFER_WAVE[30][209] = {0};
 
 
 volatile uint16_t LED_BLINK=0;
@@ -249,6 +255,63 @@ void THEME_CONVER_565(THEMEs *theme)
   theme->WAKE_565 = convert_24bit_to_16bit(theme->WAKE);
   theme->SHUT_565 = convert_24bit_to_16bit(theme->SHUT);
 }
+
+
+/**
+ * @brief Draw an Image on the screen
+ * @param x&y -> start point of the Image
+ * @param w&h -> width & height of the Image to Draw
+ * @param data -> pointer of the Image array
+ * @return none
+ */
+void ST7789_DrawWave(uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+{
+
+    if (x >= ST7789_WIDTH || y >= ST7789_HEIGHT)
+        return;
+
+    if ((x + w - 1) >= ST7789_WIDTH)
+        w = ST7789_WIDTH - x;
+
+    if ((y + h - 1) >= ST7789_HEIGHT)
+        h = ST7789_HEIGHT - y;
+
+
+    ST7789_Select();
+    ST7789_SetAddressWindow(x, y, x + w - 1, y + h - 1);
+
+    static uint8_t wave_buf[240 * 2]; // 960 pixels max
+    
+    uint8_t H_DPO1 = THEME_DPO_1.MAIN_565  >> 8;
+    uint8_t L_DPO1 = THEME_DPO_1.MAIN_565  & 0xFF;
+
+    uint8_t H_DPO2 = THEME_DPO_1.MAIN_565  >> 8;
+    uint8_t L_DPO2 = THEME_DPO_1.MAIN_565  & 0xFF;
+
+    uint8_t H_BGR = 0X84;
+    uint8_t L_BGR = 0x30;
+
+
+    while (h--) {//行------
+      for (uint16_t i = 0; i < w; i++) {//竖|||||
+          wave_buf[2 * i]     = H_DPO1;
+          wave_buf[2 * i + 1] = L_DPO1;
+      }   
+        ST7789_WriteData(wave_buf, w * 2);
+    }
+    ST7789_UnSelect();
+
+
+    
+}
+  // for (size_t i = 0; i < DPO_DEEP; i++)
+  // {
+  //     ST7789_DrawPixel(i*DPO_FE.H_ZOOM/32, Show_Value[i]/DPO_FE.Y_ZOOM1+ST7789_HEIGHT/2-2048/DPO_FE.Y_ZOOM1, THEME_DPO_1.MAIN_565);
+  //     ST7789_DrawPixel(i*DPO_FE.H_ZOOM/32, Show_Value[i]/DPO_FE.Y_ZOOM2+ST7789_HEIGHT/2-2048/DPO_FE.Y_ZOOM2, THEME_DPO_2.MAIN_565);
+  // }
+
+
+
 
 void DPO_FE_Update(void) {
 	//SET OFFSET
@@ -1640,16 +1703,12 @@ int main(void)
   while (1)
   {
     cnt+=1;
-    DPO_FE_Update();
     AFG_Update();
     HID_PROCESS();
-    WS2812_VIEW_Update();
-
-
-    HAL_SPI_Transmit(&hspi3, (uint8_t*)&BUFFER_DPO1, DPO_DEEP, 1000);
-
-
-
+    WS2812_VIEW_Update();   
+    HAL_SPI_Transmit(&hspi3, (uint8_t*)&BUFFER_DPO1, DPO_DEEP, 1000);    
+    
+    DPO_FE_Update();
 TIM6->CR1 &= ~TIM_CR1_CEN;  // 清零CEN位以停止计数
 
   // HAL_ADC_Stop_DMA(&hadc1);
@@ -1658,7 +1717,11 @@ TIM6->CR1 &= ~TIM_CR1_CEN;  // 清零CEN位以停止计数
   uint32_t Show_Value[DPO_DEEP] = {0};
 
   uint32_t split_index = DPO_DEEP - TIRG_P;
-      ST7789_DrawFilledRectangle(22, 14, 295, 209, BLACK);
+      ST7789_DrawFilledRectangle(23, 15, 293, 208, BLACK);
+
+
+      // ST7789_DrawWave(23, 15, 293, 207);
+
   for (size_t i = 0; i < DPO_DEEP; i++)
   {
       size_t src_index = (i + split_index) % DPO_DEEP;
