@@ -512,6 +512,12 @@ void DPO_FE_Update(void) {
       LL_EXTI_EnableRisingTrig_0_31(COMP_EXTI_LINE_COMP2); 
     else 
       LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP2);
+
+
+
+  HAL_COMP_Start(&hcomp2);
+
+      
     } 
     
     else
@@ -532,6 +538,10 @@ void DPO_FE_Update(void) {
     else{
       LL_EXTI_DisableRisingTrig_0_31(COMP_EXTI_LINE_COMP5);
     } 
+
+  HAL_COMP_Start(&hcomp5);
+
+
   }
 
 
@@ -1844,6 +1854,8 @@ int main(void)
 
 
 
+
+
   
 
   ST7789_DrawWave();
@@ -1851,7 +1863,8 @@ int main(void)
 
 
   TIM6->CR1 |= TIM_CR1_CEN;  // 设置CEN位来启动定时器
-  HAL_COMP_Start(&hcomp2);
+  
+
 
 
     /* USER CODE END WHILE */

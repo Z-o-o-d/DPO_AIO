@@ -424,10 +424,16 @@ void COMP1_2_3_IRQHandler(void)
 void COMP4_5_6_IRQHandler(void)
 {
   /* USER CODE BEGIN COMP4_5_6_IRQn 0 */
-
+  TIM7->CNT = 0;
+  HAL_COMP_Stop(&hcomp5);
+  LL_EXTI_ClearFlag_0_31(COMP_EXTI_LINE_COMP2);
   /* USER CODE END COMP4_5_6_IRQn 0 */
   HAL_COMP_IRQHandler(&hcomp5);
   /* USER CODE BEGIN COMP4_5_6_IRQn 1 */
+
+
+  __HAL_TIM_CLEAR_FLAG(&htim7, TIM_IT_UPDATE);
+  __HAL_TIM_ENABLE_IT(&htim7, TIM_IT_UPDATE);
 
   /* USER CODE END COMP4_5_6_IRQn 1 */
 }
