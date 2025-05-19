@@ -4,9 +4,9 @@
     <Version>beta</Version>
     <Device id="GW5A-25A" package="UBGA324" speed="1" partNumber="GW5A-LV25UG324ES"/>
     <FileList>
+        <File path="C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\TOP.v" type="verilog"/>
         <File path="C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\dds.v" type="verilog"/>
         <File path="C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\gowin_pll\gowin_pll.v" type="verilog"/>
-        <File path="C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\TOP.v" type="verilog"/>
         <File path="C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\spi_slave.v" type="verilog"/>
         <File path="C:\Gowin\Gowin_V1.9.11.01_x64\IDE\data\ipcores\GAO\GW_AO_0\gw_ao_crc32.v" type="gao"/>
         <File path="C:\Gowin\Gowin_V1.9.11.01_x64\IDE\data\ipcores\GAO\GW_AO_0\gw_ao_match.v" type="gao"/>

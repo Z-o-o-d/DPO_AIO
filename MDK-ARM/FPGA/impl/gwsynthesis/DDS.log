@@ -1,9 +1,9 @@
 GowinSynthesis start
 Running parser ...
-Analyzing Verilog file 'C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\dds.v'
-Analyzing Verilog file 'C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\gowin_pll\gowin_pll.v'
 Analyzing Verilog file 'C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\TOP.v'
 Undeclared symbol 'lock', assumed default net type 'wire'("C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\TOP.v":33)
+Analyzing Verilog file 'C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\dds.v'
+Analyzing Verilog file 'C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\gowin_pll\gowin_pll.v'
 Analyzing Verilog file 'C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\spi_slave.v'
 Analyzing Verilog file 'C:\Gowin\Gowin_V1.9.11.01_x64\IDE\data\ipcores\GAO\GW_AO_0\gw_ao_crc32.v'
 Analyzing Verilog file 'C:\Gowin\Gowin_V1.9.11.01_x64\IDE\data\ipcores\GAO\GW_AO_0\gw_ao_match.v'
@@ -44,7 +44,7 @@ WARN  (EX3670) : Actual bit length 32 differs from formal bit length 1 for port 
 WARN  (EX3670) : Actual bit length 32 differs from formal bit length 1 for port 'TX'("C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\TOP.v":56)
 Compiling module 'dds'("C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\dds.v":1)
 Extracting RAM for identifier 'sine_wave_mem'("C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\dds.v":21)
-WARN  (EX2526) : Entry size 16 at C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/./sin_wave.dat:0 does not match memory width 14("C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\dds.v":23)
+WARN  (EX2526) : Entry size 16 at C:/Users/87407/Keil_prj/DPO_AIO/MDK-ARM/FPGA/src/./sin_wave.dat:1 does not match memory width 14("C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\dds.v":23)
 WARN  (EX3670) : Actual bit length 32 differs from formal bit length 1 for port 'int_dff_en'("C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\TOP.v":69)
 WARN  (EX3670) : Actual bit length 32 differs from formal bit length 1 for port 'int_dff_en'("C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\TOP.v":84)
 Compiling module 'spi_slave'("C:\Users\87407\Keil_prj\DPO_AIO\MDK-ARM\FPGA\src\spi_slave.v":1)

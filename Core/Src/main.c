@@ -215,8 +215,8 @@ AFG_AnalogStates AFG_FE = {
   .AFG_EN2   = 0,
   .CH1_DC    = 10000,
   .CH2_DC    = 10000,
-  .CH1_REF   = 1000,
-  .CH2_REF   = 1000,
+  .CH1_REF   = 15000,
+  .CH2_REF   = 1700,
   .CH1_FREQ  = 10000,
   .CH2_FREQ  = 10000,
   .CH1_TYPE  = 0,
@@ -304,6 +304,10 @@ void DrawWaveSegment(uint16_t start_x, uint16_t part_w, uint16_t h, uint16_t x_o
                        // 绘制触发电平线（整条横线）
         uint16_t trig_y = DPO_FE.TRIG_LEVEL / 20;
 
+
+
+
+        
         if (DPO_FE.CH_SELECT) {
           if (DPO_FE.DPO_EN2)
           {
@@ -941,6 +945,7 @@ void ENC_PROC_DPO1(void) {
 	current_cnt = TIM1->CNT;
 	TIM1->CNT   = 32767;
 	diff        = (int32_t)(current_cnt - 32767);
+        DPO_FE.H_ZOOM+=diff;
 
 	current_cnt = TIM4->CNT;
 	TIM4->CNT   = 32767;
@@ -1120,6 +1125,8 @@ void ENC_PROC_DPO2(void) {
 	current_cnt = TIM1->CNT;
 	TIM1->CNT   = 32767;
 	diff        = (int32_t)(current_cnt - 32767);
+        DPO_FE.H_ZOOM+=diff;
+
 
 	current_cnt = TIM4->CNT;
 	TIM4->CNT   = 32767;
@@ -1296,16 +1303,19 @@ void ENC_PROC_AFG1(void) {
 	current_cnt = TIM3->CNT;
 	TIM3->CNT   = 32767;
 	diff        = (int32_t)(current_cnt - 32767);
+    AFG_FE.CH1_REF+=100*diff;
 
 	current_cnt = TIM1->CNT;
 	TIM1->CNT   = 32767;
 	diff        = (int32_t)(current_cnt - 32767);
-    AFG_FE.CH1_REF+=diff;
+    AFG_FE.CH1_REF+=10*diff;
 
 
 	current_cnt = TIM4->CNT;
 	TIM4->CNT   = 32767;
 	diff        = (int32_t)(current_cnt - 32767);
+      AFG_FE.CH1_REF+=diff;
+
 }
 void KEY_PROC_AFG1(){
   Key_Update(KEY_PRESSED);
@@ -1475,16 +1485,19 @@ void ENC_PROC_AFG2(void) {
 	current_cnt = TIM3->CNT;
 	TIM3->CNT   = 32767;
 	diff        = (int32_t)(current_cnt - 32767);
+      AFG_FE.CH2_REF+=100*diff;
 
 	current_cnt = TIM1->CNT;
 	TIM1->CNT   = 32767;
 	diff        = (int32_t)(current_cnt - 32767);
-      AFG_FE.CH2_REF+=diff;
+      AFG_FE.CH2_REF+=10*diff;
 
 
 	current_cnt = TIM4->CNT;
 	TIM4->CNT   = 32767;
 	diff        = (int32_t)(current_cnt - 32767);
+        AFG_FE.CH2_REF+=diff;
+
 }
 void KEY_PROC_AFG2(){
   Key_Update(KEY_PRESSED);
@@ -1868,6 +1881,9 @@ int main(void)
   TIM6->CR1 |= TIM_CR1_CEN;  // 设置CEN位来启动定时器
   
 
+
+  sprintf(&BUFFER_TEMP,"REF1:%5d,REF2:%5d,H_ZOOM:%5d", AFG_FE.CH1_REF , AFG_FE.CH2_REF,DPO_FE.H_ZOOM );
+  ST7789_WriteString(30, 0, &BUFFER_TEMP, Font_7x10, WHITE, BLACK);
 
 
     /* USER CODE END WHILE */
