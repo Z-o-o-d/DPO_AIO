@@ -4,6 +4,13 @@
             "path": "."
         }
     ],
-    "settings": {},
+    "settings": {
+        "files.associations": {
+            "views.h": "c",
+            "main.h": "c",
+            "stdio.h": "c",
+            "st7789.h": "c"
+        }
+    },
     "extensions": {}
 }

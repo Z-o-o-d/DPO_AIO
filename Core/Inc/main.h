@@ -31,7 +31,10 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "string.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "math.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -98,6 +101,7 @@ enum TRIGMODE
   TRIGMODE_AUTO   = 0,
   TRIGMODE_SINGLE = 1,
   TRIGMODE_NORMAL = 2,
+  TRIGMODE_STOP  = 3,
 };
 
 enum WAVEFORM
@@ -201,6 +205,12 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
+
+extern uint32_t Show_Value1[DPO_DEEP];
+extern uint32_t Show_Value2[DPO_DEEP];
+extern AFG_AnalogStates AFG_FE;
+extern DPO_AnalogStates DPO_FE;
+
 
 /* USER CODE END EFP */
 
